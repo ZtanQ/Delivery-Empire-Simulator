@@ -70,15 +70,8 @@ Unity scenes and prefabs merge badly. These rules exist so we never have to reso
 
 ## 6. Time zones and daily handoff
 
-The lead is in Lima (UTC-5). The team is in India (UTC+5:30) and Brazil (UTC-3).
-India is 10h30 ahead of Lima. Brazil is 2h ahead.
-
-| Lima | India | Brazil | What happens |
-|---|---|---|---|
 | 9:00 pm | 7:30 am | 11:00 pm | Lead posts the **start-of-day brief** with each person's task |
 | 8:30 am | 7:00 pm | 10:30 am | Team has posted the **end-of-day report**; lead reviews PRs |
-
-Both are written messages, not calls. One live call per week, Saturday at Lima 9:00 pm.
 
 Use `docs/DAILY_HANDOFF.md` as the template for your end-of-day report. Post it even on a day where nothing worked. Especially on that day.
 
@@ -86,13 +79,9 @@ Use `docs/DAILY_HANDOFF.md` as the template for your end-of-day report. Post it 
 
 ## 7. Blocked?
 
-Do not wait for the lead to wake up. In order:
-
 1. Re-read the task's deliverable in the schedule. It defines what "done" means.
 2. Work around it with a placeholder (a fake value, an empty method, a grey cube) and keep moving.
 3. Write the blocker in the channel with the word **BLOCKED** and carry on with the next day's task.
-
-Losing a full day waiting for an answer costs more than a temporary placeholder.
 
 ---
 
