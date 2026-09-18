@@ -1,0 +1,16 @@
+
+
+
+
+
+
+
+# Anything not listed here can be approved by any teammate.
+# These paths need the lead's approval, because a mistake in them
+# breaks the project for everyone else.
+
+/Assets/Scenes/        @ZtanQ
+/ProjectSettings/      @ZtanQ
+/Packages/             @ZtanQ
+/.github/              @ZtanQ
+/README.md             @ZtanQ
