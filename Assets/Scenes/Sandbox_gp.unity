@@ -396,8 +396,12 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 270, y: 270}
+  m_SizeDelta: {x: 150, y: 150}
+
   m_AnchoredPosition: {x: 200, y: 200}
   m_SizeDelta: {x: 100, y: 100}
+
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1168303106
 MonoBehaviour:
@@ -451,7 +455,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CTRL_VirtualJoystick
   _handle: {fileID: 1243415076}
   _joystickVisual: {fileID: 1168303109}
+
+  _joystickRadius: 100
+
   _joystickRadius: 80
+
 --- !u!225 &1168303109
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -478,8 +486,14 @@ GameObject:
   - component: {fileID: 1240167734}
   - component: {fileID: 1240167739}
   - component: {fileID: 1240167738}
+
+  - component: {fileID: 1240167740}
+  m_Layer: 0
+  m_Name: Player
+
   m_Layer: 0
   m_Name: Capsule
+
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -622,6 +636,20 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+
+--- !u!114 &1240167740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240167733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd27352c30168ff4e8529b3e5f9f6136, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CTRL_FrameRate
+
 --- !u!1 &1243415075
 GameObject:
   m_ObjectHideFlags: 0
@@ -787,6 +815,8 @@ GameObject:
   - component: {fileID: 1371842106}
   - component: {fileID: 1371842109}
   - component: {fileID: 1371842108}
+  - component: {fileID: 1371842110}
+
   - component: {fileID: 1371842107}
   m_Layer: 0
   m_Name: Main Camera
@@ -913,6 +943,24 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+
+--- !u!114 &1371842110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371842105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 905101293d68a5f45828668eed0ea080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CTRL_FirstPersonCamera
+  _player: {fileID: 1240167737}
+  _lookSensitivity: 0.15
+  _lookDamping: 0.08
+  _verticalLookLimit: 80
+
 --- !u!1 &1493021656
 GameObject:
   m_ObjectHideFlags: 0
