@@ -3,30 +3,33 @@ using UnityEngine.SceneManagement;
 
 public class Bootstrap : MonoBehaviour
 {
-    [SerializeField] private MonoBehaviour[] managerComponents;
+    [SerializeField] private MGR_Audio audioManager;
+    [SerializeField] private MGR_Pool poolManager;
+    [SerializeField] private MGR_Inventory inventoryManager;
+    [SerializeField] private MGR_Save saveManager;
+    [SerializeField] private MGR_Game gameManager;
+    [SerializeField] private MGR_Order orderManager;
+    [SerializeField] private MGR_Delivery deliveryManager;
+    [SerializeField] private MGR_Truck truckManager;
+    [SerializeField] private MGR_UI uiManager;
 
     private void Start()
     {
         InitialiseManagers();
-        LoadMainLevel();
+
+        SceneManager.LoadScene("Main_level");
     }
 
     private void InitialiseManagers()
     {
-        foreach (MonoBehaviour component in managerComponents)
-        {
-            if (component == null)
-                continue;
-
-            if (component is IManager manager)
-            {
-                manager.Initialise();
-            }
-        }
-    }
-
-    private void LoadMainLevel()
-    {
-        SceneManager.LoadScene("Main_level");
+        audioManager.Initialise();
+        poolManager.Initialise();
+        inventoryManager.Initialise();
+        saveManager.Initialise();
+        gameManager.Initialise();
+        orderManager.Initialise();
+        deliveryManager.Initialise();
+        truckManager.Initialise();
+        uiManager.Initialise();
     }
 }
