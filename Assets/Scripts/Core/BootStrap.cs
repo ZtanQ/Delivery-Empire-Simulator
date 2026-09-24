@@ -17,7 +17,7 @@ public class Bootstrap : MonoBehaviour
     {
         InitialiseManagers();
 
-        SceneManager.LoadScene("Main_level");
+        SceneManager.LoadScene("Sanbox_sys");
     }
 
     private void InitialiseManagers()
