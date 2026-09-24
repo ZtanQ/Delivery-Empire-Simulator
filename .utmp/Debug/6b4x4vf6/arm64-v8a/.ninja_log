@@ -1,0 +1,10 @@
+# ninja log v5
+23	1582	8114878218078382	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	e393ded04d441752
+41	1601	8114878218354641	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	438415b005921b54
+8	1649	8114878218686510	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	a0edfd1ef52ca3c7
+16	1655	8114878218852126	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	31b848014bdacfff
+49	1693	8114878219249287	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	e5c2339560b91961
+32	1832	8114878220637365	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	9a6c6612b29ee722
+58	1919	8114878221542305	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	40b2d0864c9ef2c8
+1	1967	8114878222000624	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	c45968e5e1644846
+1967	2122	8114878223572554	D:/Unity/Rural Games/Delivery-Empire-Simulator/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/Debug/6b4x4vf6/obj/arm64-v8a/libgame.so	ec0f6cccb69bf07f
