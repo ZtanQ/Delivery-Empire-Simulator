@@ -16,7 +16,7 @@ MonoBehaviour:
   Category: 0
   DisplayName: Gummy Bears
   BaseCost: 3
-  ColourCode: {r: 0, g: 0, b: 0, a: 0}
+  ColourCode: {r: 0.90588236, g: 0.29803923, b: 0.23529412, a: 0}
   Icon: {fileID: 0}
   BoxPrefab: {fileID: 0}
   PropPrefab: {fileID: 0}
