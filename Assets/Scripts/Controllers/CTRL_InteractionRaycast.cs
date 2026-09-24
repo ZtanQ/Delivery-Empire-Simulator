@@ -7,8 +7,10 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     [SerializeField] private float _raycastDistance = 3f;
     [SerializeField] private Material _highlightMaterial;
 
-    private Renderer _currentRenderer;
-    private Material _originalMaterial;
+    public CTRL_InteractionTarget CurrentTarget { get; private set; }
+
+    private Renderer _highlightedRenderer;
+    private Material[] _originalMaterials;
 
     private void Update()
     {
@@ -21,52 +23,67 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             new Vector3(0.5f, 0.5f, 0f)
         );
 
-        if (Physics.Raycast(
+        bool hitInteractable = Physics.Raycast(
             ray,
             out RaycastHit hit,
             _raycastDistance,
-            _interactableLayer))
+            _interactableLayer
+        );
+
+        if (!hitInteractable)
         {
-            Renderer targetRenderer =
-                hit.collider.GetComponent<Renderer>();
-
-            if (targetRenderer == null)
-            {
-                targetRenderer =
-                    hit.collider.GetComponentInParent<Renderer>();
-            }
-
-            if (targetRenderer != _currentRenderer)
-            {
-                ClearHighlight();
-                Highlight(targetRenderer);
-            }
-
+            ClearHighlight();
             return;
         }
 
-        ClearHighlight();
-    }
+        CTRL_InteractionTarget target =
+            hit.collider.GetComponentInParent<CTRL_InteractionTarget>();
 
-    private void Highlight(Renderer targetRenderer)
-    {
-        if (targetRenderer == null)
+        Renderer targetRenderer =
+            hit.collider.GetComponentInParent<Renderer>();
+
+        if (target == null || targetRenderer == null)
+        {
+            ClearHighlight();
+            return;
+        }
+
+        // Already looking at the same object.
+        if (target == CurrentTarget)
             return;
 
-        _currentRenderer = targetRenderer;
-        _originalMaterial = targetRenderer.sharedMaterial;
+        ClearHighlight();
 
-        targetRenderer.sharedMaterial = _highlightMaterial;
+        CurrentTarget = target;
+        HighlightTarget(targetRenderer);
+    }
+
+    private void HighlightTarget(Renderer targetRenderer)
+    {
+        _highlightedRenderer = targetRenderer;
+        _originalMaterials = targetRenderer.sharedMaterials;
+
+        Material[] highlightedMaterials =
+            new Material[targetRenderer.sharedMaterials.Length];
+
+        for (int i = 0; i < highlightedMaterials.Length; i++)
+        {
+            highlightedMaterials[i] = _highlightMaterial;
+        }
+
+        targetRenderer.sharedMaterials = highlightedMaterials;
     }
 
     private void ClearHighlight()
     {
-        if (_currentRenderer == null)
-            return;
+        if (_highlightedRenderer != null &&
+            _originalMaterials != null)
+        {
+            _highlightedRenderer.sharedMaterials = _originalMaterials;
+        }
 
-        _currentRenderer.sharedMaterial = _originalMaterial;
-
-        _currentRenderer = null;
-        _originalMaterial = null;
+        _highlightedRenderer = null;
+        _originalMaterials = null;
+        CurrentTarget = null;
     }
 }
