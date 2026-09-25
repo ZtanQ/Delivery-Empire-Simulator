@@ -16,7 +16,8 @@ MonoBehaviour:
   Category: 1
   DisplayName: Bottled Water
   BaseCost: 2
-  ColourCode: {r: 0.2901961, g: 0.5647059, b: 0.8862745, a: 0.003921569}
+  ColourCode: {r: 0.2901961, g: 0.5647059, b: 0.8862745, a: 1}
+  ColourCode: {r: 0.2901961, g: 0.5647059, b: 0.8862745, a: 0}
   Icon: {fileID: 0}
   BoxPrefab: {fileID: 0}
   PropPrefab: {fileID: 0}
