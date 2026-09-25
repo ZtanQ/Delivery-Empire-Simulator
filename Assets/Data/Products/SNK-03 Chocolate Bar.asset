@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DATA_ProductSO
   ProductID: SNK-03
   Category: 0
+  DisplayName: Chocolate Bar
+  BaseCost: 4
+  ColourCode: {r: 0.90588236, g: 0.29803923, b: 0.23529412, a: 1}
   DisplayName: Chocolate BAr
   BaseCost: 4
   ColourCode: {r: 0.90588236, g: 0.29803923, b: 0.23529412, a: 0}
