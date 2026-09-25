@@ -16,7 +16,7 @@ MonoBehaviour:
   Category: 3
   DisplayName: Cookies (Pack)
   BaseCost: 6
-  ColourCode: {r: 0.9607843, g: 0.81960785, b: 0.25882354, a: 0}
+  ColourCode: {r: 0.9607843, g: 0.81960785, b: 0.25882354, a: 0.003921569}
   Icon: {fileID: 0}
   BoxPrefab: {fileID: 0}
   PropPrefab: {fileID: 0}
