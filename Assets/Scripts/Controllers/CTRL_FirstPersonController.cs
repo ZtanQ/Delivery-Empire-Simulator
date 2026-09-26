@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class CTRL_FirstPersonController : MonoBehaviour
 {
-    [SerializeField] private CTRL_VirtualJoystick _joystick;
+    [SerializeField] private VirtualJoystick _joystick;
     [SerializeField] private Transform _playerCamera;
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _gravity = -20f;
@@ -23,7 +23,7 @@ public class CTRL_FirstPersonController : MonoBehaviour
 
     private void MovePlayer()
     {
-        Vector2 input = _joystick.MovementInput;
+        Vector2 input = _joystick.InputVector;
 
         // Movement follows the direction the camera is facing.
         Vector3 forward = _playerCamera.forward;
