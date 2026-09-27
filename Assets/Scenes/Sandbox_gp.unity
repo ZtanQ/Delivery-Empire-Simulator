@@ -342,6 +342,7 @@ GameObject:
   - component: {fileID: 1240167738}
   - component: {fileID: 1240167740}
   - component: {fileID: 1240167741}
+  - component: {fileID: 1240167742}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -511,13 +512,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CTRL_InteractionRaycast
   _playerCamera: {fileID: 1371842109}
+  _actionButton: {fileID: 1640078193}
+  _handAnchor: {fileID: 638253479}
+  _highlightMaterial: {fileID: 2100000, guid: 75052da7d21d7b54a9a997ae48f4858c, type: 2}
   _interactableLayer:
     serializedVersion: 2
     m_Bits: 8
-  _actionButton: {fileID: 1640078193}
-  _handAnchor: {fileID: 638253479}
   _raycastDistance: 3
   _heldLocalPosition: {x: 0.35, y: -0.25, z: 0.7}
+--- !u!114 &1240167742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240167733}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a458b64acd468824980ff0642cfdacc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TestControls
+  _moveSpeed: 4
+  _gravity: -20
+  _jumpHeight: 1.2
+  _mouseSensitivity: 0.15
+  _verticalLookLimit: 80
+  _playerCamera: {fileID: 1371842109}
+  _actionButton: {fileID: 1640078193}
 --- !u!1 &1362156616
 GameObject:
   m_ObjectHideFlags: 0
@@ -878,6 +899,7 @@ GameObject:
   - component: {fileID: 1522476995}
   - component: {fileID: 1522476994}
   - component: {fileID: 1522476993}
+  - component: {fileID: 1522476998}
   m_Layer: 3
   m_Name: TestCube
   m_TagString: Untagged
@@ -991,6 +1013,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &1522476998
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522476992}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1623639619
 PrefabInstance:
   m_ObjectHideFlags: 0
