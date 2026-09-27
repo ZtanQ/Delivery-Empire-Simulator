@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 51714339}
   - component: {fileID: 51714340}
   m_Layer: 3
-  m_Name: Cube
+  m_Name: Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2382,9 +2382,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3208689316286469798, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
+      propertyPath: _joystick
+      value: 
+      objectReference: {fileID: 1840544704}
+    - target: {fileID: 3208689316286469798, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
       propertyPath: _moveSpeed
       value: 3.5
       objectReference: {fileID: 0}
+    - target: {fileID: 6379082929270017584, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
+      propertyPath: _actionButton
+      value: 
+      objectReference: {fileID: 1840544703}
     - target: {fileID: 6714708094654814079, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
       propertyPath: m_Name
       value: PlayerController
@@ -4501,6 +4509,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26be085f4b75881408183e326464fea5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ContextualActionButton
+--- !u!114 &1840544704 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6240648198550294871, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+  m_PrefabInstance: {fileID: 1840544702}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d68670f02179ff04c9c4a52cd1634e1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualJoystick
 --- !u!1 &1922807207
 GameObject:
   m_ObjectHideFlags: 0
