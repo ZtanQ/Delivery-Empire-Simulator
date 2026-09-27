@@ -1,0 +1,25 @@
+product_id,category,display_name,base_cost,colour_hex
+PRD_001,Beverages,Bottled Water,12,#4A90E2
+PRD_002,Beverages,Orange Juice,28,#4A90E2
+PRD_003,Beverages,Cola,24,#4A90E2
+PRD_004,Beverages,Energy Drink,45,#4A90E2
+PRD_005,Snacks,Potato Chips,18,#F5A623
+PRD_006,Snacks,Chocolate Bar,22,#F5A623
+PRD_007,Snacks,Cookies,26,#F5A623
+PRD_008,Snacks,Trail Mix,42,#F5A623
+PRD_009,Canned Goods,Canned Beans,32,#7ED321
+PRD_010,Canned Goods,Canned Corn,30,#7ED321
+PRD_011,Canned Goods,Tomato Soup,38,#7ED321
+PRD_012,Canned Goods,Canned Tuna,55,#7ED321
+PRD_013,Household,Paper Towels,40,#BD10E0
+PRD_014,Household,Trash Bags,35,#BD10E0
+PRD_015,Household,Light Bulb,48,#BD10E0
+PRD_016,Household,Storage Box,75,#BD10E0
+PRD_017,Personal Care,Hand Soap,25,#50E3C2
+PRD_018,Personal Care,Shampoo,48,#50E3C2
+PRD_019,Personal Care,Toothpaste,36,#50E3C2
+PRD_020,Personal Care,Deodorant,60,#50E3C2
+PRD_021,Cleaning Supplies,Dish Soap,30,#D0021B
+PRD_022,Cleaning Supplies,Glass Cleaner,44,#D0021B
+PRD_023,Cleaning Supplies,Floor Cleaner,58,#D0021B
+PRD_024,Cleaning Supplies,Laundry Detergent,95,#D0021B
