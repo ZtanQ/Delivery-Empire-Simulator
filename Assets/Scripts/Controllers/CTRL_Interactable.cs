@@ -31,12 +31,7 @@ public class CTRL_Interactable : MonoBehaviour
 
     public void SetHighlighted(bool highlighted, Material highlightMaterial)
     {
-        if (_isHighlighted == highlighted)
-        {
-            return;
-        }
-
-        if (highlightMaterial == null)
+        if (highlightMaterial == null || _isHighlighted == highlighted)
         {
             return;
         }
