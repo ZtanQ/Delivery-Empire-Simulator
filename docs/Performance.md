@@ -49,3 +49,13 @@ The following measurements were recorded in the Unity Editor with an empty scene
 * **Shelf Design:** The revised budget is **200 tris**, reduced from 600 tris. The final shelf design should be validated to ensure it meets the required visual and functional needs within the reduced geometry budget.
 
 * **Large Asset Complexity:** The budgets remain **1,500 tris for the terminal**, **3,000 tris for the truck**, and **3,000 tris for the rider**. Their final designs should be validated against these limits once the models are available.
+
+## Phone Performance Baseline
+
+| Metric           |                Result |
+| ---------------- | --------------------: |
+| **Timestamp**    | 27 Sep 2026, 00:26:22 |
+| **FPS**          |         **30.16 FPS** |
+| **Draw Calls**   |                 **0** |
+| **Triangles**    |             **1,971** |
+| **Memory Usage** |         **149.76 MB** |
