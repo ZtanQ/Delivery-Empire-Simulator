@@ -3,6 +3,7 @@
 [Tt]emp/
 [Oo]bj/
 [Bb]uild/
+[Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 [Mm]emoryCaptures/
@@ -15,9 +16,11 @@
 .idea/
 .gradle/
 ExportedObj/
+*.apk
 *.aab
 *.unitypackage
 *.app
+.utmp/
 
 # Visual Studio / Rider generated
 *.csproj
