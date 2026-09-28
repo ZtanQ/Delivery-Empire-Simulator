@@ -1,104 +1,206 @@
-// TestMover.cs
-//
-// Minimal WASD walk controller for testing level collision (walls, door,
-// loading dock gaps, floor). Not a final player controller — just enough
-// to push into geometry and confirm it blocks or lets you through.
-//
-// SETUP
-// 1. Put this file anywhere under Assets/Scripts (a normal script, not Editor).
-// 2. Select your test Capsule in the Hierarchy.
-// 3. Component > Physics > Character Controller (if it doesn't have one yet).
-//    - Set Center Y to roughly half the capsule's height (e.g. 1) so it
-//      doesn't spawn half-buried in the floor.
-// 4. Add Component > this script (TestMover).
-// 5. Press Play, click into the Game view, and use WASD to move,
-//    mouse to look around, Space to jump.
-
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
-public class TestMover : MonoBehaviour
+public class TestControls : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 4f;
-    public float gravity = -20f;
-    public float jumpHeight = 1.2f;
+    [SerializeField] private float _moveSpeed = 4f;
+    [SerializeField] private float _gravity = -20f;
+    [SerializeField] private float _jumpHeight = 1.2f;
 
     [Header("Look")]
-    public float mouseSensitivity = 2f;
-    public Camera playerCamera; // optional: assign a camera to child under this object for a first-person view
+    [SerializeField] private float _mouseSensitivity = 0.15f;
+    [SerializeField] private float _verticalLookLimit = 80f;
+    [SerializeField] private Camera _playerCamera;
+    [SerializeField] private ContextualActionButton _actionButton;
 
-    private CharacterController controller;
-    private Vector3 verticalVelocity;
-    private float cameraPitch;
+    private CharacterController _characterController;
+    private CTRL_FirstPersonController _mobileController;
+    private CTRL_FirstPersonCamera _mobileCamera;
+
+    private float _verticalVelocity;
+    private float _cameraPitch;
+    private bool _pcMode;
 
     private void Awake()
     {
-        controller = GetComponent<CharacterController>();
+        _characterController = GetComponent<CharacterController>();
 
-        if (playerCamera == null)
+        if (_playerCamera == null)
         {
-            playerCamera = GetComponentInChildren<Camera>();
+            _playerCamera = GetComponentInChildren<Camera>();
+        }
+
+        _mobileController = GetComponent<CTRL_FirstPersonController>();
+
+        if (_playerCamera != null)
+        {
+            _mobileCamera =
+                _playerCamera.GetComponent<CTRL_FirstPersonCamera>();
         }
     }
 
-    private void Start()
+private void Update()
+{
+    if (!_pcMode && IsPCInputDetected())
+    {
+        EnablePCMode();
+    }
+
+    if (!_pcMode)
+    {
+        return;
+    }
+
+    if (Keyboard.current.escapeKey.wasPressedThisFrame)
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        return;
+    }
+
+    // Click the Game view to capture the mouse again.
+    if (Mouse.current.leftButton.wasPressedThisFrame && Cursor.lockState != CursorLockMode.Locked)
     {
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+    
+    if (Keyboard.current.eKey.wasPressedThisFrame)
+    {
+        _actionButton.HandleTap();
     }
 
-    private void Update()
+    // Do not rotate the camera while the cursor is free.
+    if (Cursor.lockState == CursorLockMode.Locked)
     {
         HandleLook();
-        HandleMove();
+    }
+    
 
-        // Press Escape to release the mouse cursor at any time.
-        if (Input.GetKeyDown(KeyCode.Escape))
+    HandleMove();
+}
+
+    private bool IsPCInputDetected()
+    {
+        if (Keyboard.current == null || Mouse.current == null)
         {
-            Cursor.lockState = CursorLockMode.None;
+            return false;
+        }
+
+        return
+            Keyboard.current.anyKey.isPressed ||
+            Mouse.current.delta.ReadValue().sqrMagnitude > 0f;
+    }
+
+    private void EnablePCMode()
+    {
+        _pcMode = true;
+
+        if (_mobileController != null)
+        {
+            _mobileController.enabled = false;
+        }
+
+        if (_mobileCamera != null)
+        {
+            _mobileCamera.enabled = false;
+        }
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        _cameraPitch = _playerCamera.transform.localEulerAngles.x;
+
+        if (_cameraPitch > 180f)
+        {
+            _cameraPitch -= 360f;
         }
     }
 
-    private void HandleLook()
+private void HandleLook()
+{
+    if (_playerCamera == null || Mouse.current == null)
     {
-        if (playerCamera == null)
+        return;
+    }
+
+    Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+
+    float mouseX = mouseDelta.x * _mouseSensitivity;
+    float mouseY = mouseDelta.y * _mouseSensitivity;
+
+    transform.Rotate(Vector3.up * mouseX);
+
+    _cameraPitch -= mouseY;
+
+    _cameraPitch = Mathf.Clamp(
+        _cameraPitch,
+        -_verticalLookLimit,
+        _verticalLookLimit
+    );
+
+    _playerCamera.transform.localRotation =
+        Quaternion.Euler(_cameraPitch, 0f, 0f);
+}
+
+    private void HandleMove()
+    {
+        if (Keyboard.current == null)
         {
             return;
         }
 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        float inputX = 0f;
+        float inputZ = 0f;
 
-        transform.Rotate(Vector3.up * mouseX);
-
-        cameraPitch -= mouseY;
-        cameraPitch = Mathf.Clamp(cameraPitch, -80f, 80f);
-        playerCamera.transform.localEulerAngles = new Vector3(cameraPitch, 0f, 0f);
-    }
-
-    private void HandleMove()
-    {
-        float inputX = Input.GetAxis("Horizontal"); // A/D
-        float inputZ = Input.GetAxis("Vertical");   // W/S
-
-        Vector3 move = transform.right * inputX + transform.forward * inputZ;
-        controller.Move(move * moveSpeed * Time.deltaTime);
-
-        // Simple gravity + jump
-        if (controller.isGrounded)
+        if (Keyboard.current.aKey.isPressed)
         {
-            verticalVelocity.y = -1f; // small downward force to keep grounded flag reliable
+            inputX -= 1f;
+        }
 
-            if (Input.GetButtonDown("Jump"))
+        if (Keyboard.current.dKey.isPressed)
+        {
+            inputX += 1f;
+        }
+
+        if (Keyboard.current.sKey.isPressed)
+        {
+            inputZ -= 1f;
+        }
+
+        if (Keyboard.current.wKey.isPressed)
+        {
+            inputZ += 1f;
+        }
+
+        Vector3 move =
+            transform.right * inputX +
+            transform.forward * inputZ;
+
+        move = Vector3.ClampMagnitude(move, 1f);
+        move *= _moveSpeed;
+
+        if (_characterController.isGrounded)
+        {
+            _verticalVelocity = -1f;
+
+            if (Keyboard.current.spaceKey.wasPressedThisFrame)
             {
-                verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                _verticalVelocity =
+                    Mathf.Sqrt(_jumpHeight * -2f * _gravity);
             }
         }
         else
         {
-            verticalVelocity.y += gravity * Time.deltaTime;
+            _verticalVelocity += _gravity * Time.deltaTime;
         }
 
-        controller.Move(verticalVelocity * Time.deltaTime);
+        move.y = _verticalVelocity;
+
+        _characterController.Move(
+            move * Time.deltaTime
+        );
     }
 }
