@@ -2,16 +2,18 @@
 
 ## Overview
 
-The Level 1 warehouse has 6 shelves.
+The Level 1 warehouse has 6 planned shelf slots.
 
-There are 4 product categories:
+There are 4 Level 1 product categories:
+
 - Snacks
 - Drinks
 - Dairy
 - Bakery
 
-Each category has 6 products in the Level 1 product database. Shelves are
-kept neutral grey, while category colours are used as the visual signal.
+Each category has 6 products in the Level 1 product database. Shelving/storage
+stays neutral grey, while each category uses its assigned colour as the main
+visual signal.
 
 ## Shelf Plan
 
@@ -26,16 +28,15 @@ kept neutral grey, while category colours are used as the visual signal.
 
 ## Placement Rationale
 
-- **Snacks:** Two shelves are used so all six Snack products can be grouped
-  together while giving the category more starting shelf space.
-- **Drinks:** Two shelves are used so all six Drink products can be grouped
-  together while giving the category more starting shelf space.
-- **Dairy:** One shelf keeps all six Dairy products grouped together.
-- **Bakery:** One shelf keeps all six Bakery products grouped together.
+- **Snacks:** Two shelves keep the category together and provide additional
+  starting shelf space.
+- **Drinks:** Two shelves keep the category together and provide additional
+  starting shelf space.
+- **Dairy:** One shelf keeps all Dairy products grouped together.
+- **Bakery:** One shelf keeps all Bakery products grouped together.
 
-This is the proposed starting allocation for Level 1. It can be adjusted
-after playtesting if the team finds that a different category distribution
-works better.
+This is a proposed starting allocation for Level 1. The distribution can be
+adjusted later based on playtest results and observed demand.
 
 ## Category Colours
 
@@ -46,12 +47,25 @@ works better.
 | Dairy | `#A8D8F0` |
 | Bakery | `#F5D142` |
 
-Shelving/storage uses neutral grey `#D9D9D9` so the product/category colour
-remains the main visual signal.
+Shelving/storage uses neutral grey `#D9D9D9` so the category colour remains the
+main visual signal.
+
+## Product Source
+
+The product list and category assignments are taken from:
+
+`docs/Design/Product_Catalogue_24_Products_Updated.csv`
+
+This is the updated 24-product catalogue for the four Level 1 categories.
+The older `Product_Catalogue_24_Products.csv` is not used.
 
 ## Warehouse Layout
 
-The plan uses the existing grey warehouse in `Main_level`.
+The shelf allocation is planned for the grey warehouse in `Main_level`.
 
-No new warehouse geometry is required. The six existing shelf positions
-should be labelled according to the table above.
+The shelf positions are not currently marked in the scene, so this document
+defines the category assignment for the 6 planned shelf slots rather than
+specifying exact world positions.
+
+Once the shelf positions are available in the warehouse, each shelf can be
+labelled using its assigned category colour.
