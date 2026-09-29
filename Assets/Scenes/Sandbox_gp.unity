@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &169940657 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2029767310766306663, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+  m_PrefabInstance: {fileID: 977124907}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d68670f02179ff04c9c4a52cd1634e1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirtualJoystick
 --- !u!1001 &977124907
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -216,28 +227,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
---- !u!114 &977124908 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 386517630737200714, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
-  m_PrefabInstance: {fileID: 977124907}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26be085f4b75881408183e326464fea5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ContextualActionButton
---- !u!114 &977124909 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6240648198550294871, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
-  m_PrefabInstance: {fileID: 977124907}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d68670f02179ff04c9c4a52cd1634e1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VirtualJoystick
 --- !u!1 &1362156616
 GameObject:
   m_ObjectHideFlags: 0
@@ -584,6 +573,17 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1551507918 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9175310693412485861, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+  m_PrefabInstance: {fileID: 977124907}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26be085f4b75881408183e326464fea5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ContextualActionButton
 --- !u!1 &1746220129
 GameObject:
   m_ObjectHideFlags: 0
@@ -762,11 +762,11 @@ PrefabInstance:
     - target: {fileID: 3208689316286469798, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
       propertyPath: _joystick
       value: 
-      objectReference: {fileID: 977124909}
+      objectReference: {fileID: 169940657}
     - target: {fileID: 6379082929270017584, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
       propertyPath: _actionButton
       value: 
-      objectReference: {fileID: 977124908}
+      objectReference: {fileID: 1551507918}
     - target: {fileID: 6714708094654814079, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
       propertyPath: m_Name
       value: Player
