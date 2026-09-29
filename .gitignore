@@ -18,6 +18,7 @@ ExportedObj/
 *.aab
 *.unitypackage
 *.app
+.utmp/
 
 # Visual Studio / Rider generated
 *.csproj
