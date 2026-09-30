@@ -19,6 +19,12 @@ public abstract class Manager<T> : MonoBehaviour, IManager
         DontDestroyOnLoad(gameObject);
     }
 
+    protected virtual void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     public void Initialise()
     {
         if (IsInitialised)
