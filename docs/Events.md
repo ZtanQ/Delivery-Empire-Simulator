@@ -36,17 +36,13 @@ internal state.
 
   `OnCashChanged`        `MGR_Game`        New balance, `MGR_UI`, systems    Implemented      TBD
                                            delta        requiring cash                        
-<<<<<<< HEAD
                                                         information    
 
-  `OnSupplierOrderCreated` `MGR_Game`   SupplierOrder `MGR_UI`, `MGR_Truck`,  Implemented  Week 2 
+  `OnSupplierOrderCreated` `MGR_Game`   SupplierOrder `MGR_UI`, `MGR_Truck`,  Implemented     Week 2 
                                                         gameplay systems requiring 
                                                         supplier order information
 
-  `OnPurchaseRejected`    `MGR_Game`       PurchaseResult `MGR_UI`, terminal UI  Implemented  Week 2  
-=======
-                                                        information                           
->>>>>>> parent of a0fcda5 (Purchase logic)
+  `OnPurchaseRejected`    `MGR_Game`       PurchaseResult `MGR_UI`, terminal UI  Implemented  Week 2                          
 
   `OnXPChanged`          `MGR_Game`        New XP,      `MGR_UI`, systems     Planned         TBD
                                            current      requiring XP                          
@@ -84,8 +80,8 @@ internal state.
                                                         gameplay systems                      
 
   `OnDayTick`            `MGR_Game`        Day number,  `MGR_UI`,             Planned         TBD
-                                          total salary  time/economy systems                  
-                                          deducted                                           
+                                           total salary time/economy systems                  
+                                           deducted                                           
   -------------------------------------------------------------------------------------------------------
 
 **Note:** GDD §48 defines the event names, emitting managers, and
@@ -353,8 +349,11 @@ may be disabled and reused instead of being destroyed.
 
 -   `OnInventoryChanged`
 -   `OnShelfUpdated`
+<<<<<<< HEAD
 -   `OnCashChanged`
 -   `OnXPChanged`
+=======
+>>>>>>> parent of a0fcda5 (Purchase logic)
 
 ### Planned
 
