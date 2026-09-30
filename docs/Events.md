@@ -34,9 +34,15 @@ internal state.
                                                         requiring order                       
                                                         expiry information                    
 
-  `OnCashChanged`        `MGR_Game`        New balance, `MGR_UI`, systems     Planned         TBD
+  `OnCashChanged`        `MGR_Game`        New balance, `MGR_UI`, systems    Implemented      TBD
                                            delta        requiring cash                        
-                                                        information                           
+                                                        information    
+
+  `OnSupplierOrderCreated` `MGR_Game`   SupplierOrder `MGR_UI`, `MGR_Truck`,  Implemented     Week 2 
+                                                        gameplay systems requiring 
+                                                        supplier order information
+
+  `OnPurchaseRejected`    `MGR_Game`       PurchaseResult `MGR_UI`, terminal UI  Implemented  Week 2                          
 
   `OnXPChanged`          `MGR_Game`        New XP,      `MGR_UI`, systems     Planned         TBD
                                            current      requiring XP                          
@@ -343,14 +349,17 @@ may be disabled and reused instead of being destroyed.
 
 -   `OnInventoryChanged`
 -   `OnShelfUpdated`
+<<<<<<< HEAD
+-   `OnCashChanged`
+-   `OnXPChanged`
+=======
+>>>>>>> parent of a0fcda5 (Purchase logic)
 
 ### Planned
 
 -   `OnOrderCreated`
 -   `OnOrderFulfilled`
 -   `OnOrderExpired`
--   `OnCashChanged`
--   `OnXPChanged`
 -   `OnLevelUp`
 -   `OnRatingChanged`
 -   `OnHiringLocked`
