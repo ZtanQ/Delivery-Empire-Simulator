@@ -23,12 +23,12 @@ Nobody edits another person's folders without telling them first.
 
 | Role | Code | Owns these folders | Owns this scene |
 |---|---|---|---|
-| System Programmer | SYS | `Scripts/Core`, `Scripts/Managers`, `Scripts/Data`, `Data/Products` | `Scenes/Sandbox_SYS.unity` |
-| Gameplay Programmer | GP | `Scripts/Controllers`, `Prefabs/Player` | `Scenes/Sandbox_GP.unity` |
-| AI & Navigation | AI | `Scripts/States`, `Prefabs/Characters`, `Art/Models/Environment` | `Scenes/MainLevel.unity` |
-| UI Programmer | UI | `Scripts/UI`, `Prefabs/UI` | `Scenes/Sandbox_UI.unity` |
+| System Programmer | SYS | `Scripts/Core`, `Scripts/Managers`, `Scripts/Data`, `Data/Products` | `Scenes/Sandbox_sys.unity` |
+| Gameplay Programmer | GP | `Scripts/Controllers`, `Prefabs/Player` | `Scenes/Sandbox_gp.unity` |
+| AI & Navigation | AI | `Scripts/States`, `Prefabs/Characters`, `Art/Models/Environment` | `Scenes/Main_level.unity` |
+| UI Programmer | UI | `Scripts/UI`, `Prefabs/UI` | `Scenes/Sandbox_ui.unity` |
 | Mobile & Performance | PERF | `Scripts/Utilities`, `Settings`, build configuration | `Scenes/Boot.unity` |
-| Systems & Economy Designer | DES | `Data`, `Docs` | `Scenes/Sandbox_DES.unity` |
+| Systems & Economy Designer | DES | `Data`, `Docs` | `Scenes/Sandbox_des.unity` |
 
 **MainLevel.unity has one owner: AI.** If you need something in it, build it as a prefab in your own folder and ask AI to place it. This single rule prevents most merge conflicts in Unity.
 
@@ -55,7 +55,7 @@ Unity scenes and prefabs merge badly. These rules exist so we never have to reso
 - Open a pull request as soon as the task works, even if it is not polished.
 - Do not create a permanent personal branch. It will drift and break.
 
-**Daily rhythm:** pull from `main` when you start, commit as you go, open the PR before you finish your day.
+**Daily rhythm:** pull from `dev` when you start, commit as you go, open the PR before you finish your day.
 
 ---
 
@@ -64,7 +64,10 @@ Unity scenes and prefabs merge badly. These rules exist so we never have to reso
 - Small. One task from the schedule per PR.
 - Fill in the template. It takes two minutes and saves an hour of questions.
 - The lead reviews during his morning (your evening) and merges.
-- If your PR touches a scene or `ProjectSettings`, say so in the description in capital letters.
+- If your PR touches a scene or `ProjectSettings`, say so in the description in capital letters.   
+- When changing a prefab, edit the existing objects. Deleting and recreating a child breaks every scene that references it.
+- Never commit builds. APKs go to the shared Drive; `Builds/` is ignored.
+
 
 ---
 
