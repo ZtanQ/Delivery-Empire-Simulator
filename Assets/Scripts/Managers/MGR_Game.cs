@@ -1,13 +1,15 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class MGR_Game : Manager<MGR_Game>
 {
-    [SerializeField] 
-    private DATA_GameBalanceSO gameBalance;
+    [Header("Starting Values")]
+    [SerializeField] private int startingCash = 500;
+    [SerializeField] private int startingXP = 0;
+    [SerializeField] private int startingLevel = 1;
 
-    private int currentCash = 500;
+    private int currentCash;
     private int currentXP;
     private int currentLevel;
 
@@ -15,22 +17,33 @@ public class MGR_Game : Manager<MGR_Game>
     public int CurrentXP => currentXP;
     public int CurrentLevel => currentLevel;
 
+    // Cash event:
+    // new balance, delta
     public static event Action<int, int> OnCashChanged;
+
+    // XP event:
+    // new XP, current level
     public static event Action<int, int> OnXPChanged;
 
+    // Purchase events
     public static event Action<SupplierOrder> OnSupplierOrderCreated;
     public static event Action<PurchaseResult> OnPurchaseRejected;
+
     protected override void OnInitialise()
     {
-        currentCash = gameBalance.StartingCash;
-        currentXP = gameBalance.StartingXP;
-        currentLevel = gameBalance.StartingLevel;
+        currentCash = startingCash;
+        currentXP = startingXP;
+        currentLevel = startingLevel;
 
         Debug.Log("5. MGR_Game initialised.");
-        Debug.Log($"Current cash: {CurrentCash}");
-        Debug.Log($"XP: {CurrentXP}");
-        Debug.Log($"Level: {CurrentLevel}");
+        Debug.Log($"Starting cash: {CurrentCash}");
+        Debug.Log($"Starting XP: {CurrentXP}");
+        Debug.Log($"Starting level: {CurrentLevel}");
     }
+
+    // =========================================================
+    // CASH
+    // =========================================================
 
     public bool TrySpendCash(int amount)
     {
@@ -50,6 +63,44 @@ public class MGR_Game : Manager<MGR_Game>
 
         return true;
     }
+
+    public void AddCash(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        currentCash += amount;
+
+        OnCashChanged?.Invoke(currentCash, amount);
+
+        Debug.Log($"Added {amount} cash. Current cash: {currentCash}");
+    }
+
+    // =========================================================
+    // XP
+    // =========================================================
+
+    public void AddXP(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        currentXP += amount;
+
+        // The XP curve / level-up calculation should be added
+        // once the confirmed XP curve is provided.
+        OnXPChanged?.Invoke(currentXP, currentLevel);
+
+        Debug.Log($"Added {amount} XP. Current XP: {currentXP}");
+    }
+
+    // =========================================================
+    // PURCHASE
+    // =========================================================
 
     public int GetTotalCost(List<PurchaseItem> lines)
     {
@@ -105,30 +156,8 @@ public class MGR_Game : Manager<MGR_Game>
 
         OnSupplierOrderCreated?.Invoke(order);
 
+        Debug.Log($"Purchase successful. Total cost: {totalCost}");
+
         return PurchaseResult.Success;
-    }
-
-    public void AddCash(int amount)
-    {
-        if (amount <= 0)
-        {
-            return;
-        }
-
-        currentCash += amount;
-
-        OnCashChanged?.Invoke(currentCash, amount);
-    }
-
-    public void AddXP(int amount)
-    {
-        if (amount <= 0)
-        {
-            return;
-        }
-
-        currentXP += amount;
-
-        OnXPChanged?.Invoke(currentXP, currentLevel);
     }
 }

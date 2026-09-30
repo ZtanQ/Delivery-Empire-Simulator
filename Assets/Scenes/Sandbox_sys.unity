@@ -354,7 +354,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cb7abfdf6701914f83b591028261772, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Game
-  currentCash: 500
+  startingCash: 500
+  startingXP: 0
+  startingLevel: 1
 --- !u!4 &630807232
 Transform:
   m_ObjectHideFlags: 0
@@ -604,6 +606,52 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1592925285}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.32816, y: 0, z: 141.91902}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1601362334
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1601362336}
+  - component: {fileID: 1601362335}
+  m_Layer: 0
+  m_Name: GameDebugTester
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1601362335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1601362334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 034d4372261365044a1d46b5b349bdb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameDebugTester
+  cashToAdd: 100
+  xpToAdd: 50
+--- !u!4 &1601362336
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1601362334}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.32816, y: 0, z: 141.91902}
@@ -863,3 +911,4 @@ SceneRoots:
   - {fileID: 1752535765}
   - {fileID: 1592925287}
   - {fileID: 630807232}
+  - {fileID: 1601362336}
