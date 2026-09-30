@@ -1,0 +1,32 @@
+record_type,product_id,category,display_name,base_cost,sale_price,profit_per_item,items_for_10_profit,items_for_15_profit,value,notes
+product,SNK-01,Snacks,Potato Chips,3.00,4.50,1.50,7,10,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,SNK-02,Snacks,Pretzels,2.00,3.00,1.00,10,15,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,SNK-03,Snacks,Chocolate Bar,4.00,6.00,2.00,5,8,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,SNK-04,Snacks,Gummy Bears,3.00,4.50,1.50,7,10,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,SNK-05,Snacks,Trail Mix,5.00,7.50,2.50,4,6,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,SNK-06,Snacks,Popcorn,2.00,3.00,1.00,10,15,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRY-01,Dairy,Whole Milk,5.00,7.50,2.50,4,6,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRY-02,Dairy,Cheddar Cheese,8.00,12.00,4.00,3,4,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRY-03,Dairy,Greek Yogurt,6.00,9.00,3.00,4,5,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRY-04,Dairy,Butter,7.00,10.50,3.50,3,5,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRY-05,Dairy,Cream Cheese,6.00,9.00,3.00,4,5,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRY-06,Dairy,Ice Cream Pint,10.00,15.00,5.00,2,3,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRK-01,Drinks,Cola Can,3.00,4.50,1.50,7,10,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRK-02,Drinks,Bottled Water,2.00,3.00,1.00,10,15,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRK-03,Drinks,Orange Juice,4.00,6.00,2.00,5,8,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRK-04,Drinks,Energy Drink,5.00,7.50,2.50,4,6,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRK-05,Drinks,Iced Tea,3.00,4.50,1.50,7,10,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,DRK-06,Drinks,Cold Coffee,6.00,9.00,3.00,4,5,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,BAK-01,Bakery,Sliced Bread,4.00,6.00,2.00,5,8,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,BAK-02,Bakery,Bagels (Pack),5.00,7.50,2.50,4,6,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,BAK-03,Bakery,Croissants,8.00,12.00,4.00,3,4,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,BAK-04,Bakery,Muffins,7.00,10.50,3.50,3,5,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,BAK-05,Bakery,Chocolate Cake,15.00,22.50,7.50,2,2,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+product,BAK-06,Bakery,Cookies (Pack),6.00,9.00,3.00,4,5,,50% markup; keep 2 decimal places because GDD does not define whole-number rounding.
+economy,,,,,,,,,500,Starting cash.
+economy,,,,,,,,,20,Salary per active rider.
+economy,,,,,,,,,24,Salary is charged every 24 minutes of active play.
+xp,,,,,,,,,230,Formula: 100*(n^1.2) = 229.74. Rounded to 230. GDD table: approx 229. Assumed to be total XP required to reach the level. Small 1 XP difference vs the GDD table is due to its approximate value.
+xp,,,,,,,,,690,Formula: 100*(n^1.2) = 689.86. Rounded to 690. GDD table: approx 689. Assumed to be total XP required to reach the level. Small 1 XP difference vs the GDD table is due to its approximate value.
+xp,,,,,,,,,1585,Formula: 100*(n^1.2) = 1584.89. Rounded to 1585. GDD table: approx 1585. Assumed to be total XP required to reach the level.
+xp,,,,,,,,,2578,Formula: 100*(n^1.2) = 2578.16. Rounded to 2578. GDD table: approx 2578. Assumed to be total XP required to reach the level.
