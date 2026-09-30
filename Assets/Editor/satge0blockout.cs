@@ -168,7 +168,7 @@ public static class Stage0BlockoutBuilder
 
         GameObjectUtility.SetStaticEditorFlags(
             pb.gameObject,
-            StaticEditorFlags.BatchingStatic | StaticEditorFlags.NavigationStatic | StaticEditorFlags.OccluderStatic | StaticEditorFlags.OccludeeStatic);
+            StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccluderStatic | StaticEditorFlags.OccludeeStatic);
     }
 
     private static Material GetOrCreateGreyMaterial()

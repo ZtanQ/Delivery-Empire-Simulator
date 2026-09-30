@@ -36,7 +36,12 @@ internal state.
 
   `OnCashChanged`        `MGR_Game`        New balance, `MGR_UI`, systems     Planned         TBD
                                            delta        requiring cash                        
-                                                        information                           
+                                                        information                    
+    `OnSupplierOrderCreated` `MGR_Game`   SupplierOrder `MGR_UI`, `MGR_Truck`,  Implemented  Week 2 
+                                                        gameplay systems requiring 
+                                                        supplier order information
+
+  `OnPurchaseRejected`    `MGR_Game`       PurchaseResult `MGR_UI`, terminal UI  Implemented  Week 2  
 
   `OnXPChanged`          `MGR_Game`        New XP,      `MGR_UI`, systems     Planned         TBD
                                            current      requiring XP                          
@@ -74,8 +79,7 @@ internal state.
                                                         gameplay systems                      
 
   `OnDayTick`            `MGR_Game`        Day number,  `MGR_UI`,             Planned         TBD
-                                           total salary time/economy systems                  
-                                           deducted                                           
+                                           total salary time/economy systems         
   -------------------------------------------------------------------------------------------------------
 
 **Note:** GDD §48 defines the event names, emitting managers, and
@@ -172,6 +176,22 @@ OnStageChanged
   `OnRatingChanged`   New rating, previous rating
   `OnHiringLocked`    Locked state
   `OnStageChanged`    New warehouse stage
+
+------------------------------------------------------------------------
+
+### Purchase Events
+
+
+```text
+OnSupplierOrderCreated
+OnPurchaseRejected
+
+**Manager:** 'MGR_Game'
+
+| Event                    | Payload        |
+|--------------------------|----------------|
+| `OnSupplierOrderCreated` | SupplierOrder  |
+| `OnPurchaseRejected`     | PurchaseResult |
 
 ------------------------------------------------------------------------
 
@@ -343,6 +363,13 @@ may be disabled and reused instead of being destroyed.
 
 -   `OnInventoryChanged`
 -   `OnShelfUpdated`
+
+
+### Additional Implemented Project Events
+
+`OnSupplierOrderCreated`
+`OnPurchaseRejected`
+
 
 ### Planned
 
