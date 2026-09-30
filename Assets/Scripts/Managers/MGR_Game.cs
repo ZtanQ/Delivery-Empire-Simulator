@@ -1,13 +1,10 @@
-<<<<<<< HEAD
 using System;
 using System.Collections.Generic;
-=======
->>>>>>> parent of a0fcda5 (Purchase logic)
+
 using UnityEngine;
 
 public class MGR_Game : Manager<MGR_Game>
 {
-<<<<<<< HEAD
     [Header("Starting Values")]
     [SerializeField] private int startingCash = 500;
     [SerializeField] private int startingXP = 0;
@@ -33,8 +30,6 @@ public class MGR_Game : Manager<MGR_Game>
     public static event Action<SupplierOrder> OnSupplierOrderCreated;
     public static event Action<PurchaseResult> OnPurchaseRejected;
 
-=======
->>>>>>> parent of a0fcda5 (Purchase logic)
     protected override void OnInitialise()
     {
         currentCash = startingCash;
@@ -42,7 +37,7 @@ public class MGR_Game : Manager<MGR_Game>
         currentLevel = startingLevel;
 
         Debug.Log("5. MGR_Game initialised.");
-<<<<<<< HEAD
+
         Debug.Log($"Starting cash: {CurrentCash}");
         Debug.Log($"Starting XP: {CurrentXP}");
         Debug.Log($"Starting level: {CurrentLevel}");
@@ -166,7 +161,5 @@ public class MGR_Game : Manager<MGR_Game>
         Debug.Log($"Purchase successful. Total cost: {totalCost}");
 
         return PurchaseResult.Success;
-=======
->>>>>>> parent of a0fcda5 (Purchase logic)
     }
 }
