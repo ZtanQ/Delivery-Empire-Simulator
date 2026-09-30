@@ -4,18 +4,32 @@ using System.Collections.Generic;
 
 public class MGR_Game : Manager<MGR_Game>
 {
-    [SerializeField]
+    [SerializeField] 
+    private DATA_GameBalanceSO gameBalance;
+
     private int currentCash = 500;
+    private int currentXP;
+    private int currentLevel;
 
     public int CurrentCash => currentCash;
+    public int CurrentXP => currentXP;
+    public int CurrentLevel => currentLevel;
 
     public static event Action<int, int> OnCashChanged;
+    public static event Action<int, int> OnXPChanged;
+
     public static event Action<SupplierOrder> OnSupplierOrderCreated;
     public static event Action<PurchaseResult> OnPurchaseRejected;
     protected override void OnInitialise()
     {
+        currentCash = gameBalance.StartingCash;
+        currentXP = gameBalance.StartingXP;
+        currentLevel = gameBalance.StartingLevel;
+
         Debug.Log("5. MGR_Game initialised.");
         Debug.Log($"Current cash: {CurrentCash}");
+        Debug.Log($"XP: {CurrentXP}");
+        Debug.Log($"Level: {CurrentLevel}");
     }
 
     public bool TrySpendCash(int amount)
@@ -92,5 +106,29 @@ public class MGR_Game : Manager<MGR_Game>
         OnSupplierOrderCreated?.Invoke(order);
 
         return PurchaseResult.Success;
+    }
+
+    public void AddCash(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        currentCash += amount;
+
+        OnCashChanged?.Invoke(currentCash, amount);
+    }
+
+    public void AddXP(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        currentXP += amount;
+
+        OnXPChanged?.Invoke(currentXP, currentLevel);
     }
 }
