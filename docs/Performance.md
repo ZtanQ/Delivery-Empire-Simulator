@@ -15,9 +15,9 @@
 | Asset                          | Proposed Budget | Revised Budget |
 | ------------------------------ | --------------: | -------------: |
 | **Wall / Floor Module**        |        200 tris |   **100 tris** |
-| **Box**                        |        100 tris |   **200 tris** |
+| **Box**                        |        100 tris |   **100 tris** |
 | **Product Prop**               |        300 tris |   **300 tris** |
-| **Shelf**                      |        600 tris |   **200 tris** |
+| **Shelf**                      |        600 tris |   **600 tris** |
 | **Terminal (Checkout)**        |      1,500 tris | **1,500 tris** |
 | **Truck**                      |      3,000 tris | **3,000 tris** |
 | **Rider (Delivery Character)** |      3,000 tris | **3,000 tris** |
