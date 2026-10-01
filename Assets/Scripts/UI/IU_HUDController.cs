@@ -52,12 +52,42 @@ public TMP_Text order4Text;
         order4Text.text = order4;
     }
 
-    private void Start()
-{
-    SetLevel(1);
-    SetXP(0, 100);
-    SetCash(500);
+    private void OnEnable()
+    {
+        MGR_Game.OnCashChanged += HandleCashChanged;
+        MGR_Game.OnXPChanged += HandleXPChanged;
+    }
+
+    private void OnDisable()
+    {
+        MGR_Game.OnCashChanged -= HandleCashChanged;
+        MGR_Game.OnXPChanged -= HandleXPChanged;
+    }
+
+    private void HandleXPChanged(int newXP, int currentLevel)
+    {
+        SetXP(newXP, 100);
+        SetLevel(currentLevel);
+    }
+
+    private void HandleCashChanged(int newCash, int delta)
+    {
+        SetCash(newCash);
+    }
+
+    private void Start()    
+    {
+    if (MGR_Game.Instance != null)
+    {
+        SetLevel(1);
+        SetXP(MGR_Game.Instance.CurrentXP, 100);
+    }
+    
+    if (MGR_Game.Instance != null)
+    {
+        SetCash(MGR_Game.Instance.CurrentCash);
+    }
     SetRating(5.0f);
     SetOrders("Burger", "Pizza", "Coffee", "Sushi");
-}
+    }
 }
