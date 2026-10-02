@@ -325,7 +325,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
-<<<<<<< HEAD
 --- !u!1 &630807230
 GameObject:
   m_ObjectHideFlags: 0
@@ -373,8 +372,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-=======
->>>>>>> parent of a0fcda5 (Purchase logic)
 --- !u!1 &1157183772
 GameObject:
   m_ObjectHideFlags: 0
@@ -572,7 +569,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
 --- !u!1 &1592925285
 GameObject:
   m_ObjectHideFlags: 0
@@ -599,7 +595,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1592925285}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa6b705cdd4e21d4db220101eb119636, type: 3}
+  m_Script: {fileID: 11500000, guid: 112636a1f75f1814a8f57501ee74fe49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PurchaseDebugTester
   testProduct: {fileID: 11400000, guid: 46cf024fa5ead6147ae9fbe8d9946f67, type: 2}
@@ -664,8 +660,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-=======
->>>>>>> parent of a0fcda5 (Purchase logic)
 --- !u!1 &1752535763
 GameObject:
   m_ObjectHideFlags: 0
@@ -915,9 +909,6 @@ SceneRoots:
   - {fileID: 506638910}
   - {fileID: 1445246923}
   - {fileID: 1752535765}
-<<<<<<< HEAD
   - {fileID: 1592925287}
   - {fileID: 630807232}
   - {fileID: 1601362336}
-=======
->>>>>>> parent of a0fcda5 (Purchase logic)
