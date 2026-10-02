@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98cf9b09bae22e4db073686feaa73e3, type: 3}
+  m_Name: SNK-04 DATA_Product SO
+  m_EditorClassIdentifier: Assembly-CSharp::DATA_ProductSO
+  ProductID: SNK-04
+  Category: 0
+  DisplayName: Gummy Bears
+  BaseCost: 3
+  ColourCode: {r: 0.90588236, g: 0.29803923, b: 0.23529412, a: 0}
+  Icon: {fileID: 1422907630589236487, guid: cac503e4dc7b2c9428ca40bd08a9dd80, type: 3}
+  BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
+  PropPrefab: {fileID: 5256063137255077920, guid: b30f85e40be6d5844864c60c47613939, type: 3}
