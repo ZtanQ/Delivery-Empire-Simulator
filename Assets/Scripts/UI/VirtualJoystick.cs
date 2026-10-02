@@ -30,7 +30,6 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
         joystickHandle.anchoredPosition = InputVector * radius;
 
-        Debug.Log("Joystick: " + InputVector);
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -38,6 +37,6 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         InputVector = Vector2.zero;
         joystickHandle.anchoredPosition = Vector2.zero;
 
-        Debug.Log("Joystick: " + InputVector);
+       
     }
 }
