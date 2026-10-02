@@ -43,6 +43,18 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         OnInventoryChanged?.Invoke(product, newQuantity);
     }
 
+    public void AddStock(DATA_ProductSO product, int amount)
+    {
+        if (product == null || amount <= 0)
+            return;
+
+        int newQuantity = GetStock(product) + amount;
+
+        stock[product] = newQuantity;
+
+        OnInventoryChanged?.Invoke(product, newQuantity);
+    }
+
     public void DebugRemoveStock(DATA_ProductSO product, int amount)
     {
         if (product == null || amount <= 0)
