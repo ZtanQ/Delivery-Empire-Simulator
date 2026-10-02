@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
-using UnityEngine.InputSystem;
 
 public class ContextualActionButton : MonoBehaviour
 {
@@ -25,26 +24,5 @@ public class ContextualActionButton : MonoBehaviour
     public void HandleTap()
     {
         OnActionTapped?.Invoke();
-    }
-
-    private void Update()
-    {
-        if (Keyboard.current == null)
-            return;
-
-        if (Keyboard.current.digit1Key.wasPressedThisFrame)
-        {
-            SetAction("Pick up", null);
-        }
-
-        if (Keyboard.current.digit2Key.wasPressedThisFrame)
-        {
-            SetAction("Place", null);
-        }
-
-        if (Keyboard.current.digit3Key.wasPressedThisFrame)
-        {
-            SetAction("Use", null);
-        }
     }
 }
