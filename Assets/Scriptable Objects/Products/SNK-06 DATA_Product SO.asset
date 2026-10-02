@@ -17,6 +17,6 @@ MonoBehaviour:
   DisplayName: Popcorn
   BaseCost: 3
   ColourCode: {r: 0.90588236, g: 0.29803923, b: 0.23529412, a: 0}
-  Icon: {fileID: 0}
+  Icon: {fileID: 4133844426863710334, guid: 26e2fc4f6c7d0e646bf505a93ffa46ef, type: 3}
   BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
-  PropPrefab: {fileID: 0}
+  PropPrefab: {fileID: 5036396661211854760, guid: e4af7512487e6644ca8a2bcc752bf91a, type: 3}

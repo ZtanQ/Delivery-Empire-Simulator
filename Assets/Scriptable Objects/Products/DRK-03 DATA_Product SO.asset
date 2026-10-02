@@ -17,6 +17,6 @@ MonoBehaviour:
   DisplayName: Orange Juice
   BaseCost: 4
   ColourCode: {r: 0.2901961, g: 0.5647059, b: 0.8862745, a: 0}
-  Icon: {fileID: 0}
+  Icon: {fileID: -5462043665381277792, guid: 1ce5a32e4e2c79b42b2d2ac05cc27f3f, type: 3}
   BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
-  PropPrefab: {fileID: 0}
+  PropPrefab: {fileID: 3828167625580534300, guid: 8d9f8f7a2085d964fae27379aacc94f7, type: 3}
