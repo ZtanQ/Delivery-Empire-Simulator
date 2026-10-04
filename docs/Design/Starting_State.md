@@ -1,32 +1,44 @@
 # Starting State
 
-This is the fallback starting state if the guided tutorial is cut.
+Fallback starting state if the guided tutorial is cut.
 
 ## Starting cash
 
 **500**
 
-The player starts with 500 cash. This gives enough room to restock early orders while still making money important from the start.
+The player starts with 500 cash. This is enough to restock early orders while still making money matter from the start.
+
+## Shelf capacity
+
+**6 units per shelf**
+
+This is a proposed starting capacity because ShelfPlan.md defines the six shelf slots and their categories but does not specify a numeric capacity.
+
+Each shelf holds one category only.
 
 ## Starting stock
 
-Each Level 1 shelf starts partially stocked:
+Shelves start partially stocked so the player can fulfil some early orders but still needs to restock.
 
-| Shelf | Category | Starting units |
-|---|---|---:|
-| Shelf 1 | Snacks | 3 |
-| Shelf 2 | Snacks | 2 |
-| Shelf 3 | Drinks | 3 |
-| Shelf 4 | Drinks | 2 |
-| Shelf 5 | Dairy | 2 |
-| Shelf 6 | Bakery | 2 |
+| Shelf | Category | Starting stock |
+|---|---|---|
+| Shelf 1 | Snacks | Potato Chips 2, Pretzels 1 |
+| Shelf 2 | Snacks | Chocolate Bar 2, Gummy Bears 1 |
+| Shelf 3 | Drinks | Cola Can 2, Bottled Water 1 |
+| Shelf 4 | Drinks | Orange Juice 2, Energy Drink 1 |
+| Shelf 5 | Dairy | Whole Milk 2, Cheddar Cheese 1 |
+| Shelf 6 | Bakery | Sliced Bread 2, Bagels (Pack) 1 |
 
-The shelves stay partially filled so the player can handle early orders but still needs to restock soon.
+**Total starting stock: 18 units.**
 
-**Assumption:** ShelfPlan.md defines the six shelf slots and their categories, but does not give a starting quantity, so these values are a proposed starting fill for review.
+The other products start at 0, so the player still has a reason to restock different products.
 
 ## Riders
 
 **1 rider**
 
-The player starts with one rider so deliveries can begin immediately without requiring an extra purchase.
+The player starts with one rider so deliveries can begin immediately.
+
+## Assumptions
+
+ShelfPlan.md defines the shelf/category allocation but does not define shelf capacity or starting stock quantities. The values above are proposed starting values for review and can be adjusted after playtesting.
