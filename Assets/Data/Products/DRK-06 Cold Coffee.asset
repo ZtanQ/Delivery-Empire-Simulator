@@ -18,5 +18,5 @@ MonoBehaviour:
   BaseCost: 6
   ColourCode: {r: 0.2901961, g: 0.5647059, b: 0.8862745, a: 1}
   Icon: {fileID: 0}
-  BoxPrefab: {fileID: 0}
-  PropPrefab: {fileID: 0}
+  BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
+  PropPrefab: {fileID: 6279897802193526952, guid: b00ac64e8f1e2bd418d4cb305a991cf5, type: 3}
