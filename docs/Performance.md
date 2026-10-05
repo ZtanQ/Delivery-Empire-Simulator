@@ -59,6 +59,7 @@ The following measurements were recorded in the Unity Editor with an empty scene
 | **Draw Calls**   |                 **0** |
 | **Triangles**    |             **1,971** |
 | **Memory Usage** |         **149.76 MB** |
+<<<<<<< HEAD
 
 ## Memory Test After Package Removal
 
@@ -68,3 +69,33 @@ The following measurements were recorded in the Unity Editor with an empty scene
 | 11:38 AM |       904 MB |
 
 **Result:** Memory usage decreased by **19 MB** after package removal after 20 mins.
+=======
+<<<<<<< HEAD
+=======
+
+
+
+### Week 2
+
+## Phone Performance Main Scene with Stage
+
+| Metric           |                Result |
+| ---------------- | --------------------: |
+| **Timestamp**    |    04 Oct 2026, 10:34 |
+| **FPS**          |         **60.32 FPS** |
+| **Draw Calls**   |               **N/A** |
+| **Triangles**    |            **14,430** |
+| **Memory Usage** |         **214.51 MB** |
+
+
+
+## MGR_Pool Usage
+
+MGR_Pool creates and manages reusable objects such as boxes and order cards. It activates objects with Get() and deactivates them with Release() instead of repeatedly creating and destroying GameObjects.
+
+## IPoolable Usage
+
+IPoolable defines OnSpawn() and OnDespawn() methods that pooled objects use to reset or update their state when they are taken from or returned to the pool.
+
+>>>>>>> ee75cff (Box pool (12) and order card pool (4))
+>>>>>>> 70b3c47 (Box pool (12) and order card pool (4))
