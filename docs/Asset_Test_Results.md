@@ -18,7 +18,6 @@
 | **Corner Outer**               |      12 tris |   **100 tris** | **PASS** |
 | **Corner Inner**               |      12 tris |   **100 tris** | **PASS** |
 | **Ceiling Light**              |      36 tris |   **100 tris** | **PASS** |
-<<<<<<< HEAD
 | **Drinks – Water Bottle**      |     288 tris |   **300 tris** | **PASS** |
 | **Drinks – Cola Can**          |     284 tris |   **300 tris** | **PASS** |
 | **Drinks – Cold Coffee**       |     284 tris |   **300 tris** | **PASS** |
@@ -40,20 +39,6 @@
 | **Bakery – Sliced Bread**      |     224 tris |   **300 tris** | **PASS** |
 | **Bakery – Bagels**            |      64 tris |   **300 tris** | **PASS** |
 | **Bakery – Croissants**        |     236 tris |   **300 tris** | **PASS** |
-| **Bakery – Muffins**           |              |   **300 tris** | **PASS** |
-| **Bakery – Chocolate Cake**    |              |   **300 tris** | **PASS** |
-| **Bakery – Cookies**           |              |   **300 tris** | **PASS** |
-=======
-| **Drinks** Water Bottle        |     288 tris |   **300 tris** | **PASS** |
-| **Drinks** Cola Can            |     284 tris |   **300 tris** | **PASS** |
-| **Drinks** Cold Coffee         |     284 tris |   **300 tris** | **PASS** |
-| **Drinks** Energy Drink        |     284 tris |   **300 tris** | **PASS** |
-| **Drinks** Iced Tea            |     284 tris |   **300 tris** | **PASS** |
-| **Drinks** Juice               |     272 tris |   **300 tris** | **PASS** |
-| **Snacks** Popcorn             |     112 tris |   **300 tris** | **PASS** |
-| **Snacks** Trail Mix           |     206 tris |   **300 tris** | **PASS** |
-| **Snacks** Gummy Bear          |     240 tris |   **300 tris** | **PASS** |
-| **Snacks** Chocolate Bar       |      96 tris |   **300 tris** | **PASS** |
-| **Snacks** Pretzel             |     206 tris |   **300 tris** | **PASS** |
-| **Snacks** Potato Chips        |     240 tris |   **300 tris** | **PASS** |
->>>>>>> 03ebf100656ef748e1656a187ae1e7828c45e018
+| **Bakery – Muffins**           |     126 tris |   **300 tris** | **PASS** |
+| **Bakery – Chocolate Cake**    |     276 tris |   **300 tris** | **PASS** |
+| **Bakery – Cookies**           |     160 tris |   **300 tris** | **PASS** |
