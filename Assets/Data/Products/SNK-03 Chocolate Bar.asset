@@ -19,7 +19,6 @@ MonoBehaviour:
   ColourCode: {r: 0.90588236, g: 0.29803923, b: 0.23529412, a: 1}
   DisplayName: Chocolate BAr
   BaseCost: 4
-  ColourCode: {r: 0.90588236, g: 0.29803923, b: 0.23529412, a: 0}
   Icon: {fileID: 0}
-  BoxPrefab: {fileID: 0}
-  PropPrefab: {fileID: 0}
+  BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
+  PropPrefab: {fileID: 3570239103035891988, guid: 6861332c2f98dea4b922aaae91885f82, type: 3}

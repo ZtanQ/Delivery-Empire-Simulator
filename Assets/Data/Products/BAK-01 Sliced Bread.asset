@@ -17,7 +17,6 @@ MonoBehaviour:
   DisplayName: Sliced Bread
   BaseCost: 4
   ColourCode: {r: 0.9607843, g: 0.81960785, b: 0.25882354, a:1}
-  ColourCode: {r: 0.9607843, g: 0.81960785, b: 0.25882354, a: 0}
   Icon: {fileID: 0}
-  BoxPrefab: {fileID: 0}
+  BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
   PropPrefab: {fileID: 0}

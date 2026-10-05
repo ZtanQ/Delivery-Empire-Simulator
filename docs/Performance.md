@@ -46,7 +46,7 @@ The following measurements were recorded in the Unity Editor with an empty scene
 
 * **Product Prop Design:** The budget remains **300 tris**. The final product designs may vary in shape and detail, so each design should be checked against the budget once finalized.
 
-* **Shelf Design:** The revised budget is **200 tris**, reduced from 600 tris. The final shelf design should be validated to ensure it meets the required visual and functional needs within the reduced geometry budget.
+* **Shelf Design:** The revised budget is **600 tris** for the shelf unit. The initial estimate assumed a single shelf, whereas the final asset consists of multiple shelves. The final shelf design should be validated to ensure the complete shelf group meets the required visual and functional needs within the 600-tris geometry budget.
 
 * **Large Asset Complexity:** The budgets remain **1,500 tris for the terminal**, **3,000 tris for the truck**, and **3,000 tris for the rider**. Their final designs should be validated against these limits once the models are available.
 

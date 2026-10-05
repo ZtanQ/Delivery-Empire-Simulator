@@ -349,11 +349,8 @@ may be disabled and reused instead of being destroyed.
 
 -   `OnInventoryChanged`
 -   `OnShelfUpdated`
-<<<<<<< HEAD
 -   `OnCashChanged`
 -   `OnXPChanged`
-=======
->>>>>>> parent of a0fcda5 (Purchase logic)
 
 ### Planned
 
