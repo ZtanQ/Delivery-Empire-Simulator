@@ -17,6 +17,6 @@ MonoBehaviour:
   DisplayName: Whole Milk
   BaseCost: 5
   ColourCode: {r: 0.65882355, g: 0.84705883, b: 0.9411765, a: 1}
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: a0e133ee59a2b7041aab5242892e2c80, type: 3}
   BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
-  PropPrefab: {fileID: 0}
+  PropPrefab: {fileID: 5104556025020090454, guid: ec67834693578ba418c3b0fff082aba8, type: 3}

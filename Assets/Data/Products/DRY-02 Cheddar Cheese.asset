@@ -17,6 +17,6 @@ MonoBehaviour:
   DisplayName: Cheddar Cheese
   BaseCost: 8
   ColourCode: {r: 0.65882355, g: 0.84705883, b: 0.9411765, a: 1}
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 355d034956129a7498b616b748ca1b4a, type: 3}
   BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
-  PropPrefab: {fileID: 0}
+  PropPrefab: {fileID: 8918160862528450019, guid: 6807c7cb236ea5c438b4bfe889d5c209, type: 3}

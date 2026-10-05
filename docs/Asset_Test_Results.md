@@ -18,15 +18,27 @@
 | **Corner Outer**               |      12 tris |   **100 tris** | **PASS** |
 | **Corner Inner**               |      12 tris |   **100 tris** | **PASS** |
 | **Ceiling Light**              |      36 tris |   **100 tris** | **PASS** |
-| **Drinks** Water Bottle        |     288 tris |   **300 tris** | **PASS** |
-| **Drinks** Cola Can            |     284 tris |   **300 tris** | **PASS** |
-| **Drinks** Cold Coffee         |     284 tris |   **300 tris** | **PASS** |
-| **Drinks** Energy Drink        |     284 tris |   **300 tris** | **PASS** |
-| **Drinks** Iced Tea            |     284 tris |   **300 tris** | **PASS** |
-| **Drinks** Juice               |     272 tris |   **300 tris** | **PASS** |
-| **Snacks** Popcorn             |     112 tris |   **300 tris** | **PASS** |
-| **Snacks** Trail Mix           |     206 tris |   **300 tris** | **PASS** |
-| **Snacks** Gummy Bear          |     240 tris |   **300 tris** | **PASS** |
-| **Snacks** Chocolate Bar       |      96 tris |   **300 tris** | **PASS** |
-| **Snacks** Pretzel             |     206 tris |   **300 tris** | **PASS** |
-| **Snacks** Potato Chips        |     240 tris |   **300 tris** | **PASS** |
+| **Drinks – Water Bottle**      |     288 tris |   **300 tris** | **PASS** |
+| **Drinks – Cola Can**          |     284 tris |   **300 tris** | **PASS** |
+| **Drinks – Cold Coffee**       |     284 tris |   **300 tris** | **PASS** |
+| **Drinks – Energy Drink**      |     284 tris |   **300 tris** | **PASS** |
+| **Drinks – Iced Tea**          |     284 tris |   **300 tris** | **PASS** |
+| **Drinks – Juice**             |     272 tris |   **300 tris** | **PASS** |
+| **Snacks – Popcorn**           |     112 tris |   **300 tris** | **PASS** |
+| **Snacks – Trail Mix**         |     206 tris |   **300 tris** | **PASS** |
+| **Snacks – Gummy Bear**        |     240 tris |   **300 tris** | **PASS** |
+| **Snacks – Chocolate Bar**     |      96 tris |   **300 tris** | **PASS** |
+| **Snacks – Pretzel**           |     206 tris |   **300 tris** | **PASS** |
+| **Snacks – Potato Chips**      |     240 tris |   **300 tris** | **PASS** |
+| **Dairy – Yoghurt**            |     276 tris |   **300 tris** | **PASS** |
+| **Dairy – Milk**               |     296 tris |   **300 tris** | **PASS** |
+| **Dairy – Ice Cream**          |     248 tris |   **300 tris** | **PASS** |
+| **Dairy – Cream Cheese**       |     252 tris |   **300 tris** | **PASS** |
+| **Dairy – Cheddar Cheese**     |     240 tris |   **300 tris** | **PASS** |
+| **Dairy – Butter**             |     216 tris |   **300 tris** | **PASS** |
+| **Bakery – Sliced Bread**      |     224 tris |   **300 tris** | **PASS** |
+| **Bakery – Bagels**            |      64 tris |   **300 tris** | **PASS** |
+| **Bakery – Croissants**        |     236 tris |   **300 tris** | **PASS** |
+| **Bakery – Muffins**           |              |   **300 tris** | **PASS** |
+| **Bakery – Chocolate Cake**    |              |   **300 tris** | **PASS** |
+| **Bakery – Cookies**           |              |   **300 tris** | **PASS** |

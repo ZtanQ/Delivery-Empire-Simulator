@@ -59,3 +59,20 @@ The following measurements were recorded in the Unity Editor with an empty scene
 | **Draw Calls**   |                 **0** |
 | **Triangles**    |             **1,971** |
 | **Memory Usage** |         **149.76 MB** |
+
+
+
+### Week 2
+
+## Phone Performance Main Scene with Stage
+
+| Metric           |                Result |
+| ---------------- | --------------------: |
+| **Timestamp**    |    04 Oct 2026, 10:34 |
+| **FPS**          |         **60.32 FPS** |
+| **Draw Calls**   |               **N/A** |
+| **Triangles**    |            **14,430** |
+| **Memory Usage** |         **214.51 MB** |
+
+## Week 3 Risks
+
