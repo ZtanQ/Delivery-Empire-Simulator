@@ -74,5 +74,13 @@ The following measurements were recorded in the Unity Editor with an empty scene
 | **Triangles**    |            **14,430** |
 | **Memory Usage** |         **214.51 MB** |
 
-## Week 3 Risks
+
+
+## MGR_Pool Usage
+
+MGR_Pool creates and manages reusable objects such as boxes and order cards. It activates objects with Get() and deactivates them with Release() instead of repeatedly creating and destroying GameObjects.
+
+## IPoolable Usage
+
+IPoolable defines OnSpawn() and OnDespawn() methods that pooled objects use to reset or update their state when they are taken from or returned to the pool.
 
