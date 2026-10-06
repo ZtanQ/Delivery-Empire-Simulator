@@ -6,15 +6,15 @@ using UnityEngine;
 public class MGR_Game : Manager<MGR_Game>
 {
     [Header("Starting Values")]
-    [SerializeField] private int startingCash = 500;
+    [SerializeField] private float startingCash = 500f;
     [SerializeField] private int startingXP = 0;
     [SerializeField] private int startingLevel = 1;
 
-    private int currentCash;
+    private float currentCash;
     private int currentXP;
     private int currentLevel;
 
-    public int CurrentCash => currentCash;
+    public int CurrentCash => Mathf.RoundToInt(currentCash);
     public int CurrentXP => currentXP;
     public int CurrentLevel => currentLevel;
 
@@ -47,37 +47,37 @@ public class MGR_Game : Manager<MGR_Game>
     // CASH
     // =========================================================
 
-    public bool TrySpendCash(int amount)
+    public bool TrySpendCash(float amount)
     {
-        if (amount <= 0)
-        {
+        if (amount <= 0f)
             return false;
-        }
 
         if (amount > currentCash)
-        {
             return false;
-        }
 
         currentCash -= amount;
 
-        OnCashChanged?.Invoke(currentCash, -amount);
+        OnCashChanged?.Invoke(
+            Mathf.RoundToInt(currentCash),
+            Mathf.RoundToInt(-amount)
+        );
 
         return true;
     }
 
-    public void AddCash(int amount)
+    public void AddCash(float amount)
     {
-        if (amount <= 0)
-        {
+        if (amount <= 0f)
             return;
-        }
 
         currentCash += amount;
 
-        OnCashChanged?.Invoke(currentCash, amount);
+        OnCashChanged?.Invoke(
+            Mathf.RoundToInt(currentCash),
+            Mathf.RoundToInt(amount)
+        );
 
-        Debug.Log($"Added {amount} cash. Current cash: {currentCash}");
+        Debug.Log($"Added {amount:F2} cash. Current cash: {currentCash:F2}");
     }
 
     // =========================================================

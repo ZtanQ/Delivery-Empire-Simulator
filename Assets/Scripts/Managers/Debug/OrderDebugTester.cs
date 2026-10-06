@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class OrderDebugTester : MonoBehaviour
 {
+    private OrderData latestOrder;
+
     private void OnEnable()
     {
         MGR_Order.OnOrderCreated += HandleOrderCreated;
@@ -19,6 +21,8 @@ public class OrderDebugTester : MonoBehaviour
             Debug.LogWarning("OrderDebugTester received a null order.");
             return;
         }
+
+        latestOrder = order;
 
         Debug.Log(
             $"[OrderDebugTester] OnOrderCreated received. " +
@@ -39,5 +43,31 @@ public class OrderDebugTester : MonoBehaviour
                 $"{item.Category} x {item.Quantity}"
             );
         }
+    }
+
+    [ContextMenu("Test Fulfill Latest Order")]
+    private void TestFulfillLatestOrder()
+    {
+        if (latestOrder == null)
+        {
+            Debug.LogWarning(
+                "[OrderDebugTester] No order available to fulfill."
+            );
+            return;
+        }
+
+        if (MGR_Order.Instance == null)
+        {
+            Debug.LogError(
+                "[OrderDebugTester] MGR_Order instance not found."
+            );
+            return;
+        }
+
+        bool success = MGR_Order.Instance.TryFulfillOrder(latestOrder);
+
+        Debug.Log(
+            $"[OrderDebugTester] Fulfillment result: {success}"
+        );
     }
 }
