@@ -4,7 +4,7 @@ public class ShelfSlot : MonoBehaviour
 {
     [SerializeField] private string shelfID;
     [SerializeField] private ProductCategory category;
-    [SerializeField] private int capacity = 12;
+    [SerializeField] private int capacity = 20;
 
     private int currentUnits;
 

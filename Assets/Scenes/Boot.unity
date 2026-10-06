@@ -245,6 +245,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f5a6dfba9277dd469f687f5fde156c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Order
+  availableProducts:
+  - {fileID: 11400000, guid: 23f53ec6ba5883644b00ee9c73cb82e7, type: 2}
+  - {fileID: 11400000, guid: 0b27bb9c6828e7d4c96661f7b2b11473, type: 2}
+  - {fileID: 11400000, guid: e13140b3c9e035d47afdf9ba35dac5f6, type: 2}
+  - {fileID: 11400000, guid: 6d8d0307b5535c14ba1aa3d092c580ad, type: 2}
+  - {fileID: 11400000, guid: 62590d945bef6a04595a11d19b48d0f9, type: 2}
+  - {fileID: 11400000, guid: 98219bbf073de3f41bce00ce3d322467, type: 2}
+  - {fileID: 11400000, guid: e50185651292d7a48a124ef0eb9e1d21, type: 2}
+  - {fileID: 11400000, guid: 8e69ffec8a2e01f49abc5e8845aa7412, type: 2}
+  - {fileID: 11400000, guid: 9c1ded1b36ee8c447abe8197233b309c, type: 2}
+  - {fileID: 11400000, guid: 61de2657301b7264da09e4b8af74e8ed, type: 2}
+  - {fileID: 11400000, guid: d13d80b4301289443b97c9e54fd748a5, type: 2}
+  - {fileID: 11400000, guid: d035d2743d201934db4feacd98202ba1, type: 2}
+  - {fileID: 11400000, guid: e0a7a4a67e5e23b4fb3d4056af893172, type: 2}
+  - {fileID: 11400000, guid: 895426d89ca81de46b58883f8b823c57, type: 2}
+  - {fileID: 11400000, guid: d3e7968043f77984eae1b7714ba9b929, type: 2}
+  - {fileID: 11400000, guid: 61de2657301b7264da09e4b8af74e8ed, type: 2}
+  - {fileID: 11400000, guid: 9937910cface0ba4ca0a5a8c505dd756, type: 2}
+  - {fileID: 11400000, guid: 611f96d25f447a0469bc4a040e3a0187, type: 2}
+  - {fileID: 11400000, guid: 46cf024fa5ead6147ae9fbe8d9946f67, type: 2}
+  - {fileID: 11400000, guid: a863f4beebdac8949802af6acbe5b279, type: 2}
+  - {fileID: 11400000, guid: 3082da4c218b6174e8e9bc4931822ecb, type: 2}
+  - {fileID: 11400000, guid: b68449854f9a0514e8528f3fee1a2b8b, type: 2}
+  - {fileID: 11400000, guid: 9febe31eaf16d604da9608d3a76a283d, type: 2}
+  - {fileID: 11400000, guid: b6f81307e9ef3bd4988f5d5824570fea, type: 2}
 --- !u!4 &196957353
 Transform:
   m_ObjectHideFlags: 0
@@ -452,6 +477,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cb7abfdf6701914f83b591028261772, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Game
+  startingCash: 500
+  startingXP: 0
+  startingLevel: 1
 --- !u!4 &1023725632
 Transform:
   m_ObjectHideFlags: 0
