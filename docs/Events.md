@@ -22,7 +22,7 @@ internal state.
                                            category,    systems requiring                     
                                            quantity     shelf updates                         
 
-  `OnOrderCreated`       `MGR_Order`       OrderData    `MGR_UI`, systems     Planned         TBD
+  `OnOrderCreated`       `MGR_Order`       OrderData    `MGR_UI`, systems     Implemented     Current
                                                         requiring order                       
                                                         information                           
 
@@ -134,6 +134,25 @@ The event is raised when shelf contents are updated.
 
 ------------------------------------------------------------------------
 
+### `OnOrderCreated`
+
+**Manager:** `MGR_Order`
+
+**GDD Payload:**
+- OrderData
+
+**Current Status:** Implemented
+
+The event is raised when `MGR_Order` successfully creates a new order.
+
+**Current code payload:**
+
+```text
+OrderData
+```
+
+------------------------------------------------------------------------
+
 ## 3. Planned Events
 
 The following events are defined by GDD §48 but are not currently
@@ -142,7 +161,6 @@ implemented in the project.
 ### Order Events
 
 ``` text
-OnOrderCreated
 OnOrderFulfilled
 OnOrderExpired
 ```
@@ -151,7 +169,6 @@ OnOrderExpired
 
   Event                Payload
   -------------------- -----------------------------------
-  `OnOrderCreated`     OrderData
   `OnOrderFulfilled`   OrderData, cash earned, XP earned
   `OnOrderExpired`     OrderData
 
@@ -351,10 +368,10 @@ may be disabled and reused instead of being destroyed.
 -   `OnShelfUpdated`
 -   `OnCashChanged`
 -   `OnXPChanged`
+-   `OnOrderCreated`
 
 ### Planned
 
--   `OnOrderCreated`
 -   `OnOrderFulfilled`
 -   `OnOrderExpired`
 -   `OnLevelUp`
@@ -369,9 +386,9 @@ may be disabled and reused instead of being destroyed.
 
 **Total GDD §48 events: 16**
 
-**Currently implemented: 2**
+**Currently implemented: 6**
 
-**Planned: 14**
+**Planned: 10**
 
 ------------------------------------------------------------------------
 
