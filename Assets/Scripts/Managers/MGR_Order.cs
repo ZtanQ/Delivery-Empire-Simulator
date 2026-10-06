@@ -15,6 +15,8 @@ public class MGR_Order : Manager<MGR_Order>
         new List<OrderData>();
 
     public static event Action<OrderData> OnOrderCreated;
+    public static event Action<OrderData> OnOrderFulfilled;
+    public static event Action<OrderData> OnOrderExpired;
 
     public IReadOnlyList<OrderData> ActiveOrders => activeOrders;
 
@@ -74,7 +76,7 @@ public class MGR_Order : Manager<MGR_Order>
                 order.IsActive = false;
 
                 Debug.Log($"Order {order.OrderID} expired.");
-
+                OnOrderExpired?.Invoke(order);
                 activeOrders.RemoveAt(i);
             }
         }
@@ -280,13 +282,41 @@ public class MGR_Order : Manager<MGR_Order>
     {
         int orderSize = GetOrderSize(order);
 
-        order.XPReward =
-            10 + (orderSize * 2);
+        order.XPReward = 10 + (orderSize * 2);
 
-        // Cash is calculated when the order is fulfilled,
-        // because the order requests categories rather than
-        // specific products.
-        order.CashReward = 0f;
+        float cashReward = 0f;
+
+        foreach (OrderItem item in order.Items)
+        {
+            if (item == null || item.Quantity <= 0)
+                continue;
+
+            DATA_ProductSO product = GetRewardProduct(item.Category);
+
+            if (product == null)
+                continue;
+
+            float salePrice =
+                product.BaseCost * product.SalePriceMultiplier;
+
+            cashReward += salePrice * item.Quantity;
+        }
+
+        order.CashReward = cashReward;
+    }
+
+    private DATA_ProductSO GetRewardProduct(ProductCategory category)
+    {
+        foreach (DATA_ProductSO product in availableProducts)
+        {
+            if (product == null)
+                continue;
+
+            if (product.Category == category)
+                return product;
+        }
+
+        return null;
     }
 
     private int GetOrderSize(OrderData order)
@@ -304,5 +334,99 @@ public class MGR_Order : Manager<MGR_Order>
         }
 
         return totalUnits;
+    }
+
+    public bool TryFulfillOrder(OrderData order)
+    {
+        if (order == null || !order.IsActive)
+            return false;
+
+        if (MGR_Inventory.Instance == null || MGR_Game.Instance == null)
+            return false;
+
+        // Check all required categories first.
+        foreach (OrderItem item in order.Items)
+        {
+            if (item == null || item.Quantity <= 0)
+                continue;
+
+            if (GetCategoryStock(item.Category) < item.Quantity)
+            {
+                Debug.Log(
+                    $"Order {order.OrderID} cannot be fulfilled. " +
+                    $"Not enough {item.Category} stock."
+                );
+                return false;
+            }
+        }
+
+        float cashReward = 0f;
+
+        // Deduct stock only after the entire order is confirmed possible.
+        foreach (OrderItem item in order.Items)
+        {
+            if (item == null || item.Quantity <= 0)
+                continue;
+
+            int remaining = item.Quantity;
+
+            foreach (DATA_ProductSO product in availableProducts)
+            {
+                if (product == null || product.Category != item.Category)
+                    continue;
+
+                if (remaining <= 0)
+                    break;
+
+                int stock = MGR_Inventory.Instance.GetStock(product);
+
+                if (stock <= 0)
+                    continue;
+
+                int amount = Mathf.Min(stock, remaining);
+
+                if (!MGR_Inventory.Instance.TryRemoveStock(product, amount))
+                    return false;
+
+                remaining -= amount;
+
+                float salePrice = product.BaseCost * product.SalePriceMultiplier;
+                cashReward += salePrice * amount;
+            }
+        }
+
+        order.CashReward = cashReward;
+        order.IsActive = false;
+
+        MGR_Game.Instance.AddCash(order.CashReward);
+        MGR_Game.Instance.AddXP(order.XPReward);
+
+        Debug.Log(
+            $"Order {order.OrderID} fulfilled. " +
+            $"Cash: {order.CashReward:F2}, XP: {order.XPReward}"
+        );
+
+        OnOrderFulfilled?.Invoke(order);
+        activeOrders.Remove(order);
+
+        return true;
+    }
+
+    private int GetCategoryStock(ProductCategory category)
+    {
+        if (MGR_Inventory.Instance == null)
+            return 0;
+
+        int totalStock = 0;
+
+        foreach (DATA_ProductSO product in availableProducts)
+        {
+            if (product == null || product.Category != category)
+                continue;
+
+            totalStock += MGR_Inventory.Instance.GetStock(product);
+        }
+
+        return totalStock;
     }
 }

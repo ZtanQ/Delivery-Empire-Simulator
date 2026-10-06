@@ -6,7 +6,7 @@ using UnityEngine;
 public class MGR_Game : Manager<MGR_Game>
 {
     [Header("Starting Values")]
-    [SerializeField] private int startingCash = 500;
+    [SerializeField] private int startingCash = 50000; // $500.00
     [SerializeField] private int startingXP = 0;
     [SerializeField] private int startingLevel = 1;
 
@@ -38,7 +38,7 @@ public class MGR_Game : Manager<MGR_Game>
 
         Debug.Log("5. MGR_Game initialised.");
 
-        Debug.Log($"Starting cash: {CurrentCash}");
+        Debug.Log($"Starting cash: ${CurrentCash / 100f:F2}");
         Debug.Log($"Starting XP: {CurrentXP}");
         Debug.Log($"Starting level: {CurrentLevel}");
     }
@@ -47,37 +47,43 @@ public class MGR_Game : Manager<MGR_Game>
     // CASH
     // =========================================================
 
-    public bool TrySpendCash(int amount)
+    public bool TrySpendCash(float amount)
     {
-        if (amount <= 0)
-        {
+        int amountCents = Mathf.RoundToInt(amount * 100f);
+
+        if (amountCents <= 0)
             return false;
-        }
 
-        if (amount > currentCash)
-        {
+        if (currentCash < amountCents)
             return false;
-        }
 
-        currentCash -= amount;
+        currentCash -= amountCents;
 
-        OnCashChanged?.Invoke(currentCash, -amount);
+        OnCashChanged?.Invoke(currentCash, -amountCents);
+
+        Debug.Log(
+            $"Spent ${amountCents / 100f:F2}. " +
+            $"Current cash: ${currentCash / 100f:F2}"
+        );
 
         return true;
     }
 
-    public void AddCash(int amount)
+    public void AddCash(float amount)
     {
-        if (amount <= 0)
-        {
+        int amountCents = Mathf.RoundToInt(amount * 100f);
+
+        if (amountCents <= 0)
             return;
-        }
 
-        currentCash += amount;
+        currentCash += amountCents;
 
-        OnCashChanged?.Invoke(currentCash, amount);
+        OnCashChanged?.Invoke(currentCash, amountCents);
 
-        Debug.Log($"Added {amount} cash. Current cash: {currentCash}");
+        Debug.Log(
+            $"Added ${amountCents / 100f:F2} cash. " +
+            $"Current cash: ${currentCash / 100f:F2}"
+        );
     }
 
     // =========================================================
@@ -106,24 +112,22 @@ public class MGR_Game : Manager<MGR_Game>
 
     public int GetTotalCost(List<PurchaseItem> lines)
     {
-        if (lines == null)
-        {
-            return 0;
-        }
+        int totalCents = 0;
 
-        int totalCost = 0;
+        if (lines == null)
+            return 0;
 
         foreach (PurchaseItem line in lines)
         {
             if (line == null || line.Product == null || line.Quantity <= 0)
-            {
                 continue;
-            }
 
-            totalCost += line.Product.BaseCost * line.Quantity;
+            totalCents += Mathf.RoundToInt(
+                line.Product.BaseCost * 100f
+            ) * line.Quantity;
         }
 
-        return totalCost;
+        return totalCents;
     }
 
     public PurchaseResult TryPurchase(List<PurchaseItem> lines)
@@ -134,31 +138,36 @@ public class MGR_Game : Manager<MGR_Game>
             return PurchaseResult.EmptyOrder;
         }
 
-        int totalCost = GetTotalCost(lines);
+        int totalCostCents = GetTotalCost(lines);
 
-        if (totalCost <= 0)
+        if (totalCostCents <= 0)
         {
             OnPurchaseRejected?.Invoke(PurchaseResult.EmptyOrder);
             return PurchaseResult.EmptyOrder;
         }
 
-        if (totalCost > CurrentCash)
+        if (currentCash < totalCostCents)
         {
             OnPurchaseRejected?.Invoke(PurchaseResult.NotEnoughCash);
             return PurchaseResult.NotEnoughCash;
         }
 
-        if (!TrySpendCash(totalCost))
-        {
-            OnPurchaseRejected?.Invoke(PurchaseResult.NotEnoughCash);
-            return PurchaseResult.NotEnoughCash;
-        }
+        currentCash -= totalCostCents;
+
+        OnCashChanged?.Invoke(
+            currentCash,
+            -totalCostCents
+        );
 
         SupplierOrder order = new SupplierOrder(lines);
 
         OnSupplierOrderCreated?.Invoke(order);
 
-        Debug.Log($"Purchase successful. Total cost: {totalCost}");
+        Debug.Log(
+            $"Purchase successful. " +
+            $"Total cost: ${totalCostCents / 100f:F2}. " +
+            $"Remaining cash: ${currentCash / 100f:F2}"
+        );
 
         return PurchaseResult.Success;
     }
