@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c05730f20c927e64bb0957b4c1ddc482
+guid: 67a084979902b0e45b88d7bef59f1cda
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3058390526475903356
-    second: ICN_DRK-03_OrangeJuice_Transparent_0
+      213: 1310720266833335086
+    second: ICN_DRY-05_CreamCheese_CirclePureFlat_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -128,7 +128,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ICN_DRK-03_OrangeJuice_Transparent_0
+      name: ICN_DRY-05_CreamCheese_CirclePureFlat_0
       rect:
         serializedVersion: 2
         x: 0
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c712403daf5917a20800000000000000
-      internalID: 3058390526475903356
+      spriteID: e239180632d903210800000000000000
+      internalID: 1310720266833335086
       vertices: []
       indices: 
       edges: []
@@ -162,8 +162,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      ICN_DRK-03_OrangeJuice_Transparent_0: 3058390526475903356
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
