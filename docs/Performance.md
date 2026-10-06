@@ -98,4 +98,3 @@ MGR_Pool creates and manages reusable objects such as boxes and order cards. It 
 IPoolable defines OnSpawn() and OnDespawn() methods that pooled objects use to reset or update their state when they are taken from or returned to the pool.
 
 >>>>>>> ee75cff (Box pool (12) and order card pool (4))
->>>>>>> 70b3c47 (Box pool (12) and order card pool (4))
