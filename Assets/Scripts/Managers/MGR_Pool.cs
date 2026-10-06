@@ -4,10 +4,10 @@ using System.Collections.Generic;
 public class MGR_Pool : Manager<MGR_Pool>
 {
     [SerializeField] private GameObject boxPrefab;
-    [SerializeField] private GameObject cardPrefab;
+    [SerializeField] private GameObject orderCardPrefab;
 
-    private readonly Queue<GameObject> boxPool = new Queue<GameObject>();     // FIFO collection for boxes
-    private readonly Queue<GameObject> cardPool = new Queue<GameObject>();    // FIFO collection for cards
+    private readonly Queue<GameObject> boxPool = new Queue<GameObject>();
+    private readonly Queue<GameObject> orderCardPool = new Queue<GameObject>();
 
     protected override void OnInitialise()
     {
@@ -23,23 +23,48 @@ public class MGR_Pool : Manager<MGR_Pool>
 
         Debug.Log("MGR_Pool created 12 boxes.");
 
-        // Create a pool of 4 cards
+        // Create a pool of 4 order cards
         for (int i = 0; i < 4; i++)
-        {
-            /*
-            GameObject card = Instantiate(cardPrefab, transform);
+        {/*
+            GameObject card = Instantiate(orderCardPrefab, transform);
             card.SetActive(false);
-            cardPool.Enqueue(card);
-            */
+            orderCardPool.Enqueue(card);*/
         }
 
-        Debug.Log("Card prefab not imported yet.");
-        //Debug.Log("MGR_Pool created 4 cards.");
+        Debug.Log("Order card prefab not yet imported.");
+        //Debug.Log("MGR_Pool created 4 order cards.");
     }
 
-    //OnSpawn() and OnDespawn() allow you to reset the object's state.
-    public GameObject Get(GameObject obj)
+    public GameObject Get(GameObject prefab)
     {
+        GameObject obj = null;
+
+        if (prefab == boxPrefab)
+        {
+            if (boxPool.Count == 0)
+            {
+                Debug.LogWarning("MGR_Pool: Box pool is empty.");
+                return null;
+            }
+
+            obj = boxPool.Dequeue();
+        }
+        else if (prefab == orderCardPrefab)
+        {
+            if (orderCardPool.Count == 0)
+            {
+                Debug.LogWarning("MGR_Pool: Card pool is empty.");
+                return null;
+            }
+
+            obj = orderCardPool.Dequeue();
+        }
+        else
+        {
+            Debug.LogWarning("MGR_Pool: Requested prefab is not registered.");
+            return null;
+        }
+
         obj.SetActive(true);
 
         IPoolable poolable = obj.GetComponent<IPoolable>();
@@ -49,11 +74,18 @@ public class MGR_Pool : Manager<MGR_Pool>
             poolable.OnSpawn();
         }
 
+        Debug.Log("MGR_Pool: Object retrieved from pool.");
+
         return obj;
     }
 
     public void Release(GameObject obj)
     {
+        if (obj == null)
+        {
+            return;
+        }
+
         IPoolable poolable = obj.GetComponent<IPoolable>();
 
         if (poolable != null)
@@ -62,6 +94,20 @@ public class MGR_Pool : Manager<MGR_Pool>
         }
 
         obj.SetActive(false);
-    }
 
+        if (obj.name.Contains(boxPrefab.name))
+        {
+            boxPool.Enqueue(obj);
+            Debug.Log("MGR_Pool: Box returned to pool.");
+        }
+        else if (obj.name.Contains(orderCardPrefab.name))
+        {
+            orderCardPool.Enqueue(obj);
+            Debug.Log("MGR_Pool: Order card returned to pool.");
+        }
+        else
+        {
+            Debug.LogWarning("MGR_Pool: Released object does not belong to this pool.");
+        }
+    }
 }
