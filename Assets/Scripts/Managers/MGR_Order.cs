@@ -76,9 +76,7 @@ public class MGR_Order : Manager<MGR_Order>
                 order.IsActive = false;
 
                 Debug.Log($"Order {order.OrderID} expired.");
-
                 OnOrderExpired?.Invoke(order);
-
                 activeOrders.RemoveAt(i);
             }
         }

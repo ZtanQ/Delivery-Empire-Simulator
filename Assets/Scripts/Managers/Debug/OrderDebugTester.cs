@@ -21,9 +21,8 @@ public class OrderDebugTester : MonoBehaviour
             Debug.LogWarning("OrderDebugTester received a null order.");
             return;
         }
-
+        
         latestOrder = order;
-
         Debug.Log(
             $"[OrderDebugTester] OnOrderCreated received. " +
             $"Order ID: {order.OrderID}, " +
