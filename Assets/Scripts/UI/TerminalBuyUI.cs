@@ -8,6 +8,7 @@ public class TerminalBuyUI : MonoBehaviour
     [SerializeField] private TMP_Text totalText;
     [SerializeField] private Button orderButton;
     [SerializeField] private DATA_ProductSO[] products;
+    [SerializeField] private GameObject terminalPanel;
 
     private TMP_Text[] quantityTexts;
     private TMP_Text[] nameTexts;
@@ -15,6 +16,14 @@ public class TerminalBuyUI : MonoBehaviour
     private Button[] minusButtons;
     private Button[] plusButtons;
     private int[] quantities;
+    public void Open()
+    {
+        terminalPanel.SetActive(true);
+    }
+    public void Close()
+    {
+        terminalPanel.SetActive(false);
+    }
 
     private void Start()
     {
