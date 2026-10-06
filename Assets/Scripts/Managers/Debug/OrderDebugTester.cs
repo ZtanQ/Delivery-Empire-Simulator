@@ -31,12 +31,12 @@ public class OrderDebugTester : MonoBehaviour
 
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Product == null)
+            if (item == null)
                 continue;
 
             Debug.Log(
                 $"[OrderDebugTester] " +
-                $"{item.Product.DisplayName} x {item.Quantity}"
+                $"{item.Category} x {item.Quantity}"
             );
         }
     }

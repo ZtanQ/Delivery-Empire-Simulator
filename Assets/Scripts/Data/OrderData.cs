@@ -11,7 +11,7 @@ public class OrderData
     public float TimerTotal;
 
     public int XPReward;
-    public int CashReward;
+    public float CashReward;
 
     public bool IsActive;
 }

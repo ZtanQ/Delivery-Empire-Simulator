@@ -149,6 +149,7 @@ The event is raised when `MGR_Order` successfully creates a new order.
 
 ```text
 OrderData
+```
 
 ------------------------------------------------------------------------
 

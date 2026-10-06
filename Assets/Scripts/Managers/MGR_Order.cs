@@ -18,6 +18,10 @@ public class MGR_Order : Manager<MGR_Order>
 
     public IReadOnlyList<OrderData> ActiveOrders => activeOrders;
 
+    [SerializeField]
+    private List<DATA_ProductSO> availableProducts =
+        new List<DATA_ProductSO>();
+
     protected override void OnInitialise()
     {
         Debug.Log("6. MGR_Order initialised.");
@@ -83,16 +87,31 @@ public class MGR_Order : Manager<MGR_Order>
             return;
         }
 
-        List<DATA_ProductSO> products = GetAvailableProducts();
+        List<ProductCategory> availableCategories =
+            GetAvailableCategories();
 
-        if (products.Count == 0)
+        if (availableCategories.Count == 0)
         {
             Debug.LogWarning(
-                "MGR_Order could not create an order because no DATA_ProductSO products were found."
+                "MGR_Order could not create an order because no valid product categories were found."
             );
 
             return;
         }
+
+        int totalUnits = UnityEngine.Random.Range(1, 4);
+
+        int categoryCount = Mathf.Min(
+            UnityEngine.Random.Range(1, 3),
+            totalUnits,
+            availableCategories.Count
+        );
+
+        List<ProductCategory> selectedCategories =
+            GetRandomCategories(
+                availableCategories,
+                categoryCount
+            );
 
         OrderData order = new OrderData
         {
@@ -101,15 +120,22 @@ public class MGR_Order : Manager<MGR_Order>
             TimerRemaining = OrderDuration,
             TimerTotal = OrderDuration,
             XPReward = 0,
-            CashReward = 0,
+            CashReward = 0f,
             IsActive = true
         };
 
-        GenerateItems(order, products);
+        GenerateItems(
+            order,
+            selectedCategories,
+            totalUnits
+        );
 
         if (order.Items.Count == 0)
         {
-            Debug.LogWarning("MGR_Order generated an empty order.");
+            Debug.LogWarning(
+                "MGR_Order generated an empty order."
+            );
+
             return;
         }
 
@@ -120,160 +146,147 @@ public class MGR_Order : Manager<MGR_Order>
         Debug.Log(
             $"Order {order.OrderID} created. " +
             $"Units: {GetOrderSize(order)}, " +
+            $"Categories: {order.Items.Count}, " +
             $"XP: {order.XPReward}, " +
-            $"Cash: {order.CashReward}, " +
+            $"Cash: {order.CashReward:F2}, " +
             $"Timer: {order.TimerTotal}s"
         );
+
+        foreach (OrderItem item in order.Items)
+        {
+            Debug.Log(
+                $"Order {order.OrderID}: " +
+                $"{item.Category} x {item.Quantity}"
+            );
+        }
 
         OnOrderCreated?.Invoke(order);
     }
 
     private void GenerateItems(
         OrderData order,
-        List<DATA_ProductSO> products)
+        List<ProductCategory> categories,
+        int totalUnits)
     {
-        int totalUnits = UnityEngine.Random.Range(1, 4);
-        int categoryCount = UnityEngine.Random.Range(1, 3);
+        if (categories == null || categories.Count == 0)
+        {
+            return;
+        }
 
-        List<ProductCategory> categories =
-            GetRandomCategories(categoryCount);
+        // Make sure every selected category appears at least once.
+        for (int i = 0; i < categories.Count; i++)
+        {
+            AddCategoryToOrder(
+                order,
+                categories[i],
+                1
+            );
+        }
 
-        for (int i = 0; i < totalUnits; i++)
+        int remainingUnits =
+            totalUnits - categories.Count;
+
+        for (int i = 0; i < remainingUnits; i++)
         {
             ProductCategory category =
-                categories[UnityEngine.Random.Range(0, categories.Count)];
-
-            List<DATA_ProductSO> categoryProducts =
-                GetProductsForCategory(products, category);
-
-            if (categoryProducts.Count == 0)
-            {
-                continue;
-            }
-
-            DATA_ProductSO product =
-                categoryProducts[
+                categories[
                     UnityEngine.Random.Range(
                         0,
-                        categoryProducts.Count)
+                        categories.Count
+                    )
                 ];
 
-            AddProductToOrder(order, product);
+            AddCategoryToOrder(
+                order,
+                category,
+                1
+            );
         }
     }
 
-    private void AddProductToOrder(
+    private void AddCategoryToOrder(
         OrderData order,
-        DATA_ProductSO product)
+        ProductCategory category,
+        int quantity)
     {
         foreach (OrderItem item in order.Items)
         {
-            if (item.Product == product)
+            if (item.Category == category)
             {
-                item.Quantity++;
+                item.Quantity += quantity;
                 return;
             }
         }
 
-        order.Items.Add(new OrderItem
-        {
-            Product = product,
-            Quantity = 1
-        });
-    }
-
-    private List<ProductCategory> GetRandomCategories(int count)
-    {
-        List<ProductCategory> availableCategories =
-            new List<ProductCategory>
+        order.Items.Add(
+            new OrderItem
             {
-                ProductCategory.Snacks,
-                ProductCategory.Dairy,
-                ProductCategory.Drinks,
-                ProductCategory.Bakery
-            };
-
-        List<ProductCategory> selectedCategories =
-            new List<ProductCategory>();
-
-        while (selectedCategories.Count < count &&
-               availableCategories.Count > 0)
-        {
-            int index = UnityEngine.Random.Range(
-                0,
-                availableCategories.Count
-            );
-
-            selectedCategories.Add(
-                availableCategories[index]
-            );
-
-            availableCategories.RemoveAt(index);
-        }
-
-        return selectedCategories;
+                Category = category,
+                Quantity = quantity
+            }
+        );
     }
 
-    [SerializeField]
-    private List<DATA_ProductSO> availableProducts =
-        new List<DATA_ProductSO>();
-
-    private List<DATA_ProductSO> GetAvailableProducts()
+    private List<ProductCategory> GetAvailableCategories()
     {
-        List<DATA_ProductSO> validProducts =
-            new List<DATA_ProductSO>();
+        List<ProductCategory> categories =
+            new List<ProductCategory>();
 
         foreach (DATA_ProductSO product in availableProducts)
         {
-            if (product != null)
+            if (product == null)
             {
-                validProducts.Add(product);
+                continue;
+            }
+
+            if (!categories.Contains(product.Category))
+            {
+                categories.Add(product.Category);
             }
         }
 
-        return validProducts;
+        return categories;
     }
 
-    private List<DATA_ProductSO> GetProductsForCategory(
-        List<DATA_ProductSO> products,
-        ProductCategory category)
+    private List<ProductCategory> GetRandomCategories(
+        List<ProductCategory> availableCategories,
+        int count)
     {
-        List<DATA_ProductSO> result =
-            new List<DATA_ProductSO>();
+        List<ProductCategory> remaining =
+            new List<ProductCategory>(
+                availableCategories
+            );
 
-        foreach (DATA_ProductSO product in products)
+        List<ProductCategory> selected =
+            new List<ProductCategory>();
+
+        while (
+            selected.Count < count &&
+            remaining.Count > 0)
         {
-            if (product.Category == category)
-            {
-                result.Add(product);
-            }
+            int index = UnityEngine.Random.Range(
+                0,
+                remaining.Count
+            );
+
+            selected.Add(remaining[index]);
+            remaining.RemoveAt(index);
         }
 
-        return result;
+        return selected;
     }
 
     private void CalculateRewards(OrderData order)
     {
         int orderSize = GetOrderSize(order);
 
-        order.XPReward = 10 + (orderSize * 2);
+        order.XPReward =
+            10 + (orderSize * 2);
 
-        int cashReward = 0;
-
-        foreach (OrderItem item in order.Items)
-        {
-            if (item.Product == null)
-            {
-                continue;
-            }
-
-            int salePrice =
-                Mathf.RoundToInt(item.Product.BaseCost * 1.5f);
-
-            cashReward += salePrice * item.Quantity;
-        }
-
-        order.CashReward = cashReward;
+        // Cash is calculated when the order is fulfilled,
+        // because the order requests categories rather than
+        // specific products.
+        order.CashReward = 0f;
     }
 
     private int GetOrderSize(OrderData order)
@@ -282,7 +295,7 @@ public class MGR_Order : Manager<MGR_Order>
 
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Product == null)
+            if (item == null || item.Quantity <= 0)
             {
                 continue;
             }

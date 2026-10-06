@@ -4,6 +4,6 @@ using UnityEngine;
 [Serializable]
 public class OrderItem
 {
-    public DATA_ProductSO Product;
+    public ProductCategory Category;
     public int Quantity;
 }
