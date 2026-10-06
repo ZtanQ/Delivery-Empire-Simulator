@@ -282,13 +282,41 @@ public class MGR_Order : Manager<MGR_Order>
     {
         int orderSize = GetOrderSize(order);
 
-        order.XPReward =
-            10 + (orderSize * 2);
+        order.XPReward = 10 + (orderSize * 2);
 
-        // Cash is calculated when the order is fulfilled,
-        // because the order requests categories rather than
-        // specific products.
-        order.CashReward = 0f;
+        float cashReward = 0f;
+
+        foreach (OrderItem item in order.Items)
+        {
+            if (item == null || item.Quantity <= 0)
+                continue;
+
+            DATA_ProductSO product = GetRewardProduct(item.Category);
+
+            if (product == null)
+                continue;
+
+            float salePrice =
+                product.BaseCost * product.SalePriceMultiplier;
+
+            cashReward += salePrice * item.Quantity;
+        }
+
+        order.CashReward = cashReward;
+    }
+
+    private DATA_ProductSO GetRewardProduct(ProductCategory category)
+    {
+        foreach (DATA_ProductSO product in availableProducts)
+        {
+            if (product == null)
+                continue;
+
+            if (product.Category == category)
+                return product;
+        }
+
+        return null;
     }
 
     private int GetOrderSize(OrderData order)
@@ -362,7 +390,7 @@ public class MGR_Order : Manager<MGR_Order>
 
                 remaining -= amount;
 
-                float salePrice = product.BaseCost * 1.5f;
+                float salePrice = product.BaseCost * product.SalePriceMultiplier;
                 cashReward += salePrice * amount;
             }
         }
