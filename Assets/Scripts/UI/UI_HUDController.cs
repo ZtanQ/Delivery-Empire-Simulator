@@ -13,12 +13,6 @@ public class UI_HUDController : MonoBehaviour
     public TMP_Text cashText;
     public TMP_Text ratingText;
 
-    [Header("Order Queue")]
-public TMP_Text order1Text;
-public TMP_Text order2Text;
-public TMP_Text order3Text;
-public TMP_Text order4Text;
-
     public void SetLevel(int level)
     {
         levelText.text = level.ToString();
@@ -30,7 +24,8 @@ public TMP_Text order4Text;
 
         if (xpBar != null && requiredXP > 0)
         {
-            xpBar.fillAmount = (float)currentXP / requiredXP;
+            xpBar.fillAmount =
+                (float)currentXP / requiredXP;
         }
     }
 
@@ -42,14 +37,6 @@ public TMP_Text order4Text;
     public void SetRating(float rating)
     {
         ratingText.text = rating.ToString("0.0");
-    }
-
-     public void SetOrders(string order1, string order2, string order3, string order4)
-    {
-        order1Text.text = order1;
-        order2Text.text = order2;
-        order3Text.text = order3;
-        order4Text.text = order4;
     }
 
     private void OnEnable()
@@ -75,19 +62,21 @@ public TMP_Text order4Text;
         SetCash(newCash);
     }
 
-    private void Start()    
+    private void Start()
     {
-    if (MGR_Game.Instance != null)
-    {
-        SetLevel(1);
-        SetXP(MGR_Game.Instance.CurrentXP, 100);
-    }
-    
-    if (MGR_Game.Instance != null)
-    {
-        SetCash(MGR_Game.Instance.CurrentCash);
-    }
-    SetRating(5.0f);
-    SetOrders("Burger", "Pizza", "Coffee", "Sushi");
+        if (MGR_Game.Instance != null)
+        {
+            SetLevel(1);
+            SetXP(
+                MGR_Game.Instance.CurrentXP,
+                100
+            );
+
+            SetCash(
+                MGR_Game.Instance.CurrentCash
+            );
+        }
+
+        SetRating(5.0f);
     }
 }

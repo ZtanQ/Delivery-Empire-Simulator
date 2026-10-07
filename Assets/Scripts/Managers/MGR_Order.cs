@@ -76,7 +76,9 @@ public class MGR_Order : Manager<MGR_Order>
                 order.IsActive = false;
 
                 Debug.Log($"Order {order.OrderID} expired.");
+
                 OnOrderExpired?.Invoke(order);
+
                 activeOrders.RemoveAt(i);
             }
         }
@@ -148,7 +150,7 @@ public class MGR_Order : Manager<MGR_Order>
         Debug.Log(
             $"Order {order.OrderID} created. " +
             $"Units: {GetOrderSize(order)}, " +
-            $"Categories: {order.Items.Count}, " +
+            $"Products: {order.Items.Count}, " +
             $"XP: {order.XPReward}, " +
             $"Cash: {order.CashReward:F2}, " +
             $"Timer: {order.TimerTotal}s"
@@ -156,9 +158,14 @@ public class MGR_Order : Manager<MGR_Order>
 
         foreach (OrderItem item in order.Items)
         {
+            if (item == null || item.Product == null)
+            {
+                continue;
+            }
+
             Debug.Log(
                 $"Order {order.OrderID}: " +
-                $"{item.Category} x {item.Quantity}"
+                $"{item.Product.DisplayName} x {item.Quantity}"
             );
         }
 
@@ -176,11 +183,11 @@ public class MGR_Order : Manager<MGR_Order>
         }
 
         // Make sure every selected category appears at least once.
-        for (int i = 0; i < categories.Count; i++)
+        foreach (ProductCategory category in categories)
         {
             AddCategoryToOrder(
                 order,
-                categories[i],
+                category,
                 1
             );
         }
@@ -211,9 +218,22 @@ public class MGR_Order : Manager<MGR_Order>
         ProductCategory category,
         int quantity)
     {
+        DATA_ProductSO product =
+            GetRandomProduct(category);
+
+        if (product == null)
+        {
+            return;
+        }
+
         foreach (OrderItem item in order.Items)
         {
-            if (item.Category == category)
+            if (item == null)
+            {
+                continue;
+            }
+
+            if (item.Product == product)
             {
                 item.Quantity += quantity;
                 return;
@@ -223,10 +243,42 @@ public class MGR_Order : Manager<MGR_Order>
         order.Items.Add(
             new OrderItem
             {
-                Category = category,
+                Product = product,
                 Quantity = quantity
             }
         );
+    }
+
+    private DATA_ProductSO GetRandomProduct(
+        ProductCategory category)
+    {
+        List<DATA_ProductSO> products =
+            new List<DATA_ProductSO>();
+
+        foreach (DATA_ProductSO product in availableProducts)
+        {
+            if (product == null)
+            {
+                continue;
+            }
+
+            if (product.Category == category)
+            {
+                products.Add(product);
+            }
+        }
+
+        if (products.Count == 0)
+        {
+            return null;
+        }
+
+        return products[
+            UnityEngine.Random.Range(
+                0,
+                products.Count
+            )
+        ];
     }
 
     private List<ProductCategory> GetAvailableCategories()
@@ -282,41 +334,30 @@ public class MGR_Order : Manager<MGR_Order>
     {
         int orderSize = GetOrderSize(order);
 
-        order.XPReward = 10 + (orderSize * 2);
+        order.XPReward =
+            10 + (orderSize * 2);
 
         float cashReward = 0f;
 
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Quantity <= 0)
+            if (
+                item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
+            {
                 continue;
-
-            DATA_ProductSO product = GetRewardProduct(item.Category);
-
-            if (product == null)
-                continue;
+            }
 
             float salePrice =
-                product.BaseCost * product.SalePriceMultiplier;
+                item.Product.BaseCost *
+                item.Product.SalePriceMultiplier;
 
-            cashReward += salePrice * item.Quantity;
+            cashReward +=
+                salePrice * item.Quantity;
         }
 
         order.CashReward = cashReward;
-    }
-
-    private DATA_ProductSO GetRewardProduct(ProductCategory category)
-    {
-        foreach (DATA_ProductSO product in availableProducts)
-        {
-            if (product == null)
-                continue;
-
-            if (product.Category == category)
-                return product;
-        }
-
-        return null;
     }
 
     private int GetOrderSize(OrderData order)
@@ -325,7 +366,10 @@ public class MGR_Order : Manager<MGR_Order>
 
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Quantity <= 0)
+            if (
+                item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
             {
                 continue;
             }
@@ -339,94 +383,95 @@ public class MGR_Order : Manager<MGR_Order>
     public bool TryFulfillOrder(OrderData order)
     {
         if (order == null || !order.IsActive)
+        {
             return false;
+        }
 
-        if (MGR_Inventory.Instance == null || MGR_Game.Instance == null)
+        if (
+            MGR_Inventory.Instance == null ||
+            MGR_Game.Instance == null)
+        {
             return false;
+        }
 
-        // Check all required categories first.
+        // Check all required products first.
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Quantity <= 0)
+            if (
+                item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
+            {
                 continue;
+            }
 
-            if (GetCategoryStock(item.Category) < item.Quantity)
+            int stock =
+                MGR_Inventory.Instance.GetStock(
+                    item.Product
+                );
+
+            if (stock < item.Quantity)
             {
                 Debug.Log(
                     $"Order {order.OrderID} cannot be fulfilled. " +
-                    $"Not enough {item.Category} stock."
+                    $"Not enough {item.Product.DisplayName} stock."
                 );
+
                 return false;
             }
         }
 
         float cashReward = 0f;
 
-        // Deduct stock only after the entire order is confirmed possible.
+        // Deduct stock only after the entire order
+        // has been confirmed possible.
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Quantity <= 0)
-                continue;
-
-            int remaining = item.Quantity;
-
-            foreach (DATA_ProductSO product in availableProducts)
+            if (
+                item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
             {
-                if (product == null || product.Category != item.Category)
-                    continue;
-
-                if (remaining <= 0)
-                    break;
-
-                int stock = MGR_Inventory.Instance.GetStock(product);
-
-                if (stock <= 0)
-                    continue;
-
-                int amount = Mathf.Min(stock, remaining);
-
-                if (!MGR_Inventory.Instance.TryRemoveStock(product, amount))
-                    return false;
-
-                remaining -= amount;
-
-                float salePrice = product.BaseCost * product.SalePriceMultiplier;
-                cashReward += salePrice * amount;
+                continue;
             }
+
+            if (
+                !MGR_Inventory.Instance.TryRemoveStock(
+                    item.Product,
+                    item.Quantity))
+            {
+                return false;
+            }
+
+            float salePrice =
+                item.Product.BaseCost *
+                item.Product.SalePriceMultiplier;
+
+            cashReward +=
+                salePrice * item.Quantity;
         }
 
         order.CashReward = cashReward;
         order.IsActive = false;
 
-        MGR_Game.Instance.AddCash(order.CashReward);
-        MGR_Game.Instance.AddXP(order.XPReward);
+        MGR_Game.Instance.AddCash(
+            order.CashReward
+        );
+
+        MGR_Game.Instance.AddXP(
+            order.XPReward
+        );
 
         Debug.Log(
             $"Order {order.OrderID} fulfilled. " +
-            $"Cash: {order.CashReward:F2}, XP: {order.XPReward}"
+            $"Cash: {order.CashReward:F2}, " +
+            $"XP: {order.XPReward}"
         );
 
         OnOrderFulfilled?.Invoke(order);
+
         activeOrders.Remove(order);
 
         return true;
-    }
-
-    private int GetCategoryStock(ProductCategory category)
-    {
-        if (MGR_Inventory.Instance == null)
-            return 0;
-
-        int totalStock = 0;
-
-        foreach (DATA_ProductSO product in availableProducts)
-        {
-            if (product == null || product.Category != category)
-                continue;
-
-            totalStock += MGR_Inventory.Instance.GetStock(product);
-        }
-
-        return totalStock;
     }
 }

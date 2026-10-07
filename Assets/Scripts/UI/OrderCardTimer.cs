@@ -3,24 +3,41 @@ using UnityEngine.UI;
 
 public class OrderCardTimer : MonoBehaviour
 {
-    public float duration = 60f;
+    [SerializeField] private float duration = 90f;
 
     private Image timeBar;
     private float timeRemaining;
 
-    void Start()
+    private void Awake()
     {
         timeBar = GetComponent<Image>();
-        timeRemaining = duration;
-        timeBar.fillAmount = 1f;
     }
 
-    void Update()
+    public void Setup(float totalTime)
     {
-        if (timeRemaining > 0)
-        {
-            timeRemaining -= Time.deltaTime;
-            timeBar.fillAmount = timeRemaining / duration;
-        }
+        duration = totalTime;
+        timeRemaining = totalTime;
+        UpdateBar();
+    }
+
+    private void Update()
+    {
+        if (timeRemaining <= 0f)
+            return;
+
+        timeRemaining -= Time.deltaTime;
+
+        if (timeRemaining < 0f)
+            timeRemaining = 0f;
+
+        UpdateBar();
+    }
+
+    private void UpdateBar()
+    {
+        if (timeBar == null || duration <= 0f)
+            return;
+
+        timeBar.fillAmount = timeRemaining / duration;
     }
 }
