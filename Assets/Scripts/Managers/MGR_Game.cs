@@ -136,7 +136,7 @@ public class MGR_Game : Manager<MGR_Game>
         if (level <= 1)
             return 0;
 
-        return Mathf.CeilToInt(
+        return Mathf.RoundToInt(
             100f * Mathf.Pow(level, 1.2f)
         );
     }
