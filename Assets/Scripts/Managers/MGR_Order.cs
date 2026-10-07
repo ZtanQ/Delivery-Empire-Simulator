@@ -24,6 +24,9 @@ public class MGR_Order : Manager<MGR_Order>
     private List<DATA_ProductSO> availableProducts =
         new List<DATA_ProductSO>();
 
+    [SerializeField, Range(0f, 1f)]
+    private float stockedProductChance = 0.7f;
+
     protected override void OnInitialise()
     {
         Debug.Log("6. MGR_Order initialised.");
@@ -175,22 +178,41 @@ public class MGR_Order : Manager<MGR_Order>
     }
 
     private void GenerateItems(
-        OrderData order,
-        List<ProductCategory> categories,
-        int totalUnits)
+    OrderData order,
+    List<ProductCategory> selectedCategories,
+    int totalUnits)
     {
-        if (categories == null || categories.Count == 0)
+        if (order == null || selectedCategories == null ||
+            selectedCategories.Count == 0)
         {
             return;
         }
 
-        for (int i = 0; i < totalUnits; i++)
+        int guaranteedUnits = Mathf.Min(
+            selectedCategories.Count,
+            totalUnits
+        );
+
+        // Guarantee one unit from each selected category.
+        for (int i = 0; i < guaranteedUnits; i++)
+        {
+            DATA_ProductSO product =
+                PickProductForOrder(selectedCategories[i]);
+
+            if (product != null)
+            {
+                AddProductToOrder(order, product, 1);
+            }
+        }
+
+        // Randomly distribute the remaining units.
+        for (int i = guaranteedUnits; i < totalUnits; i++)
         {
             ProductCategory category =
-                categories[
+                selectedCategories[
                     UnityEngine.Random.Range(
                         0,
-                        categories.Count
+                        selectedCategories.Count
                     )
                 ];
 
@@ -199,17 +221,12 @@ public class MGR_Order : Manager<MGR_Order>
 
             if (product != null)
             {
-                AddProductToOrder(
-                    order,
-                    product,
-                    1
-                );
+                AddProductToOrder(order, product, 1);
             }
         }
     }
 
-    private DATA_ProductSO PickProductForOrder(
-        ProductCategory category)
+    private DATA_ProductSO PickProductForOrder(ProductCategory category)
     {
         List<DATA_ProductSO> categoryProducts =
             new List<DATA_ProductSO>();
@@ -219,11 +236,8 @@ public class MGR_Order : Manager<MGR_Order>
 
         foreach (DATA_ProductSO product in availableProducts)
         {
-            if (product == null ||
-                product.Category != category)
-            {
+            if (product == null || product.Category != category)
                 continue;
-            }
 
             categoryProducts.Add(product);
 
@@ -235,13 +249,11 @@ public class MGR_Order : Manager<MGR_Order>
         }
 
         if (categoryProducts.Count == 0)
-        {
             return null;
-        }
 
         bool chooseStocked =
-            stockedProducts.Count > 0 &&
-            UnityEngine.Random.value < 0.7f;
+        stockedProducts.Count > 0 &&
+        UnityEngine.Random.value < stockedProductChance;
 
         List<DATA_ProductSO> candidates =
             chooseStocked
@@ -255,12 +267,6 @@ public class MGR_Order : Manager<MGR_Order>
                     candidates.Count
                 )
             ];
-
-        Debug.Log(
-            $"70/30 TEST | Category: {category} | " +
-            $"Selected: {selectedProduct.DisplayName} | " +
-            $"Branch: {(chooseStocked ? "STOCKED (70%)" : "ANY (30%)")}"
-        );
 
         return selectedProduct;
     }

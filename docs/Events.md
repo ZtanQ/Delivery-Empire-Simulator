@@ -44,7 +44,7 @@ internal state.
 
   `OnPurchaseRejected`    `MGR_Game`       PurchaseResult `MGR_UI`, terminal UI  Implemented  Week 2                          
 
-  `OnXPChanged`          `MGR_Game`        New XP,      `MGR_UI`, systems     Implmented      Week 2
+  `OnXPChanged`          `MGR_Game`        New XP,      `MGR_UI`, systems     Implemented      Week 2
                                            current      requiring XP                          
                                            level        information                           
 
@@ -138,8 +138,7 @@ The event is raised when shelf contents are updated.
 
 **Manager:** `MGR_Order`
 
-**GDD Payload:**
-- OrderData
+**GDD Payload:** - OrderData
 
 **Current Status:** Implemented
 
@@ -175,7 +174,7 @@ OrderData
 
 **Current Status:** Implemented
 
-The event is raised when an active order is successfully fulfilled.
+The event is raised when an active order reaches zero time and expires.
 
 **Current code payload:**
 
