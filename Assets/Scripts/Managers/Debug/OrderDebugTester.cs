@@ -39,7 +39,7 @@ public class OrderDebugTester : MonoBehaviour
 
             Debug.Log(
                 $"[OrderDebugTester] " +
-                $"{item.Category} x {item.Quantity}"
+                $"{item.Product.DisplayName} x {item.Quantity}"
             );
         }
     }

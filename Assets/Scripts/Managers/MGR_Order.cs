@@ -158,7 +158,7 @@ public class MGR_Order : Manager<MGR_Order>
         {
             Debug.Log(
                 $"Order {order.OrderID}: " +
-                $"{item.Category} x {item.Quantity}"
+                $"{item.Product.DisplayName} x {item.Quantity}"
             );
         }
 
@@ -166,54 +166,79 @@ public class MGR_Order : Manager<MGR_Order>
     }
 
     private void GenerateItems(
-        OrderData order,
-        List<ProductCategory> categories,
-        int totalUnits)
+    OrderData order,
+    List<ProductCategory> categories,
+    int totalUnits)
     {
         if (categories == null || categories.Count == 0)
-        {
             return;
-        }
 
-        // Make sure every selected category appears at least once.
-        for (int i = 0; i < categories.Count; i++)
-        {
-            AddCategoryToOrder(
-                order,
-                categories[i],
-                1
-            );
-        }
-
-        int remainingUnits =
-            totalUnits - categories.Count;
-
-        for (int i = 0; i < remainingUnits; i++)
+        for (int i = 0; i < totalUnits; i++)
         {
             ProductCategory category =
-                categories[
-                    UnityEngine.Random.Range(
-                        0,
-                        categories.Count
-                    )
-                ];
+                categories[UnityEngine.Random.Range(0, categories.Count)];
 
-            AddCategoryToOrder(
-                order,
-                category,
-                1
-            );
+            DATA_ProductSO product = PickProductForOrder(category);
+
+            if (product != null)
+            {
+                AddProductToOrder(order, product, 1);
+            }
         }
     }
 
-    private void AddCategoryToOrder(
+    private DATA_ProductSO PickProductForOrder(ProductCategory category)
+    {
+        List<DATA_ProductSO> categoryProducts =
+            new List<DATA_ProductSO>();
+
+        List<DATA_ProductSO> stockedProducts =
+            new List<DATA_ProductSO>();
+
+        foreach (DATA_ProductSO product in availableProducts)
+        {
+            if (product == null || product.Category != category)
+                continue;
+
+            categoryProducts.Add(product);
+
+            if (MGR_Inventory.Instance != null &&
+                MGR_Inventory.Instance.GetStock(product) > 0)
+            {
+                stockedProducts.Add(product);
+            }
+        }
+
+        if (categoryProducts.Count == 0)
+            return null;
+
+        bool chooseStocked =
+    stockedProducts.Count > 0 &&
+    UnityEngine.Random.value < 0.7f;
+
+        List<DATA_ProductSO> candidates =
+            chooseStocked ? stockedProducts : categoryProducts;
+
+        DATA_ProductSO selectedProduct =
+            candidates[UnityEngine.Random.Range(0, candidates.Count)];
+
+        Debug.Log(
+            $"70/30 TEST | Category: {category} | " +
+            $"Selected: {selectedProduct.DisplayName} | " +
+            $"Branch: {(chooseStocked ? "STOCKED (70%)" : "ANY (30%)")}"
+        );
+
+        return selectedProduct;
+    }
+
+    private void AddProductToOrder(
         OrderData order,
-        ProductCategory category,
+        DATA_ProductSO product,
         int quantity)
     {
         foreach (OrderItem item in order.Items)
         {
-            if (item.Category == category)
+            if (item.Product == product)
             {
                 item.Quantity += quantity;
                 return;
@@ -223,7 +248,7 @@ public class MGR_Order : Manager<MGR_Order>
         order.Items.Add(
             new OrderItem
             {
-                Category = category,
+                Product = product,
                 Quantity = quantity
             }
         );
@@ -288,35 +313,21 @@ public class MGR_Order : Manager<MGR_Order>
 
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Quantity <= 0)
+            if (item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
+            {
                 continue;
-
-            DATA_ProductSO product = GetRewardProduct(item.Category);
-
-            if (product == null)
-                continue;
+            }
 
             float salePrice =
-                product.BaseCost * product.SalePriceMultiplier;
+                item.Product.BaseCost *
+                item.Product.SalePriceMultiplier;
 
             cashReward += salePrice * item.Quantity;
         }
 
         order.CashReward = cashReward;
-    }
-
-    private DATA_ProductSO GetRewardProduct(ProductCategory category)
-    {
-        foreach (DATA_ProductSO product in availableProducts)
-        {
-            if (product == null)
-                continue;
-
-            if (product.Category == category)
-                return product;
-        }
-
-        return null;
     }
 
     private int GetOrderSize(OrderData order)
@@ -326,9 +337,7 @@ public class MGR_Order : Manager<MGR_Order>
         foreach (OrderItem item in order.Items)
         {
             if (item == null || item.Quantity <= 0)
-            {
                 continue;
-            }
 
             totalUnits += item.Quantity;
         }
@@ -341,92 +350,67 @@ public class MGR_Order : Manager<MGR_Order>
         if (order == null || !order.IsActive)
             return false;
 
-        if (MGR_Inventory.Instance == null || MGR_Game.Instance == null)
+        if (MGR_Inventory.Instance == null ||
+            MGR_Game.Instance == null)
             return false;
 
-        // Check all required categories first.
+        // Check all required products first.
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Quantity <= 0)
+            if (item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
+            {
                 continue;
+            }
 
-            if (GetCategoryStock(item.Category) < item.Quantity)
+            int stock =
+                MGR_Inventory.Instance.GetStock(item.Product);
+
+            if (stock < item.Quantity)
             {
                 Debug.Log(
                     $"Order {order.OrderID} cannot be fulfilled. " +
-                    $"Not enough {item.Category} stock."
+                    $"Not enough {item.Product.DisplayName} stock."
                 );
+
                 return false;
             }
         }
 
-        float cashReward = 0f;
-
-        // Deduct stock only after the entire order is confirmed possible.
+        // Deduct the exact requested products.
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Quantity <= 0)
-                continue;
-
-            int remaining = item.Quantity;
-
-            foreach (DATA_ProductSO product in availableProducts)
+            if (item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
             {
-                if (product == null || product.Category != item.Category)
-                    continue;
+                continue;
+            }
 
-                if (remaining <= 0)
-                    break;
-
-                int stock = MGR_Inventory.Instance.GetStock(product);
-
-                if (stock <= 0)
-                    continue;
-
-                int amount = Mathf.Min(stock, remaining);
-
-                if (!MGR_Inventory.Instance.TryRemoveStock(product, amount))
-                    return false;
-
-                remaining -= amount;
-
-                float salePrice = product.BaseCost * product.SalePriceMultiplier;
-                cashReward += salePrice * amount;
+            if (!MGR_Inventory.Instance.TryRemoveStock(
+                    item.Product,
+                    item.Quantity))
+            {
+                return false;
             }
         }
 
-        order.CashReward = cashReward;
         order.IsActive = false;
 
+        // CashReward was fixed when the order was created.
         MGR_Game.Instance.AddCash(order.CashReward);
         MGR_Game.Instance.AddXP(order.XPReward);
 
         Debug.Log(
             $"Order {order.OrderID} fulfilled. " +
-            $"Cash: {order.CashReward:F2}, XP: {order.XPReward}"
+            $"Cash: {order.CashReward:F2}, " +
+            $"XP: {order.XPReward}"
         );
 
         OnOrderFulfilled?.Invoke(order);
         activeOrders.Remove(order);
 
         return true;
-    }
-
-    private int GetCategoryStock(ProductCategory category)
-    {
-        if (MGR_Inventory.Instance == null)
-            return 0;
-
-        int totalStock = 0;
-
-        foreach (DATA_ProductSO product in availableProducts)
-        {
-            if (product == null || product.Category != category)
-                continue;
-
-            totalStock += MGR_Inventory.Instance.GetStock(product);
-        }
-
-        return totalStock;
     }
 }
