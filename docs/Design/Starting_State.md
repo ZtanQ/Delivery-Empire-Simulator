@@ -10,11 +10,11 @@ The player starts with 500 cash. This is enough to restock early orders while st
 
 ## Shelf capacity
 
-**6 units per shelf**
+**20 units per shelf slot**
 
-This is a proposed starting capacity because ShelfPlan.md defines the six shelf slots and their categories but does not specify a numeric capacity.
+Each shelf slot holds a maximum of 20 units.
 
-Each shelf holds one category only.
+This matches the 5-unit box size, so 4 full boxes fill one shelf.
 
 ## Starting stock
 
@@ -41,4 +41,4 @@ The player starts with one rider so deliveries can begin immediately.
 
 ## Assumptions
 
-ShelfPlan.md defines the shelf/category allocation but does not define shelf capacity or starting stock quantities. The values above are proposed starting values for review and can be adjusted after playtesting.
+ShelfPlan.md defines the six shelf slots and their categories but does not specify the starting stock quantity or shelf capacity. The 20-unit shelf capacity is aligned with the current Team Handbook/implementation guidance.

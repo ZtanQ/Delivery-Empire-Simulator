@@ -254,6 +254,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 462105288261333993, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1470087188456967363, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
       propertyPath: m_Name
       value: HUD_Canvas
@@ -261,6 +265,22 @@ PrefabInstance:
     - target: {fileID: 1470087188456967363, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3535221254265182075, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4982461359490013895, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6431349332170565173, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7570984064617056258, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8979669422067868594, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
       propertyPath: m_Pivot.x

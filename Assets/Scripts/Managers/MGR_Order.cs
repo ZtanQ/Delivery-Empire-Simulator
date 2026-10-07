@@ -77,6 +77,9 @@ public class MGR_Order : Manager<MGR_Order>
 
                 Debug.Log($"Order {order.OrderID} expired.");
                 OnOrderExpired?.Invoke(order);
+
+                OnOrderExpired?.Invoke(order);
+
                 activeOrders.RemoveAt(i);
             }
         }
@@ -148,7 +151,7 @@ public class MGR_Order : Manager<MGR_Order>
         Debug.Log(
             $"Order {order.OrderID} created. " +
             $"Units: {GetOrderSize(order)}, " +
-            $"Categories: {order.Items.Count}, " +
+            $"Products: {order.Items.Count}, " +
             $"XP: {order.XPReward}, " +
             $"Cash: {order.CashReward:F2}, " +
             $"Timer: {order.TimerTotal}s"
@@ -156,6 +159,11 @@ public class MGR_Order : Manager<MGR_Order>
 
         foreach (OrderItem item in order.Items)
         {
+            if (item == null || item.Product == null)
+            {
+                continue;
+            }
+
             Debug.Log(
                 $"Order {order.OrderID}: " +
                 $"{item.Product.DisplayName} x {item.Quantity}"
@@ -172,7 +180,6 @@ public class MGR_Order : Manager<MGR_Order>
     {
         if (categories == null || categories.Count == 0)
             return;
-
         for (int i = 0; i < totalUnits; i++)
         {
             ProductCategory category =
@@ -184,6 +191,14 @@ public class MGR_Order : Manager<MGR_Order>
             {
                 AddProductToOrder(order, product, 1);
             }
+        // Make sure every selected category appears at least once.
+        foreach (ProductCategory category in categories)
+        {
+            AddCategoryToOrder(
+                order,
+                category,
+                1
+            );
         }
     }
 
@@ -236,8 +251,21 @@ public class MGR_Order : Manager<MGR_Order>
         DATA_ProductSO product,
         int quantity)
     {
+        DATA_ProductSO product =
+            GetRandomProduct(category);
+
+        if (product == null)
+        {
+            return;
+        }
+
         foreach (OrderItem item in order.Items)
         {
+      if (item == null)
+            {
+                continue;
+            }
+
             if (item.Product == product)
             {
                 item.Quantity += quantity;
@@ -252,6 +280,38 @@ public class MGR_Order : Manager<MGR_Order>
                 Quantity = quantity
             }
         );
+    }
+
+    private DATA_ProductSO GetRandomProduct(
+        ProductCategory category)
+    {
+        List<DATA_ProductSO> products =
+            new List<DATA_ProductSO>();
+
+        foreach (DATA_ProductSO product in availableProducts)
+        {
+            if (product == null)
+            {
+                continue;
+            }
+
+            if (product.Category == category)
+            {
+                products.Add(product);
+            }
+        }
+
+        if (products.Count == 0)
+        {
+            return null;
+        }
+
+        return products[
+            UnityEngine.Random.Range(
+                0,
+                products.Count
+            )
+        ];
     }
 
     private List<ProductCategory> GetAvailableCategories()
@@ -314,6 +374,8 @@ public class MGR_Order : Manager<MGR_Order>
         foreach (OrderItem item in order.Items)
         {
             if (item == null ||
+            if (
+                item == null ||
                 item.Product == null ||
                 item.Quantity <= 0)
             {
@@ -325,6 +387,8 @@ public class MGR_Order : Manager<MGR_Order>
                 item.Product.SalePriceMultiplier;
 
             cashReward += salePrice * item.Quantity;
+            cashReward +=
+                salePrice * item.Quantity;
         }
 
         order.CashReward = cashReward;
@@ -337,6 +401,11 @@ public class MGR_Order : Manager<MGR_Order>
         foreach (OrderItem item in order.Items)
         {
             if (item == null || item.Quantity <= 0)
+            if (
+                item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
+            {
                 continue;
 
             totalUnits += item.Quantity;
@@ -353,11 +422,22 @@ public class MGR_Order : Manager<MGR_Order>
         if (MGR_Inventory.Instance == null ||
             MGR_Game.Instance == null)
             return false;
+        {
+            return false;
+        }
 
+        if (
+            MGR_Inventory.Instance == null ||
+            MGR_Game.Instance == null)
+        {
+            return false;
+        }
         // Check all required products first.
         foreach (OrderItem item in order.Items)
         {
             if (item == null ||
+            if (
+                item == null ||
                 item.Product == null ||
                 item.Quantity <= 0)
             {
@@ -366,6 +446,9 @@ public class MGR_Order : Manager<MGR_Order>
 
             int stock =
                 MGR_Inventory.Instance.GetStock(item.Product);
+                MGR_Inventory.Instance.GetStock(
+                    item.Product
+                );
 
             if (stock < item.Quantity)
             {
@@ -382,6 +465,15 @@ public class MGR_Order : Manager<MGR_Order>
         foreach (OrderItem item in order.Items)
         {
             if (item == null ||
+
+        float cashReward = 0f;
+
+        // Deduct stock only after the entire order
+        // has been confirmed possible.
+        foreach (OrderItem item in order.Items)
+        {
+            if (
+                item == null ||
                 item.Product == null ||
                 item.Quantity <= 0)
             {
@@ -389,6 +481,8 @@ public class MGR_Order : Manager<MGR_Order>
             }
 
             if (!MGR_Inventory.Instance.TryRemoveStock(
+            if (
+                !MGR_Inventory.Instance.TryRemoveStock(
                     item.Product,
                     item.Quantity))
             {
@@ -401,6 +495,25 @@ public class MGR_Order : Manager<MGR_Order>
         // CashReward was fixed when the order was created.
         MGR_Game.Instance.AddCash(order.CashReward);
         MGR_Game.Instance.AddXP(order.XPReward);
+
+            float salePrice =
+                item.Product.BaseCost *
+                item.Product.SalePriceMultiplier;
+
+            cashReward +=
+                salePrice * item.Quantity;
+        }
+
+        order.CashReward = cashReward;
+        order.IsActive = false;
+
+        MGR_Game.Instance.AddCash(
+            order.CashReward
+        );
+
+        MGR_Game.Instance.AddXP(
+            order.XPReward
+        );
 
         Debug.Log(
             $"Order {order.OrderID} fulfilled. " +
