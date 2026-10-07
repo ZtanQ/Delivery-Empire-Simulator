@@ -13,10 +13,12 @@ public class MGR_Game : Manager<MGR_Game>
     private int currentCash;
     private int currentXP;
     private int currentLevel;
+    private bool stage1Purchasable;
 
     public int CurrentCash => currentCash;
     public int CurrentXP => currentXP;
     public int CurrentLevel => currentLevel;
+    public bool IsStage1Purchasable => stage1Purchasable;
 
     // Cash event:
     // new balance, delta
@@ -25,6 +27,7 @@ public class MGR_Game : Manager<MGR_Game>
     // XP event:
     // new XP, current level
     public static event Action<int, int> OnXPChanged;
+    public static event Action<int> OnLevelUp;
 
     // Purchase events
     public static event Action<SupplierOrder> OnSupplierOrderCreated;
@@ -35,6 +38,7 @@ public class MGR_Game : Manager<MGR_Game>
         currentCash = startingCash;
         currentXP = startingXP;
         currentLevel = startingLevel;
+        stage1Purchasable = currentLevel >= 5;
 
         Debug.Log("5. MGR_Game initialised.");
 
@@ -93,17 +97,60 @@ public class MGR_Game : Manager<MGR_Game>
     public void AddXP(int amount)
     {
         if (amount <= 0)
-        {
             return;
-        }
 
         currentXP += amount;
 
-        // The XP curve / level-up calculation should be added
-        // once the confirmed XP curve is provided.
-        OnXPChanged?.Invoke(currentXP, currentLevel);
+        int previousLevel = currentLevel;
 
-        Debug.Log($"Added {amount} XP. Current XP: {currentXP}");
+        while (currentXP >= GetRequiredXPForLevel(currentLevel + 1))
+        {
+            currentLevel++;
+
+            ApplyLevelUnlocks();
+
+            OnLevelUp?.Invoke(currentLevel);
+
+            Debug.Log(
+                $"Level up! New level: {currentLevel}"
+            );
+        }
+
+        OnXPChanged?.Invoke(
+            currentXP,
+            currentLevel
+        );
+
+        if (currentLevel != previousLevel)
+        {
+            Debug.Log(
+                $"XP progression updated. " +
+                $"XP: {currentXP}, " +
+                $"Level: {currentLevel}"
+            );
+        }
+    }
+
+    private int GetRequiredXPForLevel(int level)
+    {
+        if (level <= 1)
+            return 0;
+
+        return Mathf.CeilToInt(
+            100f * Mathf.Pow(level, 1.2f)
+        );
+    }
+
+    private void ApplyLevelUnlocks()
+    {
+        if (currentLevel >= 5 && !stage1Purchasable)
+        {
+            stage1Purchasable = true;
+
+            Debug.Log(
+                "Level 5 reached. Stage 1 expansion is now purchasable."
+            );
+        }
     }
 
     // =========================================================
