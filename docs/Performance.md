@@ -78,24 +78,17 @@ The following measurements were recorded in the Unity Editor with an empty scene
 
 ## MGR_Pool Usage
 
-`MGR_Pool` pre-creates and reuses **12 box objects** and **4 order card objects**.
+`MGR_Pool` pre-creates and reuses **12 box objects**.
 
 ### Get an Object
 
 //Get a box from the pool
 GameObject box = MGR_Pool.Instance.Get(boxPrefab);
 
-//Get an order card from the pool
-GameObject card = MGR_Pool.Instance.Get(cardPrefab);
-
 ### Release an Object 
 
 // Return the box to the pool
 MGR_Pool.Instance.Release(box);
-
-// Return the order card to the pool
-MGR_Pool.Instance.Release(card);
-
 
 ### Objects implementing IPoolable receive callbacks when they are retrieved or returned:
 
@@ -113,5 +106,4 @@ Get() retrieves an object from the pool using Dequeue().
 Release() returns the object to the pool using Enqueue().
 OnSpawn() is called when an object is retrieved.
 OnDespawn() is called when an object is released.
-No Instantiate() or Destroy() should occur during gameplay.
-boxPrefab and cardPrefab must be assigned in Boot before MGR_Pool initializes.
+boxPrefab must be assigned in Boot before MGR_Pool initializes.
