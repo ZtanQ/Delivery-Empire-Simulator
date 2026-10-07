@@ -110,6 +110,39 @@ public class TerminalBuyUI : MonoBehaviour
 
     private void PlaceOrder()
     {
+        if (MGR_Inventory.Instance == null)
+        {
+            Debug.LogWarning("TerminalBuyUI: MGR_Inventory is not available.");
+            return;
+        }
+
+        for (int i = 0; i < quantities.Length; i++)
+        {
+            if (products == null || i >= products.Length)
+                continue;
+
+            if (products[i] == null || quantities[i] <= 0)
+                continue;
+
+            MGR_Inventory.Instance.AddStock(
+                products[i],
+                quantities[i]
+            );
+        }
+
         Debug.Log($"Order placed. Total: {totalText.text}");
+
+        for (int i = 0; i < quantities.Length; i++)
+        {
+            quantities[i] = 0;
+
+            if (quantityTexts[i] != null)
+                quantityTexts[i].text = "0";
+
+            if (minusButtons[i] != null)
+                minusButtons[i].interactable = false;
+        }
+
+        UpdateTotal();
     }
 }

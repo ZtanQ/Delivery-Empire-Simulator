@@ -1130,6 +1130,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrderCardTimer
   duration: 90
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  warningColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &1470087188456967363
 GameObject:
   m_ObjectHideFlags: 0
@@ -2583,6 +2585,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrderCardTimer
   duration: 90
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  warningColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &2399510584580512233
 GameObject:
   m_ObjectHideFlags: 0
@@ -4649,6 +4653,7 @@ GameObject:
   - component: {fileID: 152402734818242575}
   - component: {fileID: 1509351451552788738}
   - component: {fileID: 2195812929978298417}
+  - component: {fileID: 2575415184578227936}
   m_Layer: 5
   m_Name: OutOfStockWarning
   m_TagString: Untagged
@@ -4673,7 +4678,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -60}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1509351451552788738
@@ -4697,7 +4702,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.19607843}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4714,6 +4719,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2575415184578227936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4273665004158967766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2a83185ff0c4944ba01cc5d9e09ab8e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OutOfStockWarning
 --- !u!1 &4329087639597731647
 GameObject:
   m_ObjectHideFlags: 0
@@ -4857,6 +4874,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrderCardTimer
   duration: 90
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  warningColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &4704475703424107575
 GameObject:
   m_ObjectHideFlags: 0
@@ -5012,6 +5031,7 @@ MonoBehaviour:
   - {fileID: 6255085064288785497}
   - {fileID: 2814859513549699212}
   - {fileID: 4191676723248461733}
+  outOfStockWarning: {fileID: 2575415184578227936}
 --- !u!1 &4798352341781609132
 GameObject:
   m_ObjectHideFlags: 0
@@ -6590,8 +6610,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4279506173
+  m_fontColor: {r: 0.990566, g: 0.07943219, b: 0.07943219, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -8005,7 +8025,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9811321, g: 0.06941971, b: 0.06941971, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8017,7 +8037,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.48
+  m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -8034,7 +8054,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a727f293402caa46a8c224fc4bd7822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrderCardTimer
-  duration: 90
+  duration: 30
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  warningColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &8054704728228935618
 GameObject:
   m_ObjectHideFlags: 0
