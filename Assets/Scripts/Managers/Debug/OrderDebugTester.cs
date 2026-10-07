@@ -19,7 +19,7 @@ public class OrderDebugTester : MonoBehaviour
         if (order == null)
         {
             Debug.LogWarning(
-                "OrderDebugTester received a null order."
+                "[OrderDebugTester] Received a null order."
             );
 
             return;
@@ -32,14 +32,18 @@ public class OrderDebugTester : MonoBehaviour
             $"Order ID: {order.OrderID}, " +
             $"Items: {order.Items.Count}, " +
             $"XP: {order.XPReward}, " +
-            $"Cash: {order.CashReward}, " +
+            $"Cash: {order.CashReward:F2}, " +
             $"Timer: {order.TimerRemaining}s"
         );
 
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Product == null)
+            if (item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
+            {
                 continue;
+            }
 
             Debug.Log(
                 $"[OrderDebugTester] " +

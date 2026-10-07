@@ -26,15 +26,15 @@ internal state.
                                                         requiring order                       
                                                         information                           
 
-  `OnOrderFulfilled`     `MGR_Order`       OrderData,   `MGR_UI`,             Planned         TBD
+  `OnOrderFulfilled`     `MGR_Order`       OrderData,   `MGR_UI`,             Implemented     Current
                                            cash earned, economy/progression                   
                                            XP earned    systems                               
 
-  `OnOrderExpired`       `MGR_Order`       OrderData    `MGR_UI`, systems     Planned         TBD
+  `OnOrderExpired`       `MGR_Order`       OrderData    `MGR_UI`, systems     Implemented     Current
                                                         requiring order                       
                                                         expiry information                    
 
-  `OnCashChanged`        `MGR_Game`        New balance, `MGR_UI`, systems    Implemented      TBD
+  `OnCashChanged`        `MGR_Game`        New balance, `MGR_UI`, systems    Implemented      Current
                                            delta        requiring cash                        
                                                         information    
 
@@ -44,11 +44,11 @@ internal state.
 
   `OnPurchaseRejected`    `MGR_Game`       PurchaseResult `MGR_UI`, terminal UI  Implemented  Week 2                          
 
-  `OnXPChanged`          `MGR_Game`        New XP,      `MGR_UI`, systems     Planned         TBD
+  `OnXPChanged`          `MGR_Game`        New XP,      `MGR_UI`, systems     Implemented      Week 2
                                            current      requiring XP                          
                                            level        information                           
 
-  `OnLevelUp`            `MGR_Game`        New level    `MGR_UI`, progression Planned         TBD
+  `OnLevelUp`            `MGR_Game`        New level    `MGR_UI`, progression Implemented      Week 3
                                                         systems                               
 
   `OnRatingChanged`      `MGR_Game`        New rating,  `MGR_UI`, systems     Planned         TBD
@@ -138,8 +138,7 @@ The event is raised when shelf contents are updated.
 
 **Manager:** `MGR_Order`
 
-**GDD Payload:**
-- OrderData
+**GDD Payload:** - OrderData
 
 **Current Status:** Implemented
 
@@ -153,26 +152,41 @@ OrderData
 
 ------------------------------------------------------------------------
 
+### `OnOrderFulfilled`
+
+**Manager:** `MGR_Order`
+
+**Current Status:** Implemented
+
+The event is raised when an active order is successfully fulfilled.
+
+**Current code payload:**
+
+```text
+OrderData
+```
+
+------------------------------------------------------------------------
+
+### `OnOrderExpired`
+
+**Manager:** `MGR_Order`
+
+**Current Status:** Implemented
+
+The event is raised when an active order reaches zero time and expires.
+
+**Current code payload:**
+
+```text
+OrderData
+```
+
+------------------------------------------------------------------------
 ## 3. Planned Events
 
 The following events are defined by GDD §48 but are not currently
 implemented in the project.
-
-### Order Events
-
-``` text
-OnOrderFulfilled
-OnOrderExpired
-```
-
-**Manager:** `MGR_Order`
-
-  Event                Payload
-  -------------------- -----------------------------------
-  `OnOrderFulfilled`   OrderData, cash earned, XP earned
-  `OnOrderExpired`     OrderData
-
-------------------------------------------------------------------------
 
 ### Economy and Progression Events
 
@@ -369,12 +383,14 @@ may be disabled and reused instead of being destroyed.
 -   `OnCashChanged`
 -   `OnXPChanged`
 -   `OnOrderCreated`
+-   `OnOrderFulfilled`
+-   `OnOrderExpired`
+
+### Planned
+-   `OnLevelUp`
 
 ### Planned
 
--   `OnOrderFulfilled`
--   `OnOrderExpired`
--   `OnLevelUp`
 -   `OnRatingChanged`
 -   `OnHiringLocked`
 -   `OnStageChanged`
@@ -386,9 +402,9 @@ may be disabled and reused instead of being destroyed.
 
 **Total GDD §48 events: 16**
 
-**Currently implemented: 6**
+**Currently implemented: 8**
 
-**Planned: 10**
+**Planned: 8**
 
 ------------------------------------------------------------------------
 
