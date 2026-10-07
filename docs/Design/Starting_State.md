@@ -41,4 +41,7 @@ The player starts with one rider so deliveries can begin immediately.
 
 ## Assumptions
 
-ShelfPlan.md defines the six shelf slots and their categories but does not specify the starting stock quantity or shelf capacity. The 20-unit shelf capacity is aligned with the current Team Handbook/implementation guidance.
+- Shelf capacity is **20 units per shelf slot**.
+- A standard box contains **5 units**.
+- Therefore, 4 full boxes fill one shelf slot.
+- These values are aligned with the current Box & Truck rules and Level 1 starting-state specification.
