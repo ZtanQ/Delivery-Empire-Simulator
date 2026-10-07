@@ -48,7 +48,7 @@ internal state.
                                            current      requiring XP                          
                                            level        information                           
 
-  `OnLevelUp`            `MGR_Game`        New level    `MGR_UI`, progression Planned         TBD
+  `OnLevelUp`            `MGR_Game`        New level    `MGR_UI`, progression Implemented      Week 3
                                                         systems                               
 
   `OnRatingChanged`      `MGR_Game`        New rating,  `MGR_UI`, systems     Planned         TBD
@@ -387,8 +387,10 @@ may be disabled and reused instead of being destroyed.
 -   `OnOrderExpired`
 
 ### Planned
-
 -   `OnLevelUp`
+
+### Planned
+
 -   `OnRatingChanged`
 -   `OnHiringLocked`
 -   `OnStageChanged`
