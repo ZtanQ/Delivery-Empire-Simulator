@@ -796,7 +796,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3862d9c3a163af4a843bd16922d82f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryDebugTester
-  product: {fileID: 11400000, guid: 6d8d0307b5535c14ba1aa3d092c580ad, type: 2}
+  product: {fileID: 11400000, guid: 46cf024fa5ead6147ae9fbe8d9946f67, type: 2}
 --- !u!4 &1445246923
 Transform:
   m_ObjectHideFlags: 0

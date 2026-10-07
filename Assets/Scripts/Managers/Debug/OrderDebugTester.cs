@@ -19,28 +19,31 @@ public class OrderDebugTester : MonoBehaviour
         if (order == null)
         {
             Debug.LogWarning(
-                "OrderDebugTester received a null order."
+                "[OrderDebugTester] Received a null order."
             );
 
             return;
         }
-        
-        latestOrder = order;
 
         latestOrder = order;
+
         Debug.Log(
             $"[OrderDebugTester] OnOrderCreated received. " +
             $"Order ID: {order.OrderID}, " +
             $"Items: {order.Items.Count}, " +
             $"XP: {order.XPReward}, " +
-            $"Cash: {order.CashReward}, " +
+            $"Cash: {order.CashReward:F2}, " +
             $"Timer: {order.TimerRemaining}s"
         );
 
         foreach (OrderItem item in order.Items)
         {
-            if (item == null || item.Product == null)
+            if (item == null ||
+                item.Product == null ||
+                item.Quantity <= 0)
+            {
                 continue;
+            }
 
             Debug.Log(
                 $"[OrderDebugTester] " +
@@ -56,19 +59,6 @@ public class OrderDebugTester : MonoBehaviour
         {
             Debug.LogWarning(
                 "[OrderDebugTester] No order available to fulfill."
-            );
-            return;
-        }
-
-        if (MGR_Order.Instance == null)
-        {
-            Debug.LogError(
-                "[OrderDebugTester] MGR_Order instance not found."
-            );
-            return;
-        }
-
-        bool success = MGR_Order.Instance.TryFulfillOrder(latestOrder);
             );
 
             return;
@@ -86,6 +76,8 @@ public class OrderDebugTester : MonoBehaviour
         bool success =
             MGR_Order.Instance.TryFulfillOrder(
                 latestOrder
+            );
+
         Debug.Log(
             $"[OrderDebugTester] Fulfillment result: {success}"
         );
