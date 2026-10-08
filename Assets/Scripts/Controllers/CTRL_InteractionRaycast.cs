@@ -8,6 +8,14 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     [SerializeField] private Transform _handAnchor;
     [SerializeField] private Material _highlightMaterial;
 
+    [Header("Terminal")]
+    [SerializeField] private TerminalBuyUI _terminalUI;
+    [SerializeField] private GameObject _terminalPanel;
+
+    [Header("Player Controls")]
+    [SerializeField] private CTRL_FirstPersonController _movementController;
+    [SerializeField] private CTRL_FirstPersonCamera _lookController;
+
     [Header("Interaction")]
     [SerializeField] private LayerMask _interactableLayer;
     [SerializeField] private float _raycastDistance = 3f;
@@ -22,21 +30,40 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     private Rigidbody _heldRigidbody;
     private Collider[] _heldColliders;
 
+    private bool _terminalControlsPaused;
+    private bool _movementWasEnabled;
+    private bool _lookWasEnabled;
+
     private void Awake()
     {
-        _actionButton.OnActionTapped.AddListener(HandleActionTapped);
+        if (_actionButton != null)
+        {
+            _actionButton.OnActionTapped.AddListener(HandleActionTapped);
+        }
+
+        SyncTerminalControlState();
     }
 
     private void OnDestroy()
     {
-        _actionButton.OnActionTapped.RemoveListener(HandleActionTapped);
+        if (_actionButton != null)
+        {
+            _actionButton.OnActionTapped.RemoveListener(HandleActionTapped);
+        }
     }
 
     private void Update()
     {
+        SyncTerminalControlState();
+
+        if (_terminalControlsPaused)
+        {
+            return;
+        }
+
         if (_heldObject != null)
         {
-            _actionButton.SetAction("Drop", null);
+            SetActionButton("Drop");
             return;
         }
 
@@ -45,6 +72,12 @@ public class CTRL_InteractionRaycast : MonoBehaviour
 
     private void CheckForTarget()
     {
+        if (_playerCamera == null)
+        {
+            SetCurrentTarget(null);
+            return;
+        }
+
         Ray ray = _playerCamera.ViewportPointToRay(
             new Vector3(0.5f, 0.5f, 0f)
         );
@@ -52,10 +85,10 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         CTRL_Interactable newTarget = null;
 
         if (Physics.Raycast(
-            ray,
-            out RaycastHit hit,
-            _raycastDistance,
-            _interactableLayer))
+                ray,
+                out RaycastHit hit,
+                _raycastDistance,
+                _interactableLayer))
         {
             newTarget =
                 hit.collider.GetComponentInParent<CTRL_Interactable>();
@@ -101,29 +134,113 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             return;
         }
 
-        if (_currentTarget.Action ==
-            CTRL_Interactable.ActionType.PickUp)
+        switch (_currentTarget.Action)
         {
-            PickUpObject(_currentTarget);
+            case CTRL_Interactable.ActionType.PickUp:
+                PickUpObject(_currentTarget);
+                break;
+
+            case CTRL_Interactable.ActionType.Use:
+                OpenTerminal();
+                break;
+
+            case CTRL_Interactable.ActionType.Place:
+                // Place behavior is not implemented yet.
+                break;
+        }
+    }
+
+    private void OpenTerminal()
+    {
+        if (_terminalUI == null || _terminalPanel == null)
+        {
+            Debug.LogWarning(
+                "CTRL_InteractionRaycast: Assign the Terminal UI and its panel."
+            );
+            return;
+        }
+
+        SetCurrentTarget(null);
+        _terminalUI.Open();
+        SyncTerminalControlState();
+    }
+
+    private void SyncTerminalControlState()
+    {
+        bool terminalIsOpen =
+            _terminalPanel != null &&
+            _terminalPanel.activeInHierarchy;
+
+        if (terminalIsOpen == _terminalControlsPaused)
+        {
+            return;
+        }
+
+        SetTerminalControlsPaused(terminalIsOpen);
+    }
+
+    private void SetTerminalControlsPaused(bool paused)
+    {
+        if (paused == _terminalControlsPaused)
+        {
+            return;
+        }
+
+        _terminalControlsPaused = paused;
+
+        if (paused)
+        {
+            _movementWasEnabled =
+                _movementController != null &&
+                _movementController.enabled;
+
+            _lookWasEnabled =
+                _lookController != null &&
+                _lookController.enabled;
+
+            if (_movementController != null)
+            {
+                _movementController.enabled = false;
+            }
+
+            if (_lookController != null)
+            {
+                _lookController.enabled = false;
+            }
+
+            return;
+        }
+
+        if (_movementController != null)
+        {
+            _movementController.enabled = _movementWasEnabled;
+        }
+
+        if (_lookController != null)
+        {
+            _lookController.enabled = _lookWasEnabled;
         }
     }
 
     private void PickUpObject(CTRL_Interactable interactable)
     {
-        _currentTarget.SetHighlighted(false, _highlightMaterial);
-        _currentTarget = null;
+        if (interactable == null || _handAnchor == null)
+        {
+            return;
+        }
+
+        SetCurrentTarget(null);
 
         _heldObject = interactable.gameObject;
+        _heldRigidbody = _heldObject.GetComponent<Rigidbody>();
+        _heldColliders = _heldObject.GetComponentsInChildren<Collider>();
 
-        _heldRigidbody =
-            _heldObject.GetComponent<Rigidbody>();
-
-        _heldColliders =
-            _heldObject.GetComponentsInChildren<Collider>();
-
-        foreach (Collider collider in _heldColliders)
+        foreach (Collider heldCollider in _heldColliders)
         {
-            collider.enabled = false;
+            if (heldCollider != null)
+            {
+                heldCollider.enabled = false;
+            }
         }
 
         if (_heldRigidbody != null)
@@ -136,24 +253,37 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         _heldObject.transform.localPosition = _heldLocalPosition;
         _heldObject.transform.localRotation = Quaternion.identity;
 
-        _actionButton.SetAction("Drop", null);
+        SetActionButton("Drop");
     }
 
     private void DropObject()
     {
-        Transform objectTransform = _heldObject.transform;
+        if (_heldObject == null)
+        {
+            ClearHeldObjectReferences();
+            ClearActionButton();
+            return;
+        }
 
+        Transform objectTransform = _heldObject.transform;
         objectTransform.SetParent(null);
 
-        Vector3 dropPosition =
-            _playerCamera.transform.position +
-            _playerCamera.transform.forward;
-
-        objectTransform.position = dropPosition;
-
-        foreach (Collider collider in _heldColliders)
+        if (_playerCamera != null)
         {
-            collider.enabled = true;
+            objectTransform.position =
+                _playerCamera.transform.position +
+                _playerCamera.transform.forward;
+        }
+
+        if (_heldColliders != null)
+        {
+            foreach (Collider heldCollider in _heldColliders)
+            {
+                if (heldCollider != null)
+                {
+                    heldCollider.enabled = true;
+                }
+            }
         }
 
         if (_heldRigidbody != null)
@@ -162,11 +292,15 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             _heldRigidbody.useGravity = true;
         }
 
+        ClearHeldObjectReferences();
+        ClearActionButton();
+    }
+
+    private void ClearHeldObjectReferences()
+    {
         _heldObject = null;
         _heldRigidbody = null;
         _heldColliders = null;
-
-        ClearActionButton();
     }
 
     private void UpdateActionButton(
@@ -175,32 +309,39 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         switch (actionType)
         {
             case CTRL_Interactable.ActionType.PickUp:
-                _actionButton.SetAction("Pick up", null);
+                SetActionButton("Pick up");
                 break;
 
             case CTRL_Interactable.ActionType.Place:
-                _actionButton.SetAction("Place", null);
+                SetActionButton("Place");
                 break;
 
             case CTRL_Interactable.ActionType.Use:
-                _actionButton.SetAction("Use", null);
+                SetActionButton("Use");
                 break;
+        }
+    }
+
+    private void SetActionButton(string label)
+    {
+        if (_actionButton != null)
+        {
+            _actionButton.SetAction(label, null);
         }
     }
 
     private void ClearActionButton()
     {
-        _actionButton.SetAction("", null);
+        SetActionButton("");
     }
 
     private void OnDisable()
     {
         if (_currentTarget != null)
         {
-            _currentTarget.SetHighlighted(
-                false,
-                _highlightMaterial
-            );
+            _currentTarget.SetHighlighted(false, _highlightMaterial);
         }
+
+        _currentTarget = null;
     }
 }
