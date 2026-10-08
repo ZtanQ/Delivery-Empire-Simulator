@@ -398,7 +398,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cb7abfdf6701914f83b591028261772, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Game
-  startingCash: 500
+  startingCash: 50000
   startingXP: 0
   startingLevel: 1
   startingRating: 4

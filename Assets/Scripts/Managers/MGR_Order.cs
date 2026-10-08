@@ -40,6 +40,10 @@ public class MGR_Order : Manager<MGR_Order>
         UpdateOrderTimers();
     }
 
+    // =========================================================
+    // ORDER GENERATION
+    // =========================================================
+
     private void UpdateOrderGeneration()
     {
         if (activeOrders.Count >= MaxActiveOrders)
@@ -59,11 +63,21 @@ public class MGR_Order : Manager<MGR_Order>
         orderTimer = OrderInterval;
     }
 
+    // =========================================================
+    // ORDER TIMERS
+    // =========================================================
+
     private void UpdateOrderTimers()
     {
         for (int i = activeOrders.Count - 1; i >= 0; i--)
         {
             OrderData order = activeOrders[i];
+
+            if (order == null)
+            {
+                activeOrders.RemoveAt(i);
+                continue;
+            }
 
             if (!order.IsActive)
             {
@@ -78,7 +92,9 @@ public class MGR_Order : Manager<MGR_Order>
                 order.TimerRemaining = 0f;
                 order.IsActive = false;
 
-                Debug.Log($"Order {order.OrderID} expired.");
+                Debug.Log(
+                    $"Order {order.OrderID} expired."
+                );
 
                 OnOrderExpired?.Invoke(order);
 
@@ -86,6 +102,10 @@ public class MGR_Order : Manager<MGR_Order>
             }
         }
     }
+
+    // =========================================================
+    // ORDER CREATION
+    // =========================================================
 
     private void GenerateLevel1Order()
     {
@@ -100,19 +120,22 @@ public class MGR_Order : Manager<MGR_Order>
         if (availableCategories.Count == 0)
         {
             Debug.LogWarning(
-                "MGR_Order could not create an order because no valid product categories were found."
+                "MGR_Order could not create an order because " +
+                "no valid product categories were found."
             );
 
             return;
         }
 
-        int totalUnits = UnityEngine.Random.Range(1, 4);
+        int totalUnits =
+            UnityEngine.Random.Range(1, 4);
 
-        int categoryCount = Mathf.Min(
-            UnityEngine.Random.Range(1, 3),
-            totalUnits,
-            availableCategories.Count
-        );
+        int categoryCount =
+            Mathf.Min(
+                UnityEngine.Random.Range(1, 3),
+                totalUnits,
+                availableCategories.Count
+            );
 
         List<ProductCategory> selectedCategories =
             GetRandomCategories(
@@ -137,10 +160,22 @@ public class MGR_Order : Manager<MGR_Order>
             totalUnits
         );
 
-        if (order.Items.Count == 0)
+        if (order.Items == null ||
+            order.Items.Count == 0)
         {
             Debug.LogWarning(
-                "MGR_Order generated an empty order."
+                "MGR_Order generated an empty order. " +
+                "The order will not be added."
+            );
+
+            return;
+        }
+
+        if (!HasValidItems(order))
+        {
+            Debug.LogWarning(
+                $"MGR_Order generated order {order.OrderID} " +
+                "without valid items. The order will not be added."
             );
 
             return;
@@ -177,36 +212,50 @@ public class MGR_Order : Manager<MGR_Order>
         OnOrderCreated?.Invoke(order);
     }
 
+    // =========================================================
+    // ITEM GENERATION
+    // =========================================================
+
     private void GenerateItems(
-    OrderData order,
-    List<ProductCategory> selectedCategories,
-    int totalUnits)
+        OrderData order,
+        List<ProductCategory> selectedCategories,
+        int totalUnits)
     {
-        if (order == null || selectedCategories == null ||
+        if (order == null ||
+            selectedCategories == null ||
             selectedCategories.Count == 0)
         {
             return;
         }
 
-        int guaranteedUnits = Mathf.Min(
-            selectedCategories.Count,
-            totalUnits
-        );
+        int guaranteedUnits =
+            Mathf.Min(
+                selectedCategories.Count,
+                totalUnits
+            );
 
         // Guarantee one unit from each selected category.
         for (int i = 0; i < guaranteedUnits; i++)
         {
             DATA_ProductSO product =
-                PickProductForOrder(selectedCategories[i]);
+                PickProductForOrder(
+                    selectedCategories[i]
+                );
 
             if (product != null)
             {
-                AddProductToOrder(order, product, 1);
+                AddProductToOrder(
+                    order,
+                    product,
+                    1
+                );
             }
         }
 
-        // Randomly distribute the remaining units.
-        for (int i = guaranteedUnits; i < totalUnits; i++)
+        // Randomly distribute remaining units.
+        for (int i = guaranteedUnits;
+             i < totalUnits;
+             i++)
         {
             ProductCategory category =
                 selectedCategories[
@@ -221,12 +270,17 @@ public class MGR_Order : Manager<MGR_Order>
 
             if (product != null)
             {
-                AddProductToOrder(order, product, 1);
+                AddProductToOrder(
+                    order,
+                    product,
+                    1
+                );
             }
         }
     }
 
-    private DATA_ProductSO PickProductForOrder(ProductCategory category)
+    private DATA_ProductSO PickProductForOrder(
+        ProductCategory category)
     {
         List<DATA_ProductSO> categoryProducts =
             new List<DATA_ProductSO>();
@@ -236,8 +290,11 @@ public class MGR_Order : Manager<MGR_Order>
 
         foreach (DATA_ProductSO product in availableProducts)
         {
-            if (product == null || product.Category != category)
+            if (product == null ||
+                product.Category != category)
+            {
                 continue;
+            }
 
             categoryProducts.Add(product);
 
@@ -249,16 +306,23 @@ public class MGR_Order : Manager<MGR_Order>
         }
 
         if (categoryProducts.Count == 0)
+        {
             return null;
+        }
 
         bool chooseStocked =
-        stockedProducts.Count > 0 &&
-        UnityEngine.Random.value < stockedProductChance;
+            stockedProducts.Count > 0 &&
+            UnityEngine.Random.value < stockedProductChance;
 
         List<DATA_ProductSO> candidates =
             chooseStocked
                 ? stockedProducts
                 : categoryProducts;
+
+        if (candidates.Count == 0)
+        {
+            return null;
+        }
 
         DATA_ProductSO selectedProduct =
             candidates[
@@ -283,6 +347,11 @@ public class MGR_Order : Manager<MGR_Order>
             return;
         }
 
+        if (order.Items == null)
+        {
+            order.Items = new List<OrderItem>();
+        }
+
         foreach (OrderItem item in order.Items)
         {
             if (item == null)
@@ -305,6 +374,10 @@ public class MGR_Order : Manager<MGR_Order>
             }
         );
     }
+
+    // =========================================================
+    // CATEGORY HELPERS
+    // =========================================================
 
     private List<ProductCategory> GetAvailableCategories()
     {
@@ -359,8 +432,43 @@ public class MGR_Order : Manager<MGR_Order>
         return selected;
     }
 
+    // =========================================================
+    // ORDER VALIDATION
+    // =========================================================
+
+    private bool HasValidItems(OrderData order)
+    {
+        if (order == null ||
+            order.Items == null ||
+            order.Items.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (OrderItem item in order.Items)
+        {
+            if (item != null &&
+                item.Product != null &&
+                item.Quantity > 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // =========================================================
+    // REWARDS
+    // =========================================================
+
     private void CalculateRewards(OrderData order)
     {
+        if (order == null)
+        {
+            return;
+        }
+
         int orderSize =
             GetOrderSize(order);
 
@@ -368,6 +476,12 @@ public class MGR_Order : Manager<MGR_Order>
             10 + (orderSize * 2);
 
         float cashReward = 0f;
+
+        if (order.Items == null)
+        {
+            order.CashReward = 0f;
+            return;
+        }
 
         foreach (OrderItem item in order.Items)
         {
@@ -391,6 +505,12 @@ public class MGR_Order : Manager<MGR_Order>
 
     private int GetOrderSize(OrderData order)
     {
+        if (order == null ||
+            order.Items == null)
+        {
+            return 0;
+        }
+
         int totalUnits = 0;
 
         foreach (OrderItem item in order.Items)
@@ -408,21 +528,98 @@ public class MGR_Order : Manager<MGR_Order>
         return totalUnits;
     }
 
+    // =========================================================
+    // ORDER FULFILLMENT
+    // =========================================================
+
     public bool TryFulfillOrder(OrderData order)
     {
-        if (order == null ||
-            !order.IsActive)
+        // -----------------------------------------------------
+        // Validate order state and ownership.
+        // -----------------------------------------------------
+
+        if (order == null)
         {
+            Debug.LogWarning(
+                "TryFulfillOrder failed because the order is null."
+            );
+
             return false;
         }
 
-        if (MGR_Inventory.Instance == null ||
-            MGR_Game.Instance == null)
+        if (!order.IsActive)
         {
+            Debug.Log(
+                $"Order {order.OrderID} cannot be fulfilled " +
+                "because it is no longer active."
+            );
+
             return false;
         }
 
-        // Check all required products first.
+        if (!activeOrders.Contains(order))
+        {
+            Debug.Log(
+                $"Order {order.OrderID} cannot be fulfilled " +
+                "because it is not in the active order list."
+            );
+
+            return false;
+        }
+
+        // -----------------------------------------------------
+        // Validate order items.
+        // -----------------------------------------------------
+
+        if (order.Items == null ||
+            order.Items.Count == 0)
+        {
+            Debug.LogWarning(
+                $"Order {order.OrderID} cannot be fulfilled " +
+                "because it has no items."
+            );
+
+            return false;
+        }
+
+        if (!HasValidItems(order))
+        {
+            Debug.LogWarning(
+                $"Order {order.OrderID} cannot be fulfilled " +
+                "because it has no valid items."
+            );
+
+            return false;
+        }
+
+        // -----------------------------------------------------
+        // Validate required managers.
+        // -----------------------------------------------------
+
+        if (MGR_Inventory.Instance == null)
+        {
+            Debug.LogWarning(
+                $"Order {order.OrderID} cannot be fulfilled " +
+                "because MGR_Inventory is missing."
+            );
+
+            return false;
+        }
+
+        if (MGR_Game.Instance == null)
+        {
+            Debug.LogWarning(
+                $"Order {order.OrderID} cannot be fulfilled " +
+                "because MGR_Game is missing."
+            );
+
+            return false;
+        }
+
+        // -----------------------------------------------------
+        // Check ALL required products before removing stock.
+        // -----------------------------------------------------
+
         foreach (OrderItem item in order.Items)
         {
             if (item == null ||
@@ -441,14 +638,19 @@ public class MGR_Order : Manager<MGR_Order>
             {
                 Debug.Log(
                     $"Order {order.OrderID} cannot be fulfilled. " +
-                    $"Not enough {item.Product.DisplayName} stock."
+                    $"Not enough {item.Product.DisplayName} stock. " +
+                    $"Required: {item.Quantity}, " +
+                    $"Available: {stock}"
                 );
 
                 return false;
             }
         }
 
-        // Deduct the exact requested products.
+        // -----------------------------------------------------
+        // Remove the exact requested products.
+        // -----------------------------------------------------
+
         foreach (OrderItem item in order.Items)
         {
             if (item == null ||
@@ -458,17 +660,35 @@ public class MGR_Order : Manager<MGR_Order>
                 continue;
             }
 
-            if (!MGR_Inventory.Instance.TryRemoveStock(
+            bool removed =
+                MGR_Inventory.Instance.TryRemoveStock(
                     item.Product,
-                    item.Quantity))
+                    item.Quantity
+                );
+
+            if (!removed)
             {
+                Debug.LogWarning(
+                    $"Order {order.OrderID} could not remove " +
+                    $"{item.Product.DisplayName} stock."
+                );
+
                 return false;
             }
         }
 
+        // -----------------------------------------------------
+        // Mark order as completed BEFORE sending the event.
+        // -----------------------------------------------------
+
         order.IsActive = false;
 
-        // Reward was fixed when the order was created.
+        activeOrders.Remove(order);
+
+        // -----------------------------------------------------
+        // Give rewards.
+        // -----------------------------------------------------
+
         MGR_Game.Instance.AddCash(
             order.CashReward
         );
@@ -483,9 +703,15 @@ public class MGR_Order : Manager<MGR_Order>
             $"XP: {order.XPReward}"
         );
 
-        OnOrderFulfilled?.Invoke(order);
+        // -----------------------------------------------------
+        // Notify MGR_Game.
+        //
+        // MGR_Game handles:
+        // - Rating increase
+        // - OnRatingChanged
+        // -----------------------------------------------------
 
-        activeOrders.Remove(order);
+        OnOrderFulfilled?.Invoke(order);
 
         return true;
     }
