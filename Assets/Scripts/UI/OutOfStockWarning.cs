@@ -22,6 +22,9 @@ public class OutOfStockWarning : MonoBehaviour
         if (order == null || order.Items == null)
             return false;
 
+        if (MGR_Inventory.Instance == null)
+            return false;
+
         foreach (OrderItem item in order.Items)
         {
             if (item == null || item.Product == null)

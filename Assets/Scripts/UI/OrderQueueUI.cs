@@ -47,12 +47,7 @@ public class OrderQueueUI : MonoBehaviour
             activeCards.Add(order.OrderID, card);
             activeOrders.Add(order.OrderID, order);
 
-            if (outOfStockWarning != null)
-            {
-                if (outOfStockWarning.IsOutOfStock(order))
-                    outOfStockWarning.Show();
-            }
-
+            UpdateOutOfStockWarning();
             return;
         }
 
@@ -73,22 +68,15 @@ public class OrderQueueUI : MonoBehaviour
         if (card != null)
             card.gameObject.SetActive(false);
 
-        if (outOfStockWarning != null)
-        {
-            foreach (OrderData activeOrder in activeOrders.Values)
-            {
-                if (outOfStockWarning.IsOutOfStock(activeOrder))
-                {
-                    outOfStockWarning.Show();
-                    return;
-                }
-            }
-
-            outOfStockWarning.Hide();
-        }
+        UpdateOutOfStockWarning();
     }
 
     private void HandleInventoryChanged(DATA_ProductSO product, int quantity)
+    {
+        UpdateOutOfStockWarning();
+    }
+
+    private void UpdateOutOfStockWarning()
     {
         if (outOfStockWarning == null)
             return;

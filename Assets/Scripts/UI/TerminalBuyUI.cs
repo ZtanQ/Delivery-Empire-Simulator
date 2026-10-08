@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -16,10 +17,12 @@ public class TerminalBuyUI : MonoBehaviour
     private Button[] minusButtons;
     private Button[] plusButtons;
     private int[] quantities;
+
     public void Open()
     {
         terminalPanel.SetActive(true);
     }
+
     public void Close()
     {
         terminalPanel.SetActive(false);
@@ -39,6 +42,7 @@ public class TerminalBuyUI : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Transform card = productGrid.GetChild(i);
+
             nameTexts[i] = card
                 .Find("Product_Name")
                 .GetComponent<TMP_Text>();
@@ -110,11 +114,13 @@ public class TerminalBuyUI : MonoBehaviour
 
     private void PlaceOrder()
     {
-        if (MGR_Inventory.Instance == null)
+        if (MGR_Game.Instance == null)
         {
-            Debug.LogWarning("TerminalBuyUI: MGR_Inventory is not available.");
+            Debug.LogWarning("TerminalBuyUI: MGR_Game is not available.");
             return;
         }
+
+        List<PurchaseItem> lines = new List<PurchaseItem>();
 
         for (int i = 0; i < quantities.Length; i++)
         {
@@ -124,13 +130,22 @@ public class TerminalBuyUI : MonoBehaviour
             if (products[i] == null || quantities[i] <= 0)
                 continue;
 
-            MGR_Inventory.Instance.AddStock(
-                products[i],
-                quantities[i]
-            );
+            lines.Add(new PurchaseItem
+            {
+                Product = products[i],
+                Quantity = quantities[i]
+            });
         }
 
-        Debug.Log($"Order placed. Total: {totalText.text}");
+        if (lines.Count == 0)
+            return;
+
+        PurchaseResult result = MGR_Game.Instance.TryPurchase(lines);
+
+        Debug.Log($"Purchase result: {result}");
+
+        if (result != PurchaseResult.Success)
+            return;
 
         for (int i = 0; i < quantities.Length; i++)
         {

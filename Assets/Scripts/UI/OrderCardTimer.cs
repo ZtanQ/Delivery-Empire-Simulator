@@ -15,11 +15,6 @@ public class OrderCardTimer : MonoBehaviour
         timeBar = GetComponent<Image>();
     }
 
-    private void Start()
-    {
-        Setup(duration);
-    }
-
     public void Setup(float totalTime)
     {
         duration = totalTime;
