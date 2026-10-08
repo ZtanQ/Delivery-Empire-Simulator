@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-
 using UnityEngine;
 
 public class MGR_Game : Manager<MGR_Game>
@@ -121,7 +120,10 @@ public class MGR_Game : Manager<MGR_Game>
 
         currentCash -= amountCents;
 
-        OnCashChanged?.Invoke(currentCash, -amountCents);
+        OnCashChanged?.Invoke(
+            currentCash,
+            -amountCents
+        );
 
         Debug.Log(
             $"Spent ${amountCents / 100f:F2}. " +
@@ -140,7 +142,10 @@ public class MGR_Game : Manager<MGR_Game>
 
         currentCash += amountCents;
 
-        OnCashChanged?.Invoke(currentCash, amountCents);
+        OnCashChanged?.Invoke(
+            currentCash,
+            amountCents
+        );
 
         Debug.Log(
             $"Added ${amountCents / 100f:F2} cash. " +
@@ -276,12 +281,17 @@ public class MGR_Game : Manager<MGR_Game>
 
         foreach (PurchaseItem line in lines)
         {
-            if (line == null || line.Product == null || line.Quantity <= 0)
+            if (line == null ||
+                line.Product == null ||
+                line.Quantity <= 0)
+            {
                 continue;
+            }
 
-            totalCents += Mathf.RoundToInt(
-                line.Product.BaseCost * 100f
-            ) * line.Quantity;
+            totalCents +=
+                Mathf.RoundToInt(
+                    line.Product.BaseCost * 100f
+                ) * line.Quantity;
         }
 
         return totalCents;
@@ -291,7 +301,10 @@ public class MGR_Game : Manager<MGR_Game>
     {
         if (lines == null || lines.Count == 0)
         {
-            OnPurchaseRejected?.Invoke(PurchaseResult.EmptyOrder);
+            OnPurchaseRejected?.Invoke(
+                PurchaseResult.EmptyOrder
+            );
+
             return PurchaseResult.EmptyOrder;
         }
 
@@ -299,13 +312,19 @@ public class MGR_Game : Manager<MGR_Game>
 
         if (totalCostCents <= 0)
         {
-            OnPurchaseRejected?.Invoke(PurchaseResult.EmptyOrder);
+            OnPurchaseRejected?.Invoke(
+                PurchaseResult.EmptyOrder
+            );
+
             return PurchaseResult.EmptyOrder;
         }
 
         if (currentCash < totalCostCents)
         {
-            OnPurchaseRejected?.Invoke(PurchaseResult.NotEnoughCash);
+            OnPurchaseRejected?.Invoke(
+                PurchaseResult.NotEnoughCash
+            );
+
             return PurchaseResult.NotEnoughCash;
         }
 
@@ -316,7 +335,8 @@ public class MGR_Game : Manager<MGR_Game>
             -totalCostCents
         );
 
-        SupplierOrder order = new SupplierOrder(lines);
+        SupplierOrder order =
+            new SupplierOrder(lines);
 
         OnSupplierOrderCreated?.Invoke(order);
 
