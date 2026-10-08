@@ -28,26 +28,14 @@ public class MGR_Game : Manager<MGR_Game>
     public int CurrentXP => currentXP;
     public int CurrentLevel => currentLevel;
     public float CurrentRating => currentRating;
-
     public bool IsStage1Purchasable => stage1Purchasable;
 
-    // Cash event:
-    // new balance, delta
     public static event Action<int, int> OnCashChanged;
-
-    // XP event:
-    // new XP, current level
     public static event Action<int, int> OnXPChanged;
     public static event Action<int> OnLevelUp;
-
-    // Day event
     public static event Action OnDayTick;
-
-    // Rating event:
-    // new rating
     public static event Action<float> OnRatingChanged;
 
-    // Purchase events
     public static event Action<SupplierOrder> OnSupplierOrderCreated;
     public static event Action<PurchaseResult> OnPurchaseRejected;
 
@@ -68,24 +56,30 @@ public class MGR_Game : Manager<MGR_Game>
         currentCash = startingCash;
         currentXP = startingXP;
         currentLevel = startingLevel;
-
         currentRating = startingRating;
 
-        currentRating = startingRating;
-
-        stage1Purchasable = currentLevel >= 5;
-
-        dayTimer = dayDuration;
-        stage1Purchasable = currentLevel >= 5;
+        stage1Purchasable =
+            currentLevel >= 5;
 
         dayTimer = dayDuration;
 
         Debug.Log("5. MGR_Game initialised.");
 
-        Debug.Log($"Starting cash: ${CurrentCash / 100f:F2}");
-        Debug.Log($"Starting XP: {CurrentXP}");
-        Debug.Log($"Starting level: {CurrentLevel}");
-        Debug.Log($"Starting rating: {CurrentRating:F2}");
+        Debug.Log(
+            $"Starting cash: ${CurrentCash / 100f:F2}"
+        );
+
+        Debug.Log(
+            $"Starting XP: {CurrentXP}"
+        );
+
+        Debug.Log(
+            $"Starting level: {CurrentLevel}"
+        );
+
+        Debug.Log(
+            $"Starting rating: {CurrentRating:F2}"
+        );
     }
 
     private void Update()
@@ -93,37 +87,38 @@ public class MGR_Game : Manager<MGR_Game>
         UpdateDayTimer();
     }
 
-    // =========================================================
-    // DAY TIMER
-    // =========================================================
-
     private void UpdateDayTimer()
     {
         dayTimer -= Time.deltaTime;
 
         if (dayTimer > 0f)
+        {
             return;
+        }
 
         dayTimer += dayDuration;
 
-        Debug.Log("A new game day has started.");
+        Debug.Log(
+            "A new game day has started."
+        );
 
         OnDayTick?.Invoke();
     }
 
-    // =========================================================
-    // CASH
-    // =========================================================
-
     public bool TrySpendCash(float amount)
     {
-        int amountCents = Mathf.RoundToInt(amount * 100f);
+        int amountCents =
+            Mathf.RoundToInt(amount * 100f);
 
         if (amountCents <= 0)
+        {
             return false;
+        }
 
         if (currentCash < amountCents)
+        {
             return false;
+        }
 
         currentCash -= amountCents;
 
@@ -142,10 +137,13 @@ public class MGR_Game : Manager<MGR_Game>
 
     public void AddCash(float amount)
     {
-        int amountCents = Mathf.RoundToInt(amount * 100f);
+        int amountCents =
+            Mathf.RoundToInt(amount * 100f);
 
         if (amountCents <= 0)
+        {
             return;
+        }
 
         currentCash += amountCents;
 
@@ -160,29 +158,36 @@ public class MGR_Game : Manager<MGR_Game>
         );
     }
 
-    // =========================================================
-    // XP
-    // =========================================================
-
     public void AddXP(int amount)
     {
         if (amount <= 0)
+        {
             return;
+        }
 
         currentXP += amount;
 
-        int previousLevel = currentLevel;
+        int previousLevel =
+            currentLevel;
 
-        while (currentXP >= GetRequiredXPForLevel(currentLevel + 1))
+        while (
+            currentXP >=
+            GetRequiredXPForLevel(
+                currentLevel + 1
+            )
+        )
         {
             currentLevel++;
 
             ApplyLevelUnlocks();
 
-            OnLevelUp?.Invoke(currentLevel);
+            OnLevelUp?.Invoke(
+                currentLevel
+            );
 
             Debug.Log(
-                $"Level up! New level: {currentLevel}"
+                $"Level up! " +
+                $"New level: {currentLevel}"
             );
         }
 
@@ -204,105 +209,75 @@ public class MGR_Game : Manager<MGR_Game>
     private int GetRequiredXPForLevel(int level)
     {
         if (level <= 1)
+        {
             return 0;
+        }
 
         return Mathf.RoundToInt(
-            100f * Mathf.Pow(level, 1.2f)
+            100f *
+            Mathf.Pow(level, 1.2f)
         );
     }
 
     private void ApplyLevelUnlocks()
     {
-        if (currentLevel >= 5 && !stage1Purchasable)
-        {
-            stage1Purchasable = true;
-
-
-        while (currentXP >= GetRequiredXPForLevel(currentLevel + 1))
-        {
-            currentLevel++;
-
-            ApplyLevelUnlocks();
-
-            OnLevelUp?.Invoke(currentLevel);
-
-            Debug.Log(
-                $"Level up! New level: {currentLevel}"
-            );
-        }
-
-        OnXPChanged?.Invoke(
-            currentXP,
-            currentLevel
-        );
-
-        if (currentLevel != previousLevel)
-        {
-            Debug.Log(
-                $"XP progression updated. " +
-                $"XP: {currentXP}, " +
-                $"Level: {currentLevel}"
-            );
-        }
-    }
-
-    private int GetRequiredXPForLevel(int level)
-    {
-        if (level <= 1)
-            return 0;
-
-        return Mathf.RoundToInt(
-            100f * Mathf.Pow(level, 1.2f)
-        );
-    }
-
-    private void ApplyLevelUnlocks()
-    {
-        if (currentLevel >= 5 && !stage1Purchasable)
+        if (
+            currentLevel >= 5 &&
+            !stage1Purchasable
+        )
         {
             stage1Purchasable = true;
 
             Debug.Log(
-                "Level 5 reached. Stage 1 expansion is now purchasable."
+                "Level 5 reached. " +
+                "Stage 1 expansion is now purchasable."
             );
         }
     }
 
-    // =========================================================
-    // RATING
-    // =========================================================
-
-    private void HandleOrderFulfilled(OrderData order)
+    private void HandleOrderFulfilled(
+        OrderData order)
     {
         if (order == null)
+        {
             return;
+        }
 
         float ratingIncrease =
-            0.02f + (5.0f - currentRating) * 0.03f;
+            0.02f +
+            (5.0f - currentRating) * 0.03f;
 
         currentRating += ratingIncrease;
 
         ClampRating();
 
-        OnRatingChanged?.Invoke(currentRating);
+        OnRatingChanged?.Invoke(
+            currentRating
+        );
 
         Debug.Log(
             $"Order {order.OrderID} fulfilled. " +
-            $"Rating increased by {ratingIncrease:F2}. " +
+            $"Rating increased by " +
+            $"{ratingIncrease:F2}. " +
             $"Current rating: {currentRating:F2}"
         );
     }
 
-    private void HandleOrderExpired(OrderData order)
+    private void HandleOrderExpired(
+        OrderData order)
     {
         if (order == null)
+        {
             return;
+        }
 
         currentRating -= 0.15f;
 
         ClampRating();
 
-        OnRatingChanged?.Invoke(currentRating);
+        OnRatingChanged?.Invoke(
+            currentRating
+        );
 
         Debug.Log(
             $"Order {order.OrderID} expired. " +
@@ -313,29 +288,32 @@ public class MGR_Game : Manager<MGR_Game>
 
     private void ClampRating()
     {
-        currentRating = Mathf.Clamp(
-            currentRating,
-            1.0f,
-            5.0f
-        );
+        currentRating =
+            Mathf.Clamp(
+                currentRating,
+                1.0f,
+                5.0f
+            );
     }
 
-    // =========================================================
-    // PURCHASE
-    // =========================================================
-
-    public int GetTotalCost(List<PurchaseItem> lines)
+    public int GetTotalCost(
+        List<PurchaseItem> lines)
     {
         int totalCents = 0;
 
         if (lines == null)
-            return 0;
-
-        foreach (PurchaseItem line in lines)
         {
-            if (line == null ||
+            return 0;
+        }
+
+        foreach (
+            PurchaseItem line in lines)
+        {
+            if (
+                line == null ||
                 line.Product == null ||
-                line.Quantity <= 0)
+                line.Quantity <= 0
+            )
             {
                 continue;
             }
@@ -349,9 +327,13 @@ public class MGR_Game : Manager<MGR_Game>
         return totalCents;
     }
 
-    public PurchaseResult TryPurchase(List<PurchaseItem> lines)
+    public PurchaseResult TryPurchase(
+        List<PurchaseItem> lines)
     {
-        if (lines == null || lines.Count == 0)
+        if (
+            lines == null ||
+            lines.Count == 0
+        )
         {
             OnPurchaseRejected?.Invoke(
                 PurchaseResult.EmptyOrder
@@ -360,7 +342,8 @@ public class MGR_Game : Manager<MGR_Game>
             return PurchaseResult.EmptyOrder;
         }
 
-        int totalCostCents = GetTotalCost(lines);
+        int totalCostCents =
+            GetTotalCost(lines);
 
         if (totalCostCents <= 0)
         {
@@ -390,7 +373,9 @@ public class MGR_Game : Manager<MGR_Game>
         SupplierOrder order =
             new SupplierOrder(lines);
 
-        OnSupplierOrderCreated?.Invoke(order);
+        OnSupplierOrderCreated?.Invoke(
+            order
+        );
 
         Debug.Log(
             $"Purchase successful. " +

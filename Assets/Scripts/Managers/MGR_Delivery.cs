@@ -10,14 +10,11 @@ public class MGR_Delivery : Manager<MGR_Delivery>
     [SerializeField] private int maximumRiderCount = 1;
 
     private int activeRiderCount;
-
     private bool hiringLocked;
 
     public int ActiveRiderCount => activeRiderCount;
     public int MaximumRiderCount => maximumRiderCount;
     public bool IsHiringLocked => hiringLocked;
-    public int ActiveRiderCount => activeRiderCount;
-    public int MaximumRiderCount => maximumRiderCount;
 
     private void OnEnable()
     {
@@ -28,15 +25,14 @@ public class MGR_Delivery : Manager<MGR_Delivery>
     private void OnDisable()
     {
         MGR_Game.OnDayTick -= HandleDayTick;
-
         MGR_Game.OnRatingChanged -= HandleRatingChanged;
     }
 
     protected override void OnInitialise()
     {
         activeRiderCount = startingRiderCount;
-        // Starting rating is 4.0, so hiring is initially allowed.
         hiringLocked = false;
+
         Debug.Log("7. MGR_Delivery initialised.");
         Debug.Log($"Starting riders: {activeRiderCount}");
         Debug.Log($"Maximum riders: {maximumRiderCount}");
@@ -44,13 +40,9 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         Debug.Log($"Rider hiring locked: {hiringLocked}");
     }
 
-    // =========================================================
-    // RATING / HIRING LOCK
-    // =========================================================
-
     private void HandleRatingChanged(float rating)
     {
-        // Lock hiring when rating drops below 2.0.
+        // Lock hiring when rating falls below 2.0.
         if (!hiringLocked && rating < 2.0f)
         {
             hiringLocked = true;
@@ -75,14 +67,6 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         }
     }
 
-    // =========================================================
-    // RIDER MANAGEMENT
-    // =========================================================
-
-    /// <summary>
-    /// Adds a hired rider if the warehouse capacity allows it
-    /// and rider hiring is not locked by low rating.
-    /// </summary>
     public bool RegisterRider()
     {
         if (hiringLocked)
@@ -103,13 +87,6 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             return false;
         }
 
-    }
-
-    /// <summary>
-    /// Adds a hired rider if the warehouse capacity allows it.
-    /// </summary>
-    public bool RegisterRider()
-    {
         if (activeRiderCount >= maximumRiderCount)
         {
             Debug.Log(
@@ -125,20 +102,14 @@ public class MGR_Delivery : Manager<MGR_Delivery>
 
         Debug.Log(
             $"Rider added. " +
-            $"Active riders: " +
-            $"{activeRiderCount}/{maximumRiderCount}"
             $"Active riders: {activeRiderCount}/{maximumRiderCount}"
         );
 
         return true;
     }
 
-    /// <summary>
-    /// Removes a rider from the hired/active rider count.
-    /// </summary>
     public bool UnregisterRider()
     {
-        // Always keep the starting rider.
         if (activeRiderCount <= startingRiderCount)
         {
             Debug.Log(
@@ -159,17 +130,12 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         return true;
     }
 
-    // =========================================================
-    // RIDER SALARY
-    // =========================================================
-
     private void HandleDayTick()
     {
         if (activeRiderCount <= 0)
         {
             Debug.Log(
-                "Day tick: No active riders. " +
-                "No salary deducted."
+                "Day tick: No active riders. No salary deducted."
             );
 
             return;
@@ -190,13 +156,6 @@ public class MGR_Delivery : Manager<MGR_Delivery>
 
         bool salaryPaid =
             MGR_Game.Instance.TrySpendCash(totalSalary);
-            Debug.Log("Day tick: No active riders. No salary deducted.");
-            return;
-        }
-
-        float totalSalary = riderSalaryPerDay * activeRiderCount;
-
-        bool salaryPaid = MGR_Game.Instance.TrySpendCash(totalSalary);
 
         if (salaryPaid)
         {
