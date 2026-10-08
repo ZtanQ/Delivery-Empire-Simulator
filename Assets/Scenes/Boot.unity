@@ -270,6 +270,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b68449854f9a0514e8528f3fee1a2b8b, type: 2}
   - {fileID: 11400000, guid: 9febe31eaf16d604da9608d3a76a283d, type: 2}
   - {fileID: 11400000, guid: b6f81307e9ef3bd4988f5d5824570fea, type: 2}
+  stockedProductChance: 0.7
 --- !u!4 &196957353
 Transform:
   m_ObjectHideFlags: 0
@@ -314,6 +315,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90100f6787a3d594094bb579be3c5d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Delivery
+  riderSalaryPerDay: 20
+  startingRiderCount: 1
+  maximumRiderCount: 1
 --- !u!4 &201096773
 Transform:
   m_ObjectHideFlags: 0
@@ -477,9 +481,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cb7abfdf6701914f83b591028261772, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Game
-  startingCash: 500
+  startingCash: 50000
   startingXP: 0
   startingLevel: 1
+  startingRating: 4
+  dayDuration: 1440
 --- !u!4 &1023725632
 Transform:
   m_ObjectHideFlags: 0

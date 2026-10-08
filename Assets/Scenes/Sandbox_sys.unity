@@ -398,9 +398,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cb7abfdf6701914f83b591028261772, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Game
-  startingCash: 500
+  startingCash: 50000
   startingXP: 0
   startingLevel: 1
+  startingRating: 4
+  dayDuration: 1440
 --- !u!4 &630807232
 Transform:
   m_ObjectHideFlags: 0
@@ -807,6 +809,53 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1457305170
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1457305172}
+  - component: {fileID: 1457305171}
+  m_Layer: 0
+  m_Name: MGR_Delivery
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1457305171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1457305170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90100f6787a3d594094bb579be3c5d9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MGR_Delivery
+  riderSalaryPerDay: 20
+  startingRiderCount: 1
+  maximumRiderCount: 1
+--- !u!4 &1457305172
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1457305170}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 2.68201, z: 90}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1458,6 +1507,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b68449854f9a0514e8528f3fee1a2b8b, type: 2}
   - {fileID: 11400000, guid: 9febe31eaf16d604da9608d3a76a283d, type: 2}
   - {fileID: 11400000, guid: b6f81307e9ef3bd4988f5d5824570fea, type: 2}
+  stockedProductChance: 0.7
 --- !u!4 &1869161000
 Transform:
   m_ObjectHideFlags: 0
@@ -1582,3 +1632,4 @@ SceneRoots:
   - {fileID: 1568339608}
   - {fileID: 1869161000}
   - {fileID: 5603667}
+  - {fileID: 1457305172}
