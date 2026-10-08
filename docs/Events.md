@@ -51,7 +51,7 @@ internal state.
   `OnLevelUp`            `MGR_Game`        New level    `MGR_UI`, progression Implemented      Week 3
                                                         systems                               
 
-  `OnRatingChanged`      `MGR_Game`        New rating,  `MGR_UI`, systems     Planned         TBD
+  `OnRatingChanged`      `MGR_Game`        New rating,  `MGR_UI`, systems     Implemented      Week 3
                                            previous     requiring rating                      
                                            rating       information                           
 
@@ -79,7 +79,7 @@ internal state.
                                            box count    truck/warehouse                       
                                                         gameplay systems                      
 
-  `OnDayTick`            `MGR_Game`        Day number,  `MGR_UI`,             Planned         TBD
+  `OnDayTick`            `MGR_Game`        Day number,  `MGR_UI`,             Implemented     Week 3
                                            total salary time/economy systems                  
                                            deducted                                           
   -------------------------------------------------------------------------------------------------------
@@ -385,26 +385,25 @@ may be disabled and reused instead of being destroyed.
 -   `OnOrderCreated`
 -   `OnOrderFulfilled`
 -   `OnOrderExpired`
-
-### Planned
+-   `OnRatingChanged`
+-   `OnDayTick`
 -   `OnLevelUp`
 
 ### Planned
 
--   `OnRatingChanged`
 -   `OnHiringLocked`
 -   `OnStageChanged`
 -   `OnRiderDispatched`
 -   `OnRiderReturned`
 -   `OnTruckArrived`
 -   `OnTruckDeparted`
--   `OnDayTick`
+
 
 **Total GDD §48 events: 16**
 
-**Currently implemented: 8**
+**Currently implemented: 10**
 
-**Planned: 8**
+**Planned: 6**
 
 ------------------------------------------------------------------------
 
