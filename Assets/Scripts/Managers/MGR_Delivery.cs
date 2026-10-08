@@ -16,6 +16,8 @@ public class MGR_Delivery : Manager<MGR_Delivery>
     public int ActiveRiderCount => activeRiderCount;
     public int MaximumRiderCount => maximumRiderCount;
     public bool IsHiringLocked => hiringLocked;
+    public int ActiveRiderCount => activeRiderCount;
+    public int MaximumRiderCount => maximumRiderCount;
 
     private void OnEnable()
     {
@@ -26,16 +28,15 @@ public class MGR_Delivery : Manager<MGR_Delivery>
     private void OnDisable()
     {
         MGR_Game.OnDayTick -= HandleDayTick;
+
         MGR_Game.OnRatingChanged -= HandleRatingChanged;
     }
 
     protected override void OnInitialise()
     {
         activeRiderCount = startingRiderCount;
-
         // Starting rating is 4.0, so hiring is initially allowed.
         hiringLocked = false;
-
         Debug.Log("7. MGR_Delivery initialised.");
         Debug.Log($"Starting riders: {activeRiderCount}");
         Debug.Log($"Maximum riders: {maximumRiderCount}");
@@ -102,6 +103,13 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             return false;
         }
 
+    }
+
+    /// <summary>
+    /// Adds a hired rider if the warehouse capacity allows it.
+    /// </summary>
+    public bool RegisterRider()
+    {
         if (activeRiderCount >= maximumRiderCount)
         {
             Debug.Log(
@@ -119,6 +127,7 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             $"Rider added. " +
             $"Active riders: " +
             $"{activeRiderCount}/{maximumRiderCount}"
+            $"Active riders: {activeRiderCount}/{maximumRiderCount}"
         );
 
         return true;
@@ -181,6 +190,13 @@ public class MGR_Delivery : Manager<MGR_Delivery>
 
         bool salaryPaid =
             MGR_Game.Instance.TrySpendCash(totalSalary);
+            Debug.Log("Day tick: No active riders. No salary deducted.");
+            return;
+        }
+
+        float totalSalary = riderSalaryPerDay * activeRiderCount;
+
+        bool salaryPaid = MGR_Game.Instance.TrySpendCash(totalSalary);
 
         if (salaryPaid)
         {

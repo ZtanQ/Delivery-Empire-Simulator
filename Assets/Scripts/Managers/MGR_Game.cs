@@ -28,6 +28,7 @@ public class MGR_Game : Manager<MGR_Game>
     public int CurrentXP => currentXP;
     public int CurrentLevel => currentLevel;
     public float CurrentRating => currentRating;
+
     public bool IsStage1Purchasable => stage1Purchasable;
 
     // Cash event:
@@ -67,8 +68,14 @@ public class MGR_Game : Manager<MGR_Game>
         currentCash = startingCash;
         currentXP = startingXP;
         currentLevel = startingLevel;
+
         currentRating = startingRating;
 
+        currentRating = startingRating;
+
+        stage1Purchasable = currentLevel >= 5;
+
+        dayTimer = dayDuration;
         stage1Purchasable = currentLevel >= 5;
 
         dayTimer = dayDuration;
@@ -165,6 +172,51 @@ public class MGR_Game : Manager<MGR_Game>
         currentXP += amount;
 
         int previousLevel = currentLevel;
+
+        while (currentXP >= GetRequiredXPForLevel(currentLevel + 1))
+        {
+            currentLevel++;
+
+            ApplyLevelUnlocks();
+
+            OnLevelUp?.Invoke(currentLevel);
+
+            Debug.Log(
+                $"Level up! New level: {currentLevel}"
+            );
+        }
+
+        OnXPChanged?.Invoke(
+            currentXP,
+            currentLevel
+        );
+
+        if (currentLevel != previousLevel)
+        {
+            Debug.Log(
+                $"XP progression updated. " +
+                $"XP: {currentXP}, " +
+                $"Level: {currentLevel}"
+            );
+        }
+    }
+
+    private int GetRequiredXPForLevel(int level)
+    {
+        if (level <= 1)
+            return 0;
+
+        return Mathf.RoundToInt(
+            100f * Mathf.Pow(level, 1.2f)
+        );
+    }
+
+    private void ApplyLevelUnlocks()
+    {
+        if (currentLevel >= 5 && !stage1Purchasable)
+        {
+            stage1Purchasable = true;
+
 
         while (currentXP >= GetRequiredXPForLevel(currentLevel + 1))
         {
