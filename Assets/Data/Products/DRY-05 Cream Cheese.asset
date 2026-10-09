@@ -16,7 +16,8 @@ MonoBehaviour:
   Category: 2
   DisplayName: Cream Cheese
   BaseCost: 6
+  salePriceMultiplier: 1.5
   ColourCode: {r: 0.65882355, g: 0.84705883, b: 0.9411765, a: 1}
   Icon: {fileID: 0}
   BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
-  PropPrefab: {fileID: 0}
+  PropPrefab: {fileID: 8586167273702345069, guid: 156593b7a056300468feb2feab75c2a7, type: 3}
