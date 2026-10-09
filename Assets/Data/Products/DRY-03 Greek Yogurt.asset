@@ -16,7 +16,8 @@ MonoBehaviour:
   Category: 2
   DisplayName: Greek Yogurt
   BaseCost: 6
+  salePriceMultiplier: 1.5
   ColourCode: {r: 0.65882355, g: 0.84705883, b: 0.9411765, a: 1}
   Icon: {fileID: 0}
   BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
-  PropPrefab: {fileID: 0}
+  PropPrefab: {fileID: 3326596513498927530, guid: 0c7e15eca869af64398143767aee180e, type: 3}
