@@ -3187,18 +3187,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a458b64acd468824980ff0642cfdacc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestControls
-  _moveSpeed: 4
-  _gravity: -20
-  _jumpHeight: 1.2
-  _mouseSensitivity: 0.15
-  _verticalLookLimit: 80
-  _playerCamera: {fileID: 1047660787}
+  _mobileController: {fileID: 0}
+  _mobileCamera: {fileID: 0}
   _actionButton: {fileID: 0}
---- !u!20 &1047660787 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 2058274629706792994, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
-  m_PrefabInstance: {fileID: 1047660784}
-  m_PrefabAsset: {fileID: 0}
+  _moveSpeed: 4
+  _lookSensitivity: 0.15
+  _enableJump: 0
+  _jumpForce: 6
+  _gravity: -20
 --- !u!43 &1123914201
 Mesh:
   m_ObjectHideFlags: 0

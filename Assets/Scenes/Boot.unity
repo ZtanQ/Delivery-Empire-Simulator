@@ -362,6 +362,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ab0aa5c3f38ae64eb7d5e4c64bd0404, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Pool
+  boxPrefab: {fileID: 0}
 --- !u!4 &245984215
 Transform:
   m_ObjectHideFlags: 0

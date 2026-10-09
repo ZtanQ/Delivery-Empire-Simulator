@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class MGR_Pool : Manager<MGR_Pool>
 {
     [SerializeField] private GameObject boxPrefab;
+    [SerializeField] private int poolSize = 12;
 
     private readonly Queue<GameObject> boxPool = new Queue<GameObject>();
 
@@ -11,15 +12,21 @@ public class MGR_Pool : Manager<MGR_Pool>
     {
         Debug.Log("2. MGR_Pool initialised.");
 
+        if (boxPrefab == null)
+        {
+            Debug.LogError("MGR_Pool: Box prefab is not assigned."); //#95 2
+            return;
+        }
+
         // Create a pool of 12 boxes
-        for (int i = 0; i < 12; i++)
+        for (int i = 0; i < poolSize; i++)
         {
             GameObject box = Instantiate(boxPrefab, transform);
             box.SetActive(false);
             boxPool.Enqueue(box);
         }
 
-        Debug.Log("MGR_Pool created 12 boxes.");
+        Debug.Log($"MGR_Pool created {boxPool.Count} boxes.");
     }
 
     public GameObject Get(GameObject prefab)
@@ -31,7 +38,7 @@ public class MGR_Pool : Manager<MGR_Pool>
 
         if (boxPool.Count == 0)
         {
-            return null;
+            Debug.LogWarning("MGR_Pool: No boxes available in the pool. Consider increasing the pool size."); //#95 3
         }
 
         GameObject obj = boxPool.Dequeue();
@@ -63,6 +70,8 @@ public class MGR_Pool : Manager<MGR_Pool>
         }
 
         obj.SetActive(false);
+
+        boxPool.Enqueue(obj); //#95 1
 
     }
 }

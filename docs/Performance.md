@@ -91,42 +91,25 @@ The following measurements were recorded in the Unity Editor with an empty scene
 
 ## MGR_Pool Usage
 
-<<<<<<< HEAD
-MGR_Pool creates and manages reusable objects such as boxes and order cards. It activates objects with Get() and deactivates them with Release() instead of repeatedly creating and destroying GameObjects.
+//Get() retrieves an object from the pool using Dequeue().
+GameObject box = MGR_Pool.Instance.Get(boxPrefab);
+
+//Release() returns the object to the pool using Enqueue().
+MGR_Pool.Instance.Release(box);
 
 
 ## IPoolable Usage
 
-IPoolable defines OnSpawn() and OnDespawn() methods that pooled objects use to reset or update their state when they are taken from or returned to the pool.
-
-=======
-`MGR_Pool` pre-creates and reuses **12 box objects**.
-
-### Get an Object
-
-//Get a box from the pool
-GameObject box = MGR_Pool.Instance.Get(boxPrefab);
-
-### Release an Object 
-
-// Return the box to the pool
-MGR_Pool.Instance.Release(box);
-
-### Objects implementing IPoolable receive callbacks when they are retrieved or returned:
-
 public void OnSpawn()
 {
-    // Reset/setup object when retrieved from pool
+    // Reset/setup object when retrieved from pool. OnSpawn() is called when an object is retrieved.
 }
 
 public void OnDespawn()
 {
-    // Reset/cleanup object before returning to pool
+    // Reset/cleanup object before returning to pool. OnDespawn() is called when an object is released.
 }
 
-Get() retrieves an object from the pool using Dequeue().
-Release() returns the object to the pool using Enqueue().
-OnSpawn() is called when an object is retrieved.
-OnDespawn() is called when an object is released.
-boxPrefab must be assigned in Boot before MGR_Pool initializes.
->>>>>>> 4cfce26adfb05c484af2f15fab8424954f59b89d
+
+
+
