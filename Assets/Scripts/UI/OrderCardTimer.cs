@@ -4,6 +4,8 @@ using UnityEngine.UI;
 public class OrderCardTimer : MonoBehaviour
 {
     [SerializeField] private float duration = 90f;
+    [SerializeField] private Color normalColor = Color.white;
+    [SerializeField] private Color warningColor = Color.red;
 
     private Image timeBar;
     private float timeRemaining;
@@ -38,6 +40,8 @@ public class OrderCardTimer : MonoBehaviour
         if (timeBar == null || duration <= 0f)
             return;
 
-        timeBar.fillAmount = timeRemaining / duration;
+        float progress = timeRemaining / duration;
+        timeBar.fillAmount = progress;
+        timeBar.color = progress <= 0.25f ? warningColor : normalColor;
     }
 }
