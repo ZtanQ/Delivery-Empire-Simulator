@@ -59,6 +59,8 @@ The following measurements were recorded in the Unity Editor with an empty scene
 | **Draw Calls**   |                 **0** |
 | **Triangles**    |             **1,971** |
 | **Memory Usage** |         **149.76 MB** |
+<<<<<<< HEAD
+<<<<<<< HEAD
 
 ## Memory Test After Package Removal
 
@@ -68,3 +70,46 @@ The following measurements were recorded in the Unity Editor with an empty scene
 | 11:38 AM |       904 MB |
 
 **Result:** Memory usage decreased by **19 MB** after package removal after 20 mins.
+=======
+
+>>>>>>> 4cfce26adfb05c484af2f15fab8424954f59b89d
+
+
+### Week 2
+
+## Phone Performance Main Scene with Stage
+
+| Metric           |                Result |
+| ---------------- | --------------------: |
+| **Timestamp**    |    04 Oct 2026, 10:34 |
+| **FPS**          |         **60.32 FPS** |
+| **Draw Calls**   |               **N/A** |
+| **Triangles**    |            **14,430** |
+| **Memory Usage** |         **214.51 MB** |
+
+
+
+## MGR_Pool Usage
+
+//Get() retrieves an object from the pool using Dequeue().
+GameObject box = MGR_Pool.Instance.Get(boxPrefab);
+
+//Release() returns the object to the pool using Enqueue().
+MGR_Pool.Instance.Release(box);
+
+
+## IPoolable Usage
+
+public void OnSpawn()
+{
+    // Reset/setup object when retrieved from pool. OnSpawn() is called when an object is retrieved.
+}
+
+public void OnDespawn()
+{
+    // Reset/cleanup object before returning to pool. OnDespawn() is called when an object is released.
+}
+
+
+
+
