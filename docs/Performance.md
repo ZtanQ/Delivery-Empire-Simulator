@@ -59,3 +59,12 @@ The following measurements were recorded in the Unity Editor with an empty scene
 | **Draw Calls**   |                 **0** |
 | **Triangles**    |             **1,971** |
 | **Memory Usage** |         **149.76 MB** |
+
+## Memory Test After Package Removal
+
+| Time     | Memory Usage |
+| -------- | -----------: |
+| 11:18 AM |       923 MB |
+| 11:38 AM |       904 MB |
+
+**Result:** Memory usage decreased by **19 MB** after package removal after 20 mins.
