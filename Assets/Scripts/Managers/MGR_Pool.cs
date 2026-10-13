@@ -31,14 +31,18 @@ public class MGR_Pool : Manager<MGR_Pool>
 
     public GameObject Get(GameObject prefab)
     {
-        if (prefab != boxPrefab)
+        if (prefab == null ||prefab != boxPrefab)
         {
+            Debug.LogWarning("MGR_Pool: Get() was called with a prefab this pool does not manage.");
             return null;
         }
 
         if (boxPool.Count == 0)
         {
             Debug.LogWarning("MGR_Pool: No boxes available in the pool. Consider increasing the pool size."); //#95 3
+            GameObject extra = Instantiate(boxPrefab, transform);
+            extra.SetActive(false);
+            boxPool.Enqueue(extra);
         }
 
         GameObject obj = boxPool.Dequeue();
