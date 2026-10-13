@@ -16,7 +16,8 @@ MonoBehaviour:
   Category: 1
   DisplayName: Energy Drink
   BaseCost: 5
+  salePriceMultiplier: 1.5
   ColourCode: {r: 0.2901961, g: 0.5647059, b: 0.8862745, a: 1}
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 3c696982a30dc4b48bf63ddd19af54df, type: 3}
   BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
   PropPrefab: {fileID: 3449025087267665207, guid: 4951a9ebe1867364b82fd275a1a827cc, type: 3}
