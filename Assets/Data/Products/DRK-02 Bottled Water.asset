@@ -19,5 +19,5 @@ MonoBehaviour:
   salePriceMultiplier: 1.5
   ColourCode: {r: 0.2901961, g: 0.5647059, b: 0.8862745, a: 1}
   Icon: {fileID: 21300000, guid: 6eff9663c23abf24bb8021d99f18cacb, type: 3}
-  BoxPrefab: {fileID: 919132149155446097, guid: bace8db3e2e06854aa1b65ecbb925d4a, type: 3}
-  PropPrefab: {fileID: 919132149155446097, guid: 8f74cfa7a7c52124aa37c0b67daef0e0, type: 3}
+  BoxPrefab: {fileID: 1072726016038666765, guid: 374ddbdc0fcb09b4e9310c657bb92992, type: 3}
+  PropPrefab: {fileID: 3276445375224975700, guid: ac8fc54878a341d45805f836c8e57979, type: 3}

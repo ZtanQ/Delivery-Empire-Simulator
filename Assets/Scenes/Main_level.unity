@@ -3686,6 +3686,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1237172377}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Father: {fileID: 1172704760}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1047660784
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6191,6 +6193,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.503, y: 0, z: -2.762}
+  m_LocalPosition: {x: -4.19, y: 0, z: -2.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
