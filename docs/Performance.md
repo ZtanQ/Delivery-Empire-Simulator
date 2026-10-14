@@ -22,7 +22,7 @@
 | **Truck**                      |      3,000 tris | **3,000 tris** |
 | **Rider (Delivery Character)** |      3,000 tris | **3,000 tris** |
 
-## Editor Baseline — Empty Scene
+## Editor Baseline — Empty Scene (Week 1)
 
 The following measurements were recorded in the Unity Editor with an empty scene:
 
@@ -50,7 +50,7 @@ The following measurements were recorded in the Unity Editor with an empty scene
 
 * **Large Asset Complexity:** The budgets remain **1,500 tris for the terminal**, **3,000 tris for the truck**, and **3,000 tris for the rider**. Their final designs should be validated against these limits once the models are available.
 
-## Phone Performance Baseline
+## Phone Performance Baseline (Week 2)
 
 | Metric           |                Result |
 | ---------------- | --------------------: |
@@ -68,3 +68,13 @@ The following measurements were recorded in the Unity Editor with an empty scene
 | 11:38 AM |       904 MB |
 
 **Result:** Memory usage decreased by **19 MB** after package removal after 20 mins.
+
+## Active Orders Performance (Week 3)
+
+| Metric           |                Result |
+| ---------------- | --------------------: |
+| **Timestamp**    | 10 Oct 2026, 14:23:00 |
+| **FPS**          |         **29.81 FPS** |
+| **Draw Calls**   |               **N/A** |
+| **Triangles**    |            **1,2062** |
+| **Memory Usage** |         **273.81 MB** |
