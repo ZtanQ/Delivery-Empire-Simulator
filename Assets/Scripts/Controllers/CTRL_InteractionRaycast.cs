@@ -24,7 +24,11 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     [SerializeField] private Vector3 _heldLocalPosition =
         new Vector3(0.35f, -0.25f, 0.7f);
 
+    [Header("Placement Feedback")]
+    [SerializeField, Min(0f)] private float _feedbackDuration = 1.5f;
+
     private CTRL_Interactable _currentTarget;
+    private ShelfSlot _currentShelfTarget;
 
     private GameObject _heldObject;
     private Rigidbody _heldRigidbody;
@@ -33,6 +37,9 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     private bool _terminalControlsPaused;
     private bool _movementWasEnabled;
     private bool _lookWasEnabled;
+
+    private string _placementFeedback;
+    private float _placementFeedbackTimer;
 
     private void Awake()
     {
@@ -63,10 +70,24 @@ public class CTRL_InteractionRaycast : MonoBehaviour
 
         if (_heldObject != null)
         {
-            SetActionButton("Drop");
+            UpdateShelfTarget();
+
+            if (_placementFeedbackTimer > 0f)
+            {
+                _placementFeedbackTimer -= Time.deltaTime;
+                SetActionButton(_placementFeedback);
+            }
+            else
+            {
+                SetActionButton(
+                    _currentShelfTarget != null ? "Place" : "Drop"
+                );
+            }
+
             return;
         }
 
+        _currentShelfTarget = null;
         CheckForTarget();
     }
 
@@ -102,6 +123,26 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         SetCurrentTarget(newTarget);
     }
 
+    private void UpdateShelfTarget()
+    {
+        _currentShelfTarget = null;
+
+        if (_playerCamera == null)
+        {
+            return;
+        }
+
+        Ray ray = _playerCamera.ViewportPointToRay(
+            new Vector3(0.5f, 0.5f, 0f)
+        );
+
+        if (Physics.Raycast(ray, out RaycastHit hit, _raycastDistance))
+        {
+            _currentShelfTarget =
+                hit.collider.GetComponentInParent<ShelfSlot>();
+        }
+    }
+
     private void SetCurrentTarget(CTRL_Interactable target)
     {
         if (_currentTarget != null)
@@ -125,7 +166,15 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     {
         if (_heldObject != null)
         {
-            DropObject();
+            if (_currentShelfTarget != null)
+            {
+                PlaceHeldObject();
+            }
+            else
+            {
+                DropObject();
+            }
+
             return;
         }
 
@@ -145,7 +194,6 @@ public class CTRL_InteractionRaycast : MonoBehaviour
                 break;
 
             case CTRL_Interactable.ActionType.Place:
-                // Place behavior is not implemented yet.
                 break;
         }
     }
@@ -231,6 +279,10 @@ public class CTRL_InteractionRaycast : MonoBehaviour
 
         SetCurrentTarget(null);
 
+        _currentShelfTarget = null;
+        _placementFeedback = null;
+        _placementFeedbackTimer = 0f;
+
         _heldObject = interactable.gameObject;
         _heldRigidbody = _heldObject.GetComponent<Rigidbody>();
         _heldColliders = _heldObject.GetComponentsInChildren<Collider>();
@@ -254,6 +306,92 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         _heldObject.transform.localRotation = Quaternion.identity;
 
         SetActionButton("Drop");
+    }
+
+    private void PlaceHeldObject()
+    {
+        if (_heldObject == null || _currentShelfTarget == null)
+        {
+            return;
+        }
+
+        CTRL_BoxContents boxContents =
+            _heldObject.GetComponent<CTRL_BoxContents>();
+
+        if (boxContents == null)
+        {
+            ShowPlacementFeedback("Invalid box");
+            return;
+        }
+
+        if (MGR_Inventory.Instance == null)
+        {
+            ShowPlacementFeedback("Shelf unavailable");
+            return;
+        }
+
+        ShelfBoxData boxData = boxContents.ToShelfBoxData();
+
+        if (boxData == null)
+        {
+            ShowPlacementFeedback("Invalid box");
+            return;
+        }
+
+        ShelfPlacementResult result =
+            _currentShelfTarget.TryPlaceBox(boxData);
+
+        switch (result)
+        {
+            case ShelfPlacementResult.Success:
+                ReturnPlacedBoxToPool();
+                break;
+
+            case ShelfPlacementResult.WrongCategory:
+                ShowPlacementFeedback("Wrong category");
+                break;
+
+            case ShelfPlacementResult.OverCapacity:
+                ShowPlacementFeedback("Shelf full");
+                break;
+
+            default:
+                ShowPlacementFeedback("Shelf unavailable");
+                break;
+        }
+    }
+
+    private void ReturnPlacedBoxToPool()
+    {
+        GameObject placedBox = _heldObject;
+
+        ClearHeldObjectReferences();
+        _currentShelfTarget = null;
+        _placementFeedback = null;
+        _placementFeedbackTimer = 0f;
+
+        if (MGR_Pool.Instance != null)
+        {
+            placedBox.transform.SetParent(
+                MGR_Pool.Instance.transform,
+                false
+            );
+
+            MGR_Pool.Instance.Release(placedBox);
+        }
+        else
+        {
+            Destroy(placedBox);
+        }
+
+        ClearActionButton();
+    }
+
+    private void ShowPlacementFeedback(string message)
+    {
+        _placementFeedback = message;
+        _placementFeedbackTimer = _feedbackDuration;
+        SetActionButton(message);
     }
 
     private void DropObject()
@@ -293,6 +431,9 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         }
 
         ClearHeldObjectReferences();
+        _currentShelfTarget = null;
+        _placementFeedback = null;
+        _placementFeedbackTimer = 0f;
         ClearActionButton();
     }
 
