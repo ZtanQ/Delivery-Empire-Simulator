@@ -2058,7 +2058,13 @@ MonoBehaviour:
   riderTransform: {fileID: 382146833}
   collectPause: 1
   deliveryPause: 15
-  shelfLocation: {fileID: 875172480}
+  shelfLocations:
+  - {fileID: 1063508059}
+  - {fileID: 262392415}
+  - {fileID: 1381896761}
+  - {fileID: 1782333383}
+  - {fileID: 1395420036}
+  - {fileID: 1299323472}
   exitLocation: {fileID: 2143871556}
   CurrentState: 0
   bobHeight: 0.05

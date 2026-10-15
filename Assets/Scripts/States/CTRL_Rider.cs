@@ -182,9 +182,17 @@ public class CTRL_Rider : MonoBehaviour
 
     private void UpdateWalkingBob()
     {
-        float bob = Mathf.Abs(Mathf.Sin(Time.time * bobFrequency)) * bobHeight; // formula for bobbing effect
+        bool walking =
+            CurrentState == RiderState.WalkToShelf ||
+            CurrentState == RiderState.WalkToExit ||
+            CurrentState == RiderState.Return;
 
-        riderTransform.localPosition = originalLocalPosition + Vector3.up * bob;
+        float bob = walking
+            ? Mathf.Abs(Mathf.Sin(Time.time * bobFrequency)) * bobHeight
+            : 0f;
+
+        riderTransform.localPosition =
+            originalLocalPosition + Vector3.up * bob;
     }
 
     void Update()
