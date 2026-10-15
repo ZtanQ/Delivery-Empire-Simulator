@@ -15,25 +15,28 @@ public class CTRL_Rider : MonoBehaviour
         Return
     }
 
+    public RiderState CurrentState = RiderState.Idle;
+
+    [Header("Rider")]
     [SerializeField] private NavMeshAgent riderNavMeshAgent;
     [SerializeField] private Transform riderTransform;
+    private Renderer[] riderRenderers;
 
+    [Header("Timing")]
     [SerializeField] private float collectPause = 1f;
     [SerializeField] private float deliveryPause = 15f;
 
+    [Header("Navigation")]
     private Vector3 returnPosition;
-
-    [SerializeField] private Transform[] shelfLocations = new Transform[6]; 
+    [SerializeField] private Transform[] shelfLocations = new Transform[6];
     [SerializeField] private Transform exitLocation;
 
-    public RiderState CurrentState = RiderState.Idle;
-
-    //bobbing effect parameters
+    [Header("Walking Bob")]
     [SerializeField] private float bobHeight = 0.05f;
     [SerializeField] private float bobFrequency = 8f;
+    private Vector3 originalLocalPosition;
 
-    private Vector3 originalLocalPosition; // to store the original local position of the rider for bobbing effect
-
+    [Header("Debug")]
     [SerializeField] private KeyCode dispatchKey = KeyCode.D;
 
     private void Awake()
@@ -55,58 +58,29 @@ public class CTRL_Rider : MonoBehaviour
         returnPosition = transform.position;
 
         originalLocalPosition = riderTransform.localPosition;
+
+        riderRenderers = riderTransform.GetComponentsInChildren<Renderer>(true);
     }
-
-
 
     private IEnumerator MoveTo(Vector3 destination)
     {
-        if (!riderNavMeshAgent.isOnNavMesh)
-        {
-            Debug.LogError("Rider is not on the NavMesh!");
-            yield break;
-        }
-
         riderNavMeshAgent.isStopped = false;
         riderNavMeshAgent.speed = 3f;
 
-        if (!riderNavMeshAgent.SetDestination(destination))
-        {
-            Debug.LogError("Could not set destination!");
-            riderNavMeshAgent.isStopped = true;
-            yield break;
-        }
+        riderNavMeshAgent.SetDestination(destination);
 
         while (riderNavMeshAgent.pathPending)
         {
             yield return null;
         }
 
-        if (riderNavMeshAgent.pathStatus != NavMeshPathStatus.PathComplete)
+        while (riderNavMeshAgent.remainingDistance > riderNavMeshAgent.stoppingDistance + 0.05f)
         {
-            Debug.LogError("Destination is unreachable!");
-            riderNavMeshAgent.isStopped = true;
-            yield break;
-        }
-
-        while (riderNavMeshAgent.remainingDistance >
-               riderNavMeshAgent.stoppingDistance + 0.05f)
-        {
-            if (!riderNavMeshAgent.isOnNavMesh ||
-                !riderNavMeshAgent.hasPath)
-            {
-                Debug.LogError("Rider lost its path!");
-                riderNavMeshAgent.isStopped = true;
-                yield break;
-            }
-
             yield return null;
         }
 
         riderNavMeshAgent.isStopped = true;
     }
-
-
 
     void Dispatch()
     {
@@ -155,7 +129,6 @@ public class CTRL_Rider : MonoBehaviour
         StartCoroutine(Deliver());
     }
 
-
     private IEnumerator Deliver() 
     { 
         CurrentState = RiderState.WalkToExit;
@@ -163,9 +136,9 @@ public class CTRL_Rider : MonoBehaviour
 
         CurrentState = RiderState.Delivering;
         riderNavMeshAgent.isStopped = true;
-        riderTransform.gameObject.SetActive(false);
+        SetRiderVisible(false); 
         yield return new WaitForSeconds(deliveryPause);
-        riderTransform.gameObject.SetActive(true);
+        SetRiderVisible(true);
 
         StartCoroutine(ReturnFromDelivery());
     }
@@ -175,9 +148,24 @@ public class CTRL_Rider : MonoBehaviour
         CurrentState = RiderState.Return;
         yield return MoveTo(returnPosition);
 
-        CurrentState = RiderState.Idle;
         riderNavMeshAgent.isStopped = true;
-        riderTransform.gameObject.SetActive(true);
+        CurrentState = RiderState.Idle;
+    }
+
+    private void SetRiderVisible(bool visible)
+    {
+        if (riderRenderers == null)
+        {
+            return;
+        }
+
+        foreach (Renderer riderRenderer in riderRenderers)
+        {
+            if (riderRenderer != null)
+            {
+                riderRenderer.enabled = visible;
+            }
+        }
     }
 
     private void UpdateWalkingBob()
@@ -195,10 +183,9 @@ public class CTRL_Rider : MonoBehaviour
             originalLocalPosition + Vector3.up * bob;
     }
 
-    void Update()
+    private void Update()
     {
-        if (Keyboard.current != null &&
-            Keyboard.current.dKey.wasPressedThisFrame)
+        if (Keyboard.current != null && System.Enum.TryParse(dispatchKey.ToString(), out Key keyboardKey) && Keyboard.current[keyboardKey].wasPressedThisFrame)
         {
             Dispatch();
         }
