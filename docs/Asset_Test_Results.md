@@ -2,9 +2,6 @@
 | ------------------------------ | -----------: | -------------: | :------: |
 | **Box**                        |      84 tris |   **200 tris** | **PASS** |
 | **Product Prop**               |            — |   **300 tris** | **PASS** |
-| **Shelf**                      |     556 tris |   **600 tris** | **PASS** |
-| **Terminal (Checkout)**        |   1,486 tris | **1,500 tris** | **PASS** |
-| **Truck**                      |   2,980 tris | **3,000 tris** | **PASS** |
 | **Column**                     |      12 tris |   **100 tris** | **PASS** |
 | **Door Rollup**                |       2 tris |   **200 tris** | **PASS** |
 | **Wall 1m**                    |      12 tris |   **100 tris** | **PASS** |
@@ -17,12 +14,6 @@
 | **Corner Outer**               |      12 tris |   **100 tris** | **PASS** |
 | **Corner Inner**               |      12 tris |   **100 tris** | **PASS** |
 | **Ceiling Light**              |      36 tris |   **100 tris** | **PASS** |
-| **Drinks – Water Bottle**      |     288 tris |   **300 tris** | **PASS** |
-| **Drinks – Cola Can**          |     284 tris |   **300 tris** | **PASS** |
-| **Drinks – Cold Coffee**       |     284 tris |   **300 tris** | **PASS** |
-| **Drinks – Energy Drink**      |     284 tris |   **300 tris** | **PASS** |
-| **Drinks – Iced Tea**          |     284 tris |   **300 tris** | **PASS** |
-| **Drinks – Juice**             |     272 tris |   **300 tris** | **PASS** |
 | **Snacks – Popcorn**           |     112 tris |   **300 tris** | **PASS** |
 | **Snacks – Trail Mix**         |     206 tris |   **300 tris** | **PASS** |
 | **Snacks – Gummy Bear**        |     240 tris |   **300 tris** | **PASS** |
@@ -42,3 +33,13 @@
 | **Bakery – Chocolate Cake**    |     276 tris |   **300 tris** | **PASS** |
 | **Bakery – Cookies**           |     160 tris |   **300 tris** | **PASS** |
 | **Rider (w/ Bag)**             |   2,718 tris | **3,300 tris** | **PASS** |
+| **Rider Bag**                  |     292 tris |   **300 tris** | **PASS** |
+| **Shelf Unit**                 |     600 tris |   **600 tris** | **PASS** |
+| **Truck**                      |   2,834 tris | **3,000 tris** | **PASS** |
+| **Terminal Station**           |   1,436 tris | **1,500 tris** | **PASS** |
+| **Drinks – Water Bottle**      |     284 tris |   **300 tris** | **PASS** |
+| **Drinks – Cola Can**          |     276 tris |   **300 tris** | **PASS** |
+| **Drinks – Cold Coffee**       |     276 tris |   **300 tris** | **PASS** |
+| **Drinks – Energy Drink**      |     276 tris |   **300 tris** | **PASS** |
+| **Drinks – Iced Tea**          |     276 tris |   **300 tris** | **PASS** |
+| **Drinks – Juice**             |     286 tris |   **300 tris** | **PASS** |
