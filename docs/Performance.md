@@ -22,7 +22,7 @@
 | **Truck**                      |      3,000 tris | **3,000 tris** |
 | **Rider (Delivery Character)** |      3,000 tris | **3,000 tris** |
 
-## Editor Baseline — Empty Scene
+## Editor Baseline — Empty Scene (Week 1)
 
 The following measurements were recorded in the Unity Editor with an empty scene:
 
@@ -50,7 +50,8 @@ The following measurements were recorded in the Unity Editor with an empty scene
 
 * **Large Asset Complexity:** The budgets remain **1,500 tris for the terminal**, **3,000 tris for the truck**, and **3,000 tris for the rider**. Their final designs should be validated against these limits once the models are available.
 
-## Phone Performance Baseline
+
+## Phone Performance Baseline (Week 1)
 
 | Metric           |                Result |
 | ---------------- | --------------------: |
@@ -71,10 +72,7 @@ The following measurements were recorded in the Unity Editor with an empty scene
 **Result:** Memory usage decreased by **19 MB** after package removal after 20 mins.
 
 
-
-### Week 2
-
-## Phone Performance Main Scene with Stage
+## Phone Performance Main Scene with Stage (Week 2)
 
 | Metric           |                Result |
 | ---------------- | --------------------: |
@@ -107,6 +105,18 @@ public void OnDespawn()
     // Reset/cleanup object before returning to pool. OnDespawn() is called when an object is released.
 }
 
+
+## Active Orders Performance (Week 3)
+
+| Metric           |                Result |
+| ---------------- | --------------------: |
+| **Timestamp**    | 10 Oct 2026, 14:23:00 |
+| **FPS**          |         **29.81 FPS** |
+| **Draw Calls**   |               **N/A** |
+| **Triangles**    |            **12,062** |
+| **Memory Usage** |         **273.81 MB** |
+
+FPS went from 60.32 (Week 2) to 29.81 (Week 3). This a real drop with the full order queue, there was no capping at 30 FPS (Android's default when Application.targetFrameRate isn't set).
 
 
 
