@@ -6,12 +6,29 @@ public class ShelfSlot : MonoBehaviour
     [SerializeField] private ProductCategory category;
     [SerializeField] private int capacity = 20;
 
+    [Header("Starting State")]
+    [SerializeField] private int startingUnits = 3;
+
     private int currentUnits;
 
     public string ShelfID => shelfID;
     public ProductCategory Category => category;
     public int Capacity => capacity;
     public int CurrentUnits => currentUnits;
+
+    private void Start()
+    {
+        currentUnits = Mathf.Clamp(startingUnits, 0, capacity);
+
+        if (MGR_Inventory.Instance != null)
+        {
+            MGR_Inventory.Instance.UpdateShelf(
+                shelfID,
+                category,
+                currentUnits
+            );
+        }
+    }
 
     public ShelfPlacementResult TryPlaceBox(ShelfBoxData box)
     {
