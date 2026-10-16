@@ -76,12 +76,15 @@ public class CTRL_BoxContents : MonoBehaviour, IPoolable
             }
         }
 
-        if (_rigidbody != null)
+        if (_rigidbody == null)
         {
-            _rigidbody.linearVelocity = Vector3.zero;
-            _rigidbody.angularVelocity = Vector3.zero;
-            _rigidbody.isKinematic = true;
-            _rigidbody.useGravity = false;
+            return;
         }
+
+        _rigidbody.isKinematic = false;
+        _rigidbody.useGravity = false;
+        _rigidbody.linearVelocity = Vector3.zero;
+        _rigidbody.angularVelocity = Vector3.zero;
+        _rigidbody.isKinematic = true;
     }
 }
