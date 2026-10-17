@@ -2054,6 +2054,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddd4fefcf883324c84b86957c22264c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CTRL_Rider
+  CurrentState: 0
   riderNavMeshAgent: {fileID: 1669382079}
   riderTransform: {fileID: 382146833}
   collectPause: 1
@@ -2066,7 +2067,6 @@ MonoBehaviour:
   - {fileID: 1395420036}
   - {fileID: 1299323472}
   exitLocation: {fileID: 2143871556}
-  CurrentState: 0
   bobHeight: 0.05
   bobFrequency: 8
   dispatchKey: 100
