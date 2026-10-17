@@ -10,9 +10,13 @@ public class MGR_Order : Manager<MGR_Order>
 
     private float orderTimer;
     private int nextOrderID = 1;
+    private bool orderGenerationEnabled = true;
 
     private readonly List<OrderData> activeOrders =
         new List<OrderData>();
+
+    private readonly HashSet<OrderData> reservedOrders =
+    new HashSet<OrderData>();
 
     public static event Action<OrderData> OnOrderCreated;
     public static event Action<OrderData> OnOrderFulfilled;
@@ -46,6 +50,11 @@ public class MGR_Order : Manager<MGR_Order>
 
     private void UpdateOrderGeneration()
     {
+        if (!orderGenerationEnabled)
+        {
+            return;
+        }
+
         if (activeOrders.Count >= MaxActiveOrders)
         {
             return;
@@ -81,7 +90,13 @@ public class MGR_Order : Manager<MGR_Order>
 
             if (!order.IsActive)
             {
+                reservedOrders.Remove(order);
                 activeOrders.RemoveAt(i);
+                continue;
+            }
+
+            if (reservedOrders.Contains(order))
+            {
                 continue;
             }
 
@@ -98,6 +113,7 @@ public class MGR_Order : Manager<MGR_Order>
 
                 OnOrderExpired?.Invoke(order);
 
+                reservedOrders.Remove(order);
                 activeOrders.RemoveAt(i);
             }
         }
@@ -528,6 +544,83 @@ public class MGR_Order : Manager<MGR_Order>
         return totalUnits;
     }
 
+    public void MarkOrderReserved(OrderData order)
+    {
+        if (order == null ||
+            !order.IsActive ||
+            !activeOrders.Contains(order))
+        {
+            return;
+        }
+
+        reservedOrders.Add(order);
+    }
+
+    public void SetOrderGenerationEnabled(bool enabled)
+    {
+        orderGenerationEnabled = enabled;
+
+        Debug.Log(
+            $"MGR_Order: Automatic order generation " +
+            $"{(enabled ? "enabled" : "disabled")}."
+        );
+    }
+
+    public OrderData DebugCreateOrder(
+    DATA_ProductSO product,
+    int quantity)
+    {
+        if (product == null || quantity <= 0)
+        {
+            Debug.LogWarning(
+                "DebugCreateOrder failed because the product or quantity is invalid."
+            );
+
+            return null;
+        }
+
+        if (activeOrders.Count >= MaxActiveOrders)
+        {
+            Debug.LogWarning(
+                "DebugCreateOrder failed because the active order limit was reached."
+            );
+
+            return null;
+        }
+
+        OrderData order = new OrderData
+        {
+            OrderID = nextOrderID++,
+            Items = new List<OrderItem>(),
+            TimerRemaining = OrderDuration,
+            TimerTotal = OrderDuration,
+            XPReward = 0,
+            CashReward = 0f,
+            IsActive = true
+        };
+
+        order.Items.Add(
+            new OrderItem
+            {
+                Product = product,
+                Quantity = quantity
+            }
+        );
+
+        CalculateRewards(order);
+
+        activeOrders.Add(order);
+
+        Debug.Log(
+            $"[DEBUG] Order {order.OrderID} created: " +
+            $"{product.DisplayName} x {quantity}"
+        );
+
+        OnOrderCreated?.Invoke(order);
+
+        return order;
+    }
+
     // =========================================================
     // ORDER FULFILLMENT
     // =========================================================
@@ -683,6 +776,7 @@ public class MGR_Order : Manager<MGR_Order>
 
         order.IsActive = false;
 
+        reservedOrders.Remove(order);
         activeOrders.Remove(order);
 
         // -----------------------------------------------------
@@ -710,6 +804,74 @@ public class MGR_Order : Manager<MGR_Order>
         // - Rating increase
         // - OnRatingChanged
         // -----------------------------------------------------
+
+        OnOrderFulfilled?.Invoke(order);
+
+        return true;
+    }
+
+    public bool CompleteReservedOrder(OrderData order)
+    {
+        if (order == null)
+        {
+            Debug.LogWarning(
+                "CompleteReservedOrder failed because the order is null."
+            );
+
+            return false;
+        }
+
+        if (!order.IsActive)
+        {
+            Debug.LogWarning(
+                $"Order {order.OrderID} cannot be completed " +
+                "because it is no longer active."
+            );
+
+            return false;
+        }
+
+        if (!activeOrders.Contains(order))
+        {
+            Debug.LogWarning(
+                $"Order {order.OrderID} cannot be completed " +
+                "because it is not in the active order list."
+            );
+
+            return false;
+        }
+
+        if (MGR_Game.Instance == null)
+        {
+            Debug.LogWarning(
+                $"Order {order.OrderID} cannot be completed " +
+                "because MGR_Game is missing."
+            );
+
+            return false;
+        }
+
+        // Stock was already reserved and removed by MGR_Delivery.
+        // Do NOT remove inventory again here.
+
+        order.IsActive = false;
+
+        reservedOrders.Remove(order);
+        activeOrders.Remove(order);
+
+        MGR_Game.Instance.AddCash(
+            order.CashReward
+        );
+
+        MGR_Game.Instance.AddXP(
+            order.XPReward
+        );
+
+        Debug.Log(
+            $"Order {order.OrderID} fulfilled after rider left. " +
+            $"Cash: {order.CashReward:F2}, " +
+            $"XP: {order.XPReward}"
+        );
 
         OnOrderFulfilled?.Invoke(order);
 

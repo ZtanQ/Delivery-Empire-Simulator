@@ -6,21 +6,35 @@ public class ShelfSlot : MonoBehaviour
     [SerializeField] private ProductCategory category;
     [SerializeField] private int capacity = 20;
 
-    private int currentUnits;
-
     public string ShelfID => shelfID;
     public ProductCategory Category => category;
     public int Capacity => capacity;
-    public int CurrentUnits => currentUnits;
 
-    public ShelfPlacementResult TryPlaceBox(ShelfBoxData box)
+    public int CurrentUnits
+    {
+        get
+        {
+            if (MGR_Inventory.Instance == null)
+            {
+                return 0;
+            }
+
+            return MGR_Inventory.Instance.GetShelfUnits(
+                shelfID
+            );
+        }
+    }
+
+    public ShelfPlacementResult TryPlaceBox(
+        ShelfBoxData box)
     {
         if (box == null)
         {
             return ShelfPlacementResult.InvalidBox;
         }
 
-        if (box.Product == null || box.Units <= 0)
+        if (box.Product == null ||
+            box.Units <= 0)
         {
             return ShelfPlacementResult.InvalidBox;
         }
@@ -30,25 +44,38 @@ public class ShelfSlot : MonoBehaviour
             return ShelfPlacementResult.WrongCategory;
         }
 
+        if (MGR_Inventory.Instance == null)
+        {
+            Debug.LogError(
+                "MGR_Inventory is not available."
+            );
+
+            return ShelfPlacementResult.InvalidShelf;
+        }
+
+        int currentUnits =
+            MGR_Inventory.Instance.GetShelfUnits(
+                shelfID
+            );
+
         if (currentUnits + box.Units > capacity)
         {
             return ShelfPlacementResult.OverCapacity;
         }
 
-        currentUnits += box.Units;
+        // Increase the total stock of this product.
+        MGR_Inventory.Instance.AddStock(
+            box.Product,
+            box.Units
+        );
 
-        if (MGR_Inventory.Instance == null)
-        {
-            Debug.LogError("MGR_Inventory is not available.");
-            return ShelfPlacementResult.InvalidShelf;
-        }
-
-        MGR_Inventory.Instance.AddStock(box.Product, box.Units);
-
-        MGR_Inventory.Instance.UpdateShelf(
+        // Record the exact product on this shelf.
+        // This also updates the shelf's total unit count.
+        MGR_Inventory.Instance.AddProductToShelf(
             shelfID,
             category,
-            currentUnits
+            box.Product,
+            box.Units
         );
 
         return ShelfPlacementResult.Success;
