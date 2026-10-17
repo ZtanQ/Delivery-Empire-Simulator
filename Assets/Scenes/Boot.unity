@@ -363,7 +363,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Pool
   boxPrefab: {fileID: 1072726016038666765, guid: 374ddbdc0fcb09b4e9310c657bb92992, type: 3}
-  poolSize: 12
+  riderPrefab: {fileID: 3636406766651265955, guid: 72471b386c007bf48ab1f32279d725db, type: 3}
+  boxPoolSize: 12
+  riderPoolSize: 5
 --- !u!4 &245984215
 Transform:
   m_ObjectHideFlags: 0
