@@ -4,9 +4,13 @@ using System.Collections.Generic;
 public class MGR_Pool : Manager<MGR_Pool>
 {
     [SerializeField] private GameObject boxPrefab;
-    [SerializeField] private int poolSize = 12;
+    [SerializeField] private GameObject riderPrefab;
+
+    [SerializeField] private int boxPoolSize = 12;
+    [SerializeField] private int riderPoolSize = 5;
 
     private readonly Queue<GameObject> boxPool = new Queue<GameObject>();
+    private readonly Queue<GameObject> riderPool = new Queue<GameObject>();
 
     protected override void OnInitialise()
     {
@@ -14,68 +18,77 @@ public class MGR_Pool : Manager<MGR_Pool>
 
         if (boxPrefab == null)
         {
-            Debug.LogError("MGR_Pool: Box prefab is not assigned."); //#95 2
+            Debug.LogError("MGR_Pool: Box prefab is not assigned.");
             return;
         }
 
         // Create a pool of 12 boxes
-        for (int i = 0; i < poolSize; i++)
+        for (int i = 0; i < boxPoolSize; i++)
         {
             GameObject box = Instantiate(boxPrefab, transform);
             box.SetActive(false);
             boxPool.Enqueue(box);
         }
-
         Debug.Log($"MGR_Pool created {boxPool.Count} boxes.");
+
+        if (riderPrefab == null)
+        {
+            Debug.LogError("MGR_Pool: Rider prefab is not assigned.");
+            return;
+        }
+
+        // Create a pool of 5 riderse
+        for (int i = 0; i < riderPoolSize; i++)
+        {
+            GameObject rider = Instantiate(riderPrefab, transform);
+            rider.SetActive(false);
+            riderPool.Enqueue(rider);
+        }
+        Debug.Log($"MGR_Pool created {riderPool.Count} riders.");
     }
+
 
     public GameObject Get(GameObject prefab)
     {
-        if (prefab == null ||prefab != boxPrefab)
-        {
-            Debug.LogWarning("MGR_Pool: Get() was called with a prefab this pool does not manage.");
+        if (prefab == null) 
+            return null;
+         
+        Queue<GameObject> pool = null;
+
+        if (prefab == boxPrefab)
+            pool = boxPool;
+        else if (prefab == riderPrefab)
+            pool = riderPool;
+
+        if (pool == null) {
+            Debug.LogWarning($"MGR_Pool: {prefab.name} is not registered.");
             return null;
         }
 
-        if (boxPool.Count == 0)
-        {
-            Debug.LogWarning("MGR_Pool: No boxes available in the pool. Consider increasing the pool size."); //#95 3
-            GameObject extra = Instantiate(boxPrefab, transform);
-            extra.SetActive(false);
-            boxPool.Enqueue(extra);
-        }
+        GameObject obj;
 
-        GameObject obj = boxPool.Dequeue();
+        if (pool.Count > 0)
+            obj = pool.Dequeue();
+        else
+            obj = Instantiate(prefab, transform);
 
         obj.SetActive(true);
-
-        IPoolable poolable = obj.GetComponent<IPoolable>();
-
-        if (poolable != null)
-        {
-            poolable.OnSpawn();
-        }
-
+        obj.GetComponent<IPoolable>()?.OnSpawn();
         return obj;
     }
 
     public void Release(GameObject obj)
     {
         if (obj == null)
-        {
             return;
-        }
 
-        IPoolable poolable = obj.GetComponent<IPoolable>();
-
-        if (poolable != null)
-        {
-            poolable.OnDespawn();
-        }
-
+        obj.GetComponent<IPoolable>()?.OnDespawn();
         obj.SetActive(false);
 
-        boxPool.Enqueue(obj); //#95 1
-
+        // Identify the prefab associated with this pooled instance.
+        if (obj.name.StartsWith(boxPrefab.name))
+            boxPool.Enqueue(obj);
+        else if (obj.name.StartsWith(riderPrefab.name))
+            riderPool.Enqueue(obj);
     }
 }
