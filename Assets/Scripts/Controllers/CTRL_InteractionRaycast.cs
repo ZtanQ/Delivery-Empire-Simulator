@@ -33,6 +33,8 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     private GameObject _heldObject;
     private Rigidbody _heldRigidbody;
     private Collider[] _heldColliders;
+    private readonly RaycastHit[] _heldBoxHits = new RaycastHit[32];
+    private float _heldBoxCollisionRadius = 0.2f;
 
     private bool _terminalControlsPaused;
     private bool _movementWasEnabled;
@@ -89,6 +91,83 @@ public class CTRL_InteractionRaycast : MonoBehaviour
 
         _currentShelfTarget = null;
         CheckForTarget();
+    }
+
+    private void LateUpdate()
+    {
+        UpdateHeldBoxPosition();
+    }
+
+    private void UpdateHeldBoxPosition()
+    {
+        if (_heldObject == null ||
+            _handAnchor == null ||
+            _playerCamera == null)
+        {
+            return;
+        }
+
+        // HandAnchor already sits 0.7 m in front of the camera. Do not add
+        // the serialized 0.7 m local Z offset a second time.
+        Vector3 localPosition = new Vector3(
+            _heldLocalPosition.x,
+            _heldLocalPosition.y,
+            0f
+        );
+
+        Vector3 desiredPosition =
+            _handAnchor.TransformPoint(localPosition);
+        Vector3 toDesiredPosition =
+            desiredPosition - _playerCamera.transform.position;
+        float distance = toDesiredPosition.magnitude;
+
+        if (distance <= 0.001f)
+        {
+            _heldObject.transform.position = desiredPosition;
+            return;
+        }
+
+        Vector3 direction = toDesiredPosition / distance;
+        float allowedDistance = distance;
+        int hitCount = Physics.SphereCastNonAlloc(
+            _playerCamera.transform.position,
+            _heldBoxCollisionRadius,
+            direction,
+            _heldBoxHits,
+            distance,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Ignore
+        );
+
+        float nearestDistance = float.MaxValue;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider hitCollider = _heldBoxHits[i].collider;
+
+            if (hitCollider == null ||
+                hitCollider.transform == transform ||
+                hitCollider.transform.IsChildOf(transform) ||
+                hitCollider.transform == _heldObject.transform ||
+                hitCollider.transform.IsChildOf(_heldObject.transform))
+            {
+                continue;
+            }
+
+            if (_heldBoxHits[i].distance < nearestDistance)
+            {
+                nearestDistance = _heldBoxHits[i].distance;
+            }
+        }
+
+        if (nearestDistance < float.MaxValue)
+        {
+            allowedDistance = Mathf.Max(0f, nearestDistance - 0.03f);
+        }
+
+        _heldObject.transform.position =
+            _playerCamera.transform.position + direction * allowedDistance;
+        _heldObject.transform.rotation = _handAnchor.rotation;
     }
 
     private void CheckForTarget()
@@ -287,13 +366,29 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         _heldRigidbody = _heldObject.GetComponent<Rigidbody>();
         _heldColliders = _heldObject.GetComponentsInChildren<Collider>();
 
+        _heldBoxCollisionRadius = 0.2f;
+
         foreach (Collider heldCollider in _heldColliders)
         {
             if (heldCollider != null)
             {
+                if (heldCollider.enabled)
+                {
+                    _heldBoxCollisionRadius = Mathf.Max(
+                        _heldBoxCollisionRadius,
+                        heldCollider.bounds.extents.magnitude
+                    );
+                }
+
                 heldCollider.enabled = false;
             }
         }
+
+        _heldBoxCollisionRadius = Mathf.Clamp(
+            _heldBoxCollisionRadius,
+            0.1f,
+            0.4f
+        );
 
         if (_heldRigidbody != null)
         {
@@ -302,7 +397,11 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         }
 
         _heldObject.transform.SetParent(_handAnchor);
-        _heldObject.transform.localPosition = _heldLocalPosition;
+        _heldObject.transform.localPosition = new Vector3(
+            _heldLocalPosition.x,
+            _heldLocalPosition.y,
+            0f
+        );
         _heldObject.transform.localRotation = Quaternion.identity;
 
         SetActionButton("Drop");
@@ -442,6 +541,7 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         _heldObject = null;
         _heldRigidbody = null;
         _heldColliders = null;
+        _heldBoxCollisionRadius = 0.2f;
     }
 
     private void UpdateActionButton(
