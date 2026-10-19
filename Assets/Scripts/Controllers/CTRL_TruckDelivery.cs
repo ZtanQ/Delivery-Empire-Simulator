@@ -12,6 +12,8 @@ public class CTRL_TruckDelivery : MonoBehaviour
     [SerializeField] private GameObject _boxPrefab;
     [SerializeField] private Transform _truckStart;
     [SerializeField] private Transform _truckEnd;
+    [SerializeField] private Transform _dockQueueAnchor;
+    [SerializeField, Min(0.1f)] private float _dockQueueSpacing = 0.6f;
     [SerializeField] private float _travelDuration = 4f;
     [SerializeField] private float _leaveDelay = 2f;
 
@@ -31,8 +33,12 @@ public class CTRL_TruckDelivery : MonoBehaviour
     private readonly List<GameObject> _boxes =
         new List<GameObject>();
 
+    private readonly List<GameObject> _dockQueue =
+        new List<GameObject>();
+
     private GameObject _truck;
     private Coroutine _deliveryRoutine;
+    private ShelfSlot[] _shelfSlots;
 
     private void OnEnable()
     {
@@ -243,8 +249,23 @@ public class CTRL_TruckDelivery : MonoBehaviour
 
         yield return MoveTruck(_truckStart, _truckEnd);
 
+        float shelfCheckTimer = 0f;
+
         while (HasCargoRemaining())
         {
+            shelfCheckTimer -= Time.deltaTime;
+
+            if (shelfCheckTimer <= 0f)
+            {
+                shelfCheckTimer = 0.25f;
+
+                if (AreAllShelvesFull())
+                {
+                    MoveCargoToDockQueue();
+                    break;
+                }
+            }
+
             yield return null;
         }
 
@@ -257,6 +278,118 @@ public class CTRL_TruckDelivery : MonoBehaviour
         }
 
         _truck = null;
+    }
+
+    private bool AreAllShelvesFull()
+    {
+        if (_shelfSlots == null)
+        {
+            _shelfSlots = FindObjectsOfType<ShelfSlot>();
+        }
+
+        if (_shelfSlots.Length == 0)
+        {
+            return false;
+        }
+
+        foreach (ShelfSlot shelf in _shelfSlots)
+        {
+            if (shelf != null && shelf.CurrentUnits < shelf.Capacity)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void MoveCargoToDockQueue()
+    {
+        foreach (GameObject box in _boxes)
+        {
+            if (box == null ||
+                _truck == null ||
+                !box.transform.IsChildOf(_truck.transform))
+            {
+                continue;
+            }
+
+            box.transform.SetParent(null, true);
+
+            Rigidbody rigidbody = box.GetComponent<Rigidbody>();
+
+            if (rigidbody != null)
+            {
+                rigidbody.useGravity = false;
+                rigidbody.isKinematic = true;
+            }
+
+            foreach (Collider boxCollider in
+                     box.GetComponentsInChildren<Collider>(true))
+            {
+                if (boxCollider != null)
+                {
+                    boxCollider.enabled = true;
+                }
+            }
+
+            _dockQueue.Add(box);
+        }
+
+        _boxes.Clear();
+        RestackDockQueue();
+    }
+
+    private void RestackDockQueue()
+    {
+        Transform queueAnchor =
+            _dockQueueAnchor != null ? _dockQueueAnchor : _truckEnd;
+
+        if (queueAnchor == null)
+        {
+            return;
+        }
+
+        float spacing = Mathf.Max(0.55f, _dockQueueSpacing);
+        const int columns = 3;
+
+        for (int i = _dockQueue.Count - 1; i >= 0; i--)
+        {
+            GameObject box = _dockQueue[i];
+
+            // Picked up or pooled boxes no longer belong to the dock queue.
+            if (box == null || box.transform.parent != null)
+            {
+                _dockQueue.RemoveAt(i);
+            }
+        }
+
+        for (int i = 0; i < _dockQueue.Count; i++)
+        {
+            int column = i % columns;
+            int row = i / columns;
+
+            float x = (column - (columns - 1) * 0.5f) * spacing;
+
+            // If no explicit dock anchor is assigned, keep the boxes to the
+            // side of the truck's endpoint so the truck can still leave.
+            if (_dockQueueAnchor == null)
+            {
+                x += 1.5f;
+            }
+
+            Vector3 localPosition = new Vector3(
+                x,
+                0f,
+                row * spacing
+            );
+
+            GameObject box = _dockQueue[i];
+            box.transform.SetPositionAndRotation(
+                queueAnchor.TransformPoint(localPosition),
+                queueAnchor.rotation
+            );
+        }
     }
 
     private bool SpawnBoxes(
