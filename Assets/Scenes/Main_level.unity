@@ -7403,6 +7403,8 @@ MonoBehaviour:
   _boxPrefab: {fileID: 1072726016038666765, guid: 374ddbdc0fcb09b4e9310c657bb92992, type: 3}
   _truckStart: {fileID: 1141169607}
   _truckEnd: {fileID: 2121914258}
+  _dockQueueAnchor: {fileID: 0}
+  _dockQueueSpacing: 0.6
   _travelDuration: 4
   _leaveDelay: 2
   _rows: 2
