@@ -159,6 +159,16 @@ public class MGR_Inventory : Manager<MGR_Inventory>
             1
         );
 
+        // Stage 1 shelf slots start empty.
+        UpdateShelf("SHL_07", ProductCategory.Snacks, 0);
+        UpdateShelf("SHL_08", ProductCategory.Snacks, 0);
+
+        UpdateShelf("SHL_09", ProductCategory.Drinks, 0);
+        UpdateShelf("SHL_10", ProductCategory.Drinks, 0);
+
+        UpdateShelf("SHL_11", ProductCategory.Dairy, 0);
+        UpdateShelf("SHL_12", ProductCategory.Bakery, 0);
+
         Debug.Log(
             "MGR_Inventory: Starting stock initialised with 18 units."
         );
