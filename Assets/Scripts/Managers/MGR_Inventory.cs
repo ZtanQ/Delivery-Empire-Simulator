@@ -169,6 +169,15 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         UpdateShelf("SHL_11", ProductCategory.Dairy, 0);
         UpdateShelf("SHL_12", ProductCategory.Bakery, 0);
 
+        UpdateShelf("SHL_13", ProductCategory.Dairy, 0);
+        UpdateShelf("SHL_14", ProductCategory.Bakery, 0);
+
+        UpdateShelf("SHL_15", ProductCategory.Drinks, 0);
+        UpdateShelf("SHL_16", ProductCategory.Drinks, 0);
+
+        UpdateShelf("SHL_17", ProductCategory.Snacks, 0);
+        UpdateShelf("SHL_18", ProductCategory.Snacks, 0);
+
         Debug.Log(
             "MGR_Inventory: Starting stock initialised with 18 units."
         );
