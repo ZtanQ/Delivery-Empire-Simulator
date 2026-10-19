@@ -4525,6 +4525,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2058274629706792994, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
+      propertyPath: near clip plane
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 2776886129054373524, guid: 3bea58ba938ee71429c74728554b5f2e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -7399,6 +7403,8 @@ MonoBehaviour:
   _boxPrefab: {fileID: 1072726016038666765, guid: 374ddbdc0fcb09b4e9310c657bb92992, type: 3}
   _truckStart: {fileID: 1141169607}
   _truckEnd: {fileID: 2121914258}
+  _dockQueueAnchor: {fileID: 0}
+  _dockQueueSpacing: 0.6
   _travelDuration: 4
   _leaveDelay: 2
   _rows: 2

@@ -23,6 +23,9 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     [Header("Held Box")]
     [SerializeField] private Vector3 _heldLocalPosition =
         new Vector3(0.35f, -0.25f, 0.7f);
+    [SerializeField, Min(0f)] private float _heldBoxSmoothTime = 0.06f;
+    [SerializeField, Min(0f)] private float _heldBoxWallClearance = 0.03f;
+    [SerializeField, Min(0f)] private float _heldBoxWallDropDistance = 0.25f;
 
     [Header("Placement Feedback")]
     [SerializeField, Min(0f)] private float _feedbackDuration = 1.5f;
@@ -34,7 +37,9 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     private Rigidbody _heldRigidbody;
     private Collider[] _heldColliders;
     private readonly RaycastHit[] _heldBoxHits = new RaycastHit[32];
-    private float _heldBoxCollisionRadius = 0.2f;
+    private Vector3 _heldBoxHalfExtents = new Vector3(0.2f, 0.2f, 0.2f);
+    private Vector3 _heldColliderCenterLocal;
+    private Vector3 _heldBoxSmoothingVelocity;
 
     private bool _terminalControlsPaused;
     private bool _movementWasEnabled;
@@ -95,10 +100,10 @@ public class CTRL_InteractionRaycast : MonoBehaviour
 
     private void LateUpdate()
     {
-        UpdateHeldBoxPosition();
+        UpdateHeldBoxPosition(false);
     }
 
-    private void UpdateHeldBoxPosition()
+    private void UpdateHeldBoxPosition(bool snapToHand)
     {
         if (_heldObject == null ||
             _handAnchor == null ||
@@ -115,25 +120,100 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             0f
         );
 
-        Vector3 desiredPosition =
+        Quaternion heldRotation = _handAnchor.rotation;
+        Vector3 desiredRootPosition =
             _handAnchor.TransformPoint(localPosition);
-        Vector3 toDesiredPosition =
-            desiredPosition - _playerCamera.transform.position;
-        float distance = toDesiredPosition.magnitude;
+        Vector3 colliderCenterOffset = heldRotation * Vector3.Scale(
+            _heldColliderCenterLocal,
+            _heldObject.transform.localScale
+        );
+        Vector3 desiredCenter =
+            desiredRootPosition + colliderCenterOffset;
+        Vector3 safeCenter = GetHeldBoxTargetCenter(
+            desiredCenter,
+            heldRotation
+        );
+        Vector3 safeRootPosition = safeCenter - colliderCenterOffset;
+
+        Vector3 nextRootPosition = safeRootPosition;
+
+        if (!snapToHand)
+        {
+            nextRootPosition = Vector3.SmoothDamp(
+                _heldObject.transform.position,
+                safeRootPosition,
+                ref _heldBoxSmoothingVelocity,
+                _heldBoxSmoothTime,
+                Mathf.Infinity,
+                Time.deltaTime
+            );
+
+            // Recheck the smoothed position so easing can never carry the box
+            // through a wall while the player turns or walks around it.
+            Vector3 smoothedCenter =
+                nextRootPosition + colliderCenterOffset;
+            safeCenter = GetSafeHeldBoxCenter(smoothedCenter, heldRotation);
+            nextRootPosition = safeCenter - colliderCenterOffset;
+        }
+
+        _heldObject.transform.SetPositionAndRotation(
+            nextRootPosition,
+            heldRotation
+        );
+    }
+
+    private Vector3 GetHeldBoxTargetCenter(
+        Vector3 desiredCenter,
+        Quaternion heldRotation)
+    {
+        Vector3 safeCenter = GetSafeHeldBoxCenter(
+            desiredCenter,
+            heldRotation
+        );
+
+        float obstructionDistance =
+            Vector3.Distance(desiredCenter, safeCenter);
+
+        if (_heldBoxWallDropDistance <= 0f ||
+            obstructionDistance <= 0.03f)
+        {
+            return safeCenter;
+        }
+
+        // Drop the box in the view only when a wall has pushed it back from
+        // its normal hand position. Ease the amount in as the obstruction
+        // gets stronger, then run the lowered target through the wall check.
+        float dropStrength = Mathf.Clamp01(
+            (obstructionDistance - 0.03f) / 0.35f
+        );
+        Vector3 loweredCenter = safeCenter -
+            _playerCamera.transform.up *
+            (_heldBoxWallDropDistance * dropStrength);
+
+        return GetSafeHeldBoxCenter(loweredCenter, heldRotation);
+    }
+
+    private Vector3 GetSafeHeldBoxCenter(
+        Vector3 desiredCenter,
+        Quaternion heldRotation)
+    {
+        Vector3 toDesiredCenter =
+            desiredCenter - _playerCamera.transform.position;
+        float distance = toDesiredCenter.magnitude;
 
         if (distance <= 0.001f)
         {
-            _heldObject.transform.position = desiredPosition;
-            return;
+            return desiredCenter;
         }
 
-        Vector3 direction = toDesiredPosition / distance;
+        Vector3 direction = toDesiredCenter / distance;
         float allowedDistance = distance;
-        int hitCount = Physics.SphereCastNonAlloc(
+        int hitCount = Physics.BoxCastNonAlloc(
             _playerCamera.transform.position,
-            _heldBoxCollisionRadius,
+            _heldBoxHalfExtents,
             direction,
             _heldBoxHits,
+            heldRotation,
             distance,
             Physics.DefaultRaycastLayers,
             QueryTriggerInteraction.Ignore
@@ -162,12 +242,13 @@ public class CTRL_InteractionRaycast : MonoBehaviour
 
         if (nearestDistance < float.MaxValue)
         {
-            allowedDistance = Mathf.Max(0f, nearestDistance - 0.03f);
+            allowedDistance = Mathf.Max(
+                0f,
+                nearestDistance - _heldBoxWallClearance
+            );
         }
 
-        _heldObject.transform.position =
-            _playerCamera.transform.position + direction * allowedDistance;
-        _heldObject.transform.rotation = _handAnchor.rotation;
+        return _playerCamera.transform.position + direction * allowedDistance;
     }
 
     private void CheckForTarget()
@@ -366,7 +447,11 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         _heldRigidbody = _heldObject.GetComponent<Rigidbody>();
         _heldColliders = _heldObject.GetComponentsInChildren<Collider>();
 
-        _heldBoxCollisionRadius = 0.2f;
+        _heldBoxHalfExtents = new Vector3(0.2f, 0.2f, 0.2f);
+        _heldColliderCenterLocal = Vector3.zero;
+        _heldBoxSmoothingVelocity = Vector3.zero;
+        bool hasColliderBounds = false;
+        Bounds heldColliderBounds = default;
 
         foreach (Collider heldCollider in _heldColliders)
         {
@@ -374,20 +459,36 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             {
                 if (heldCollider.enabled)
                 {
-                    _heldBoxCollisionRadius = Mathf.Max(
-                        _heldBoxCollisionRadius,
-                        heldCollider.bounds.extents.magnitude
-                    );
+                    if (!hasColliderBounds)
+                    {
+                        heldColliderBounds = heldCollider.bounds;
+                        hasColliderBounds = true;
+                    }
+                    else
+                    {
+                        heldColliderBounds.Encapsulate(
+                            heldCollider.bounds
+                        );
+                    }
                 }
 
                 heldCollider.enabled = false;
             }
         }
 
-        _heldBoxCollisionRadius = Mathf.Clamp(
-            _heldBoxCollisionRadius,
-            0.1f,
-            0.4f
+        if (hasColliderBounds)
+        {
+            _heldBoxHalfExtents = heldColliderBounds.extents;
+            _heldColliderCenterLocal =
+                _heldObject.transform.InverseTransformPoint(
+                    heldColliderBounds.center
+                );
+        }
+
+        _heldBoxHalfExtents = new Vector3(
+            Mathf.Clamp(_heldBoxHalfExtents.x, 0.05f, 0.5f),
+            Mathf.Clamp(_heldBoxHalfExtents.y, 0.05f, 0.5f),
+            Mathf.Clamp(_heldBoxHalfExtents.z, 0.05f, 0.5f)
         );
 
         if (_heldRigidbody != null)
@@ -403,6 +504,7 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             0f
         );
         _heldObject.transform.localRotation = Quaternion.identity;
+        UpdateHeldBoxPosition(true);
 
         SetActionButton("Drop");
     }
@@ -541,7 +643,9 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         _heldObject = null;
         _heldRigidbody = null;
         _heldColliders = null;
-        _heldBoxCollisionRadius = 0.2f;
+        _heldBoxHalfExtents = new Vector3(0.2f, 0.2f, 0.2f);
+        _heldColliderCenterLocal = Vector3.zero;
+        _heldBoxSmoothingVelocity = Vector3.zero;
     }
 
     private void UpdateActionButton(
