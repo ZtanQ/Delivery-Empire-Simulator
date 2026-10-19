@@ -63,11 +63,11 @@ internal state.
                                            warehouse    warehouse/gameplay                    
                                            stage        systems                               
 
-  `OnRiderDispatched`    `MGR_Delivery`    Rider        `MGR_UI`,             Planned         TBD
+  `OnRiderDispatched`    `MGR_Delivery`    Rider        `MGR_UI`,             Implemented     Current
                                            reference,   rider/delivery                        
                                            target shelf gameplay systems                      
 
-  `OnRiderReturned`      `MGR_Delivery`    Rider        `MGR_UI`,             Planned         TBD
+  `OnRiderReturned`      `MGR_Delivery`    Rider        `MGR_UI`,             Implemented     Current
                                            reference    rider/delivery                        
                                                         gameplay systems                      
 
@@ -183,6 +183,44 @@ OrderData
 ```
 
 ------------------------------------------------------------------------
+
+### Delivery Events
+
+**Manager:** `MGR_Delivery`
+
+#### `OnRiderDispatched`
+
+**Current Status:** Implemented
+
+Raised when an active order can be fully supplied from shelf stock and an
+Idle rider is available. The required units are reserved and removed from
+stock before the event is raised.
+
+**Current code payload:**
+
+```text
+OnRiderDispatched
+```
+
+------------------------------------------------------------------------
+
+#### `OnRiderReturned`
+
+**Manager:** `MGR_Delivery`
+
+**Current Status:** Implemented
+
+The event is raised when the dispatched rider has completed the delivery
+and returned to its original spot.
+
+**Current code payload:**
+
+```text
+OnRiderReturned
+```
+
+------------------------------------------------------------------------
+
 ## 3. Planned Events
 
 The following events are defined by GDD §48 but are not currently
@@ -388,22 +426,22 @@ may be disabled and reused instead of being destroyed.
 -   `OnRatingChanged`
 -   `OnDayTick`
 -   `OnLevelUp`
+-   `OnRiderDispatched`
+-   `OnRiderReturned`
 
 ### Planned
 
 -   `OnHiringLocked`
 -   `OnStageChanged`
--   `OnRiderDispatched`
--   `OnRiderReturned`
 -   `OnTruckArrived`
 -   `OnTruckDeparted`
 
 
 **Total GDD §48 events: 16**
 
-**Currently implemented: 10**
+**Currently implemented: 12**
 
-**Planned: 6**
+**Planned: 4**
 
 ------------------------------------------------------------------------
 
