@@ -8853,6 +8853,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Stage1_Assembly_Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 603337928062984908, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4809658662017003658, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.47919
