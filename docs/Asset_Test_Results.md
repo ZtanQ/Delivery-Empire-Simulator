@@ -48,3 +48,5 @@
 | **Drinks – Energy Drink**      |     276 tris |   **300 tris** | **PASS** |
 | **Drinks – Iced Tea**          |     276 tris |   **300 tris** | **PASS** |
 | **Drinks – Juice**             |     286 tris |   **300 tris** | **PASS** |
+| **Rider Bag**                  |     292 tris |   **300 tris** | **PASS** |
+| **Rider (w/ variant texture)** |   2,358 tris |  **3000 tris** | **PASS** |
