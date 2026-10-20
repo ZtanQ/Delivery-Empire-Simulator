@@ -29,14 +29,16 @@ public class CTRL_Rider : MonoBehaviour
     [SerializeField] private float deliveryPause = 15f;
 
     [Header("Navigation")]
-    [SerializeField] private Transform[] shelfLocations = new Transform[6];
-    [SerializeField] private string[] shelfIDs = new string[6];
+    [SerializeField] private Transform[] shelfLocations;
+    [SerializeField] private string[] shelfIDs;
     [SerializeField] private Transform exitLocation;
+
     private Vector3 returnPosition;
 
     [Header("Walking Bob")]
     [SerializeField] private float bobHeight = 0.05f;
     [SerializeField] private float bobFrequency = 8f;
+
     private Vector3 originalLocalPosition;
 
     private OrderData currentOrder;
@@ -69,25 +71,28 @@ public class CTRL_Rider : MonoBehaviour
     private void OnEnable()
     {
         MGR_Delivery.OnRiderDispatched += HandleRiderDispatched;
+        
+        FindShelfAccessPoints();
+
+        returnPosition = transform.position;
+
+        if (MGR_Delivery.Instance != null)
+        {
+            MGR_Delivery.Instance.RegisterRider(this);
+            isRegistered = true;
+        }
     }
 
     private void OnDisable()
     {
         MGR_Delivery.OnRiderDispatched -= HandleRiderDispatched;
-    }
 
-    private void Start()
-    {
-        MGR_Delivery.Instance.RegisterRider(this);
-        isRegistered = true;
-    }
-
-    private void OnDestroy()
-    {
         if (isRegistered && MGR_Delivery.Instance != null)
         {
             MGR_Delivery.Instance.UnregisterRider(this);
         }
+
+        isRegistered = false;
     }
 
     private void HandleRiderDispatched(CTRL_Rider rider, OrderData order, List<string> shelvesToVisit)
@@ -100,11 +105,44 @@ public class CTRL_Rider : MonoBehaviour
         }
     }
 
+
+    private void FindShelfAccessPoints()
+    {
+        int stage = MGR_Delivery.Instance != null
+            ? MGR_Delivery.Instance.CurrentStage
+            : 0;
+
+        int shelfCount = stage == 1 ? 18 : 6;
+
+        shelfLocations = new Transform[shelfCount];
+        shelfIDs = new string[shelfCount];
+
+        for (int i = 0; i < shelfCount; i++)
+        {
+            string shelfID = "SPW_ShelfAccess_0" + (i + 1);
+            GameObject shelfObject = GameObject.Find(shelfID);
+
+            shelfIDs[i] = shelfID;
+
+            if (shelfObject != null)
+            {
+                shelfLocations[i] = shelfObject.transform;
+            }
+        }
+
+        GameObject exitObject = GameObject.Find("SPW_RiderExit");
+
+        if (exitObject != null)
+        {
+            exitLocation = exitObject.transform;
+        }
+    }
+
     private Transform FindShelf(string shelfID)
     {
         for (int i = 0; i < shelfIDs.Length; i++)
         {
-            if (shelfIDs[i] == shelfID && shelfLocations[i] != null)
+            if (shelfIDs[i] == shelfID)
             {
                 return shelfLocations[i];
             }
@@ -112,6 +150,8 @@ public class CTRL_Rider : MonoBehaviour
 
         return null;
     }
+
+
 
     private IEnumerator MoveTo(Vector3 destination)
     {
@@ -137,7 +177,6 @@ public class CTRL_Rider : MonoBehaviour
 
             if (shelf == null)
             {
-                Debug.LogError($"CTRL_Rider: Shelf '{shelfID}' is missing.", this); 
                 yield break;
             }
 
@@ -149,6 +188,10 @@ public class CTRL_Rider : MonoBehaviour
         }
 
         CurrentState = RiderState.WalkToExit;
+        if (exitLocation == null)
+        {
+            yield break;
+        }
         yield return MoveTo(exitLocation.position);
 
         // Notify the manager when the rider reaches the door.
