@@ -6,9 +6,13 @@ public class ShelfSlot : MonoBehaviour
     [SerializeField] private ProductCategory category;
     [SerializeField] private int capacity = 20;
 
+    [Header("Rider Navigation")]
+    [SerializeField] private Transform accessPoint;
+
     public string ShelfID => shelfID;
     public ProductCategory Category => category;
     public int Capacity => capacity;
+    public Transform AccessPoint => accessPoint;
 
     public int CurrentUnits
     {

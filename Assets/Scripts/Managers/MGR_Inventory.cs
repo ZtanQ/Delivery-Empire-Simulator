@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MGR_Inventory : Manager<MGR_Inventory>
 {
@@ -41,14 +42,20 @@ public class MGR_Inventory : Manager<MGR_Inventory>
     shelfCategories =
         new Dictionary<string, ProductCategory>();
 
+    private readonly Dictionary<string, Transform> shelfAccessPoints =
+    new Dictionary<string, Transform>();
+
     protected override void OnInitialise()
     {
         stock.Clear();
         shelfContents.Clear();
         shelfProductContents.Clear();
         shelfCategories.Clear();
+        shelfAccessPoints.Clear();
 
         InitialiseStartingStock();
+        SceneManager.sceneLoaded -= RegisterSceneShelfAccessPoints;
+        SceneManager.sceneLoaded += RegisterSceneShelfAccessPoints;
 
         Debug.Log("MGR_Inventory initialised.");
     }
@@ -707,4 +714,71 @@ public class MGR_Inventory : Manager<MGR_Inventory>
             shelfContents[shelfId]
         );
     }
+
+    public void RegisterShelfAccessPoint(
+    string shelfId,
+    Transform accessPoint)
+    {
+        if (string.IsNullOrEmpty(shelfId) ||
+            accessPoint == null)
+        {
+            return;
+        }
+
+        shelfAccessPoints[shelfId] = accessPoint;
+    }
+
+    public Transform GetAccessPoint(string shelfId)
+    {
+        if (string.IsNullOrEmpty(shelfId))
+        {
+            return null;
+        }
+
+        return shelfAccessPoints.TryGetValue(
+            shelfId,
+            out Transform accessPoint)
+            ? accessPoint
+            : null;
+    }
+
+    private void RegisterSceneShelfAccessPoints(
+    Scene scene,
+    LoadSceneMode mode)
+    {
+        if (scene.name != "Main_level")
+        {
+            return;
+        }
+
+        shelfAccessPoints.Clear();
+
+        ShelfSlot[] shelves =
+    FindObjectsByType<ShelfSlot>();
+
+        foreach (ShelfSlot shelf in shelves)
+        {
+            if (shelf == null ||
+                shelf.AccessPoint == null)
+            {
+                continue;
+            }
+
+            RegisterShelfAccessPoint(
+                shelf.ShelfID,
+                shelf.AccessPoint
+            );
+        }
+
+        Debug.Log(
+            $"MGR_Inventory: Registered {shelfAccessPoints.Count} shelf access points."
+        );
+    }
+
+    protected override void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= RegisterSceneShelfAccessPoints;
+        base.OnDestroy();
+    }
+
 }
