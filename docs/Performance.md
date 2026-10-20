@@ -119,4 +119,16 @@ public void OnDespawn()
 FPS went from 60.32 (Week 2) to 29.81 (Week 3). This a real drop with the full order queue, there was no capping at 30 FPS (Android's default when Application.targetFrameRate isn't set).
 
 
+## Main Scene (Week 4)
+
+| Metric           |                Result |
+| ---------------- | --------------------: |
+| **Timestamp**    |    19 Oct 2026, 19:32 |
+| **FPS**          |         **40.75 FPS** |
+| **Draw Calls**   |               **N/A** |
+| **Triangles**    |            **11,054** |
+| **Memory Usage** |         **276.89 MB** |
+
+Avg FPS has increased by 10 and total triangles reduced by 1000 because of updated drink products, draw calls as per Editor are above 100, they are ~150.
+
 
