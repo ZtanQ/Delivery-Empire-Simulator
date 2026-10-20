@@ -77,6 +77,11 @@ public class MGR_Pool : Manager<MGR_Pool>
         return obj;
     }
 
+    public GameObject GetRider()
+    {
+        return Get(riderPrefab);
+    }
+
     public void Release(GameObject obj)
     {
         if (obj == null)
