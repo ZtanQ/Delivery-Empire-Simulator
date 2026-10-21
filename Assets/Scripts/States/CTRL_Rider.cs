@@ -111,9 +111,7 @@ public class CTRL_Rider : MonoBehaviour
     {
         if (MGR_Inventory.Instance == null)
         {
-            Debug.LogWarning(
-                "CTRL_Rider: MGR_Inventory instance is missing.");
-
+            Debug.LogWarning("CTRL_Rider: MGR_Inventory instance is missing.")
             return null;
         }
 
@@ -152,7 +150,7 @@ public class CTRL_Rider : MonoBehaviour
 
             if (shelf == null)
             {
-                Debug.LogWarning($"CTRL_Rider: No access point found for {shelfID}.");
+                CancelDelivery($"No access point found for {shelfID}.");
                 yield break;
             }
 
@@ -177,7 +175,7 @@ public class CTRL_Rider : MonoBehaviour
 
         if (exitLocation == null)
         {
-            Debug.LogWarning("CTRL_Rider: SPW_RiderExit was not found.");
+            CancelDelivery("SPW_RiderExit was not found.");
             yield break;
         }
 
@@ -210,6 +208,31 @@ public class CTRL_Rider : MonoBehaviour
         currentShelfIDs = null;
         CurrentState = RiderState.Idle;
         deliveryRoutine = null;
+    }
+
+    private void CancelDelivery(string reason)
+    {
+        Debug.LogWarning($"CTRL_Rider: {reason} Cancelling delivery.");
+
+        if (riderNavMeshAgent != null)
+        {
+            riderNavMeshAgent.isStopped = true;
+            riderNavMeshAgent.ResetPath();
+        }
+
+        SetRiderVisible(true);
+
+        currentOrder = null;
+        currentShelfIDs = null;
+
+        CurrentState = RiderState.Idle;
+        deliveryRoutine = null;
+
+        // Release the order so it can be dispatched again.
+        if (MGR_Delivery.Instance != null)
+        {
+            MGR_Delivery.Instance.NotifyRiderReturned(this);
+        }
     }
 
     private void SetRiderVisible(bool visible)
