@@ -111,7 +111,7 @@ public class CTRL_Rider : MonoBehaviour
     {
         if (MGR_Inventory.Instance == null)
         {
-            Debug.LogWarning("CTRL_Rider: MGR_Inventory instance is missing.")
+            Debug.LogWarning("CTRL_Rider: MGR_Inventory instance is missing.");
             return null;
         }
 
