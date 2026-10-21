@@ -23,12 +23,14 @@ public class MGR_Game : Manager<MGR_Game>
     private float dayTimer;
 
     private bool stage1Purchasable;
+    private int currentDay;
 
     public int CurrentCash => currentCash;
     public int CurrentXP => currentXP;
     public int CurrentLevel => currentLevel;
     public float CurrentRating => currentRating;
     public bool IsStage1Purchasable => stage1Purchasable;
+    public int CurrentDay => currentDay;
 
     public static event Action<int, int> OnCashChanged;
     public static event Action<int, int> OnXPChanged;
@@ -62,6 +64,7 @@ public class MGR_Game : Manager<MGR_Game>
             currentLevel >= 5;
 
         dayTimer = dayDuration;
+        currentDay = 1;
 
         Debug.Log("5. MGR_Game initialised.");
 
@@ -98,8 +101,10 @@ public class MGR_Game : Manager<MGR_Game>
 
         dayTimer += dayDuration;
 
+        currentDay++;
+
         Debug.Log(
-            "A new game day has started."
+            $"A new game day has started. Day {currentDay}."
         );
 
         OnDayTick?.Invoke();
@@ -384,5 +389,45 @@ public class MGR_Game : Manager<MGR_Game>
         );
 
         return PurchaseResult.Success;
+    }
+
+    public void LoadGameState(
+    int cash,
+    int xp,
+    int level,
+    float rating,
+    int day)
+    {
+        currentCash = Mathf.Max(0, cash);
+        currentXP = Mathf.Max(0, xp);
+        currentLevel = Mathf.Max(1, level);
+        currentRating = Mathf.Clamp(rating, 1.0f, 5.0f);
+        currentDay = Mathf.Max(1, day);
+
+        stage1Purchasable =
+            currentLevel >= 5;
+
+        OnCashChanged?.Invoke(
+            currentCash,
+            0
+        );
+
+        OnXPChanged?.Invoke(
+            currentXP,
+            currentLevel
+        );
+
+        OnRatingChanged?.Invoke(
+            currentRating
+        );
+
+        Debug.Log(
+        $"Game state loaded. " +
+        $"Cash: ${currentCash / 100f:F2}, " +
+        $"XP: {currentXP}, " +
+        $"Level: {currentLevel}, " +
+        $"Rating: {currentRating:F2}, " +
+        $"Day: {currentDay}"
+       );
     }
 }

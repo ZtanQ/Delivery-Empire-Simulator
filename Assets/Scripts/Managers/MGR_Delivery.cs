@@ -81,6 +81,26 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         );
     }
 
+    public void LoadDeliveryState(
+    int stage,
+    int riderCount)
+    {
+        SetStage(stage);
+
+        activeRiderCount =
+            Mathf.Clamp(
+                riderCount,
+                startingRiderCount,
+                maximumRiderCount
+            );
+
+        Debug.Log(
+            $"MGR_Delivery: Delivery state loaded. " +
+            $"Stage: {currentStage}, " +
+            $"Riders: {activeRiderCount}/{maximumRiderCount}"
+        );
+    }
+
     protected override void OnInitialise()
     {
         currentStage = 0;
@@ -569,6 +589,4 @@ public class MGR_Delivery : Manager<MGR_Delivery>
 
         dispatchedOrders.Remove(rider);
     }
-
-
 }
