@@ -806,6 +806,55 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         return result;
     }
 
+    public List<ShelfSaveData> GetShelfContentsForSave()
+    {
+        List<ShelfSaveData> result =
+            new List<ShelfSaveData>();
+
+        foreach (KeyValuePair<
+            string,
+            Dictionary<DATA_ProductSO, int>> shelfEntry
+            in shelfProductContents)
+        {
+            string shelfId = shelfEntry.Key;
+
+            if (!shelfCategories.TryGetValue(
+                shelfId,
+                out ProductCategory category))
+            {
+                continue;
+            }
+
+            foreach (KeyValuePair<DATA_ProductSO, int> productEntry
+                in shelfEntry.Value)
+            {
+                DATA_ProductSO product =
+                    productEntry.Key;
+
+                int units =
+                    productEntry.Value;
+
+                if (product == null ||
+                    string.IsNullOrEmpty(product.ProductID) ||
+                    units <= 0)
+                {
+                    continue;
+                }
+
+                ShelfSaveData shelfData =
+                    new ShelfSaveData();
+
+                shelfData.shelfID = shelfId;
+                shelfData.productID = product.ProductID;
+                shelfData.units = units;
+                shelfData.category = category;
+
+                result.Add(shelfData);
+            }
+        }
+
+        return result;
+    }
     public DATA_ProductSO GetProductByID(string productID)
     {
         if (string.IsNullOrEmpty(productID))
@@ -881,6 +930,53 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         );
     }
 
+    public void LoadShelfContents(
+    List<ShelfSaveData> savedShelves)
+    {
+        shelfProductContents.Clear();
+        shelfCategories.Clear();
+
+        if (savedShelves == null)
+        {
+            return;
+        }
+
+        foreach (ShelfSaveData shelfData in savedShelves)
+        {
+            if (shelfData == null ||
+                string.IsNullOrEmpty(shelfData.shelfID) ||
+                string.IsNullOrEmpty(shelfData.productID) ||
+                shelfData.units <= 0)
+            {
+                continue;
+            }
+
+            DATA_ProductSO product =
+                GetProductByID(shelfData.productID);
+
+            if (product == null)
+            {
+                Debug.LogWarning(
+                    $"MGR_Inventory: Could not find saved shelf product " +
+                    $"'{shelfData.productID}'."
+                );
+
+                continue;
+            }
+
+            AddProductToShelf(
+                shelfData.shelfID,
+                shelfData.category,
+                product,
+                shelfData.units
+            );
+        }
+
+        Debug.Log(
+            $"MGR_Inventory: Loaded {savedShelves.Count} shelf content entries."
+        );
+    }
+
     protected override void OnDestroy()
     {
         SceneManager.sceneLoaded -= RegisterSceneShelfAccessPoints;
@@ -890,5 +986,18 @@ public class MGR_Inventory : Manager<MGR_Inventory>
     public void SetSkipStartingStock(bool skip)
     {
         skipStartingStock = skip;
+    }
+
+    public void InitialiseStartingStockFallback()
+    {
+        stock.Clear();
+        shelfProductContents.Clear();
+        shelfCategories.Clear();
+
+        InitialiseStartingStock();
+
+        Debug.Log(
+            "MGR_Inventory: Starting stock restored after save load failure."
+        );
     }
 }

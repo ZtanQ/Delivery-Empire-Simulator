@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Overlays;
 using UnityEngine;
 
 [Serializable]
@@ -8,6 +7,15 @@ public class ProductStockSaveData
 {
     public string productID;
     public int quantity;
+}
+
+[Serializable]
+public class ShelfSaveData
+{
+    public string shelfID;
+    public string productID;
+    public int units;
+    public ProductCategory category;
 }
 
 [Serializable]
@@ -26,6 +34,9 @@ public class GameSaveData
 
     public List<ProductStockSaveData> productStock =
         new List<ProductStockSaveData>();
+
+    public List<ShelfSaveData> shelfContents =
+    new List<ShelfSaveData>();
 }
 
 public class MGR_Save : Manager<MGR_Save>
@@ -95,6 +106,14 @@ public class MGR_Save : Manager<MGR_Save>
             productData.quantity = entry.Value;
 
             data.productStock.Add(productData);
+        }
+
+        List<ShelfSaveData> shelfContents =
+            MGR_Inventory.Instance.GetShelfContentsForSave();
+
+        foreach (ShelfSaveData shelfData in shelfContents)
+        {
+            data.shelfContents.Add(shelfData);
         }
 
         string json =
@@ -218,6 +237,10 @@ public class MGR_Save : Manager<MGR_Save>
                 loadedStock
             );
 
+            MGR_Inventory.Instance.LoadShelfContents(
+                data.shelfContents
+            );
+
             HasLoadedSave = true;
 
             Debug.Log(
@@ -285,4 +308,16 @@ public class MGR_Save : Manager<MGR_Save>
 
         SaveGame();
     }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (!pauseStatus ||
+            !IsInitialised)
+        {
+            return;
+        }
+
+        SaveGame();
+    }
+
 }
