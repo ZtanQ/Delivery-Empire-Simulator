@@ -45,6 +45,8 @@ public class MGR_Inventory : Manager<MGR_Inventory>
     private readonly Dictionary<string, Transform> shelfAccessPoints =
     new Dictionary<string, Transform>();
 
+    private bool skipStartingStock;
+
     protected override void OnInitialise()
     {
         stock.Clear();
@@ -53,7 +55,17 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         shelfCategories.Clear();
         shelfAccessPoints.Clear();
 
-        InitialiseStartingStock();
+        if (!skipStartingStock)
+        {
+            InitialiseStartingStock();
+        }
+        else
+        {
+            Debug.Log(
+                "MGR_Inventory: Starting stock skipped because a save will be loaded."
+            );
+        }
+
         SceneManager.sceneLoaded -= RegisterSceneShelfAccessPoints;
         SceneManager.sceneLoaded += RegisterSceneShelfAccessPoints;
 
@@ -775,10 +787,108 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         );
     }
 
+    public Dictionary<string, int> GetStockForSave()
+    {
+        Dictionary<string, int> result =
+            new Dictionary<string, int>();
+
+        foreach (KeyValuePair<DATA_ProductSO, int> entry in stock)
+        {
+            if (entry.Key == null ||
+                string.IsNullOrEmpty(entry.Key.ProductID))
+            {
+                continue;
+            }
+
+            result[entry.Key.ProductID] = entry.Value;
+        }
+
+        return result;
+    }
+
+    public DATA_ProductSO GetProductByID(string productID)
+    {
+        if (string.IsNullOrEmpty(productID))
+        {
+            return null;
+        }
+
+        DATA_ProductSO[] products =
+        {
+        potatoChips,
+        pretzels,
+        chocolateBar,
+        gummyBears,
+        colaCan,
+        bottledWater,
+        orangeJuice,
+        energyDrink,
+        wholeMilk,
+        cheddarCheese,
+        slicedBread,
+        bagels
+    };
+
+        foreach (DATA_ProductSO product in products)
+        {
+            if (product != null &&
+                product.ProductID == productID)
+            {
+                return product;
+            }
+        }
+
+        return null;
+    }
+
+    public void LoadStock(
+    Dictionary<string, int> savedStock)
+    {
+        stock.Clear();
+
+        if (savedStock == null)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<string, int> entry in savedStock)
+        {
+            DATA_ProductSO product =
+                GetProductByID(entry.Key);
+
+            if (product == null)
+            {
+                Debug.LogWarning(
+                    $"MGR_Inventory: Could not find saved product '{entry.Key}'."
+                );
+
+                continue;
+            }
+
+            int quantity =
+                Mathf.Max(0, entry.Value);
+
+            stock[product] = quantity;
+
+            OnInventoryChanged?.Invoke(
+                product,
+                quantity
+            );
+        }
+
+        Debug.Log(
+            $"MGR_Inventory: Loaded stock for {stock.Count} products."
+        );
+    }
+
     protected override void OnDestroy()
     {
         SceneManager.sceneLoaded -= RegisterSceneShelfAccessPoints;
         base.OnDestroy();
     }
 
+    public void SetSkipStartingStock(bool skip)
+    {
+        skipStartingStock = skip;
+    }
 }

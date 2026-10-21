@@ -15,7 +15,19 @@ public class Bootstrap : MonoBehaviour
 
     private void Start()
     {
+        bool hasSave =
+            saveManager.HasValidSaveFile();
+
+        inventoryManager.SetSkipStartingStock(
+            hasSave
+        );
+
         InitialiseManagers();
+
+        if (hasSave)
+        {
+            saveManager.LoadGame();
+        }
 
         SceneManager.LoadScene("Main_level");
     }
