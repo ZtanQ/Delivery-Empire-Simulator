@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,8 +30,6 @@ public class CTRL_Rider : MonoBehaviour
     [SerializeField] private float deliveryPause = 15f;
 
     [Header("Navigation")]
-    [SerializeField] private Transform[] shelfLocations;
-    [SerializeField] private string[] shelfIDs;
     [SerializeField] private Transform exitLocation;
 
     private Vector3 returnPosition;
@@ -54,15 +53,17 @@ public class CTRL_Rider : MonoBehaviour
 
         if (riderTransform == null)
         {
-            riderTransform = transform; 
+            riderTransform = transform;
         }
 
-        riderNavMeshAgent.speed = 3f;
-        riderNavMeshAgent.isStopped = true;
-        riderNavMeshAgent.updatePosition = true;
+        if (riderNavMeshAgent != null)
+        {
+            riderNavMeshAgent.speed = 3f;
+            riderNavMeshAgent.isStopped = true;
+            riderNavMeshAgent.updatePosition = true;
+        }
 
         returnPosition = transform.position;
-
         originalLocalPosition = riderTransform.localPosition;
 
         riderRenderers = riderTransform.GetComponentsInChildren<Renderer>(true);
@@ -71,8 +72,6 @@ public class CTRL_Rider : MonoBehaviour
     private void OnEnable()
     {
         MGR_Delivery.OnRiderDispatched += HandleRiderDispatched;
-        
-        FindShelfAccessPoints();
 
         returnPosition = transform.position;
 
@@ -95,74 +94,50 @@ public class CTRL_Rider : MonoBehaviour
         isRegistered = false;
     }
 
-    private void HandleRiderDispatched(CTRL_Rider rider, OrderData order, List<string> shelvesToVisit)
+    private void HandleRiderDispatched(CTRL_Rider rider,OrderData order,List<string> shelvesToVisit)
     {
-        if (rider == this && CurrentState == RiderState.Idle)
+        if (rider != this || CurrentState != RiderState.Idle || riderNavMeshAgent == null)
         {
-            currentOrder = order;
-            currentShelfIDs = new List<string>(shelvesToVisit);
-            deliveryRoutine = StartCoroutine(DeliverOrder());
-        }
-    }
-
-
-    private void FindShelfAccessPoints()
-    {
-        int stage = MGR_Delivery.Instance != null
-            ? MGR_Delivery.Instance.CurrentStage
-            : 0;
-
-        int shelfCount = stage == 1 ? 18 : 6;
-
-        shelfLocations = new Transform[shelfCount];
-        shelfIDs = new string[shelfCount];
-
-        for (int i = 0; i < shelfCount; i++)
-        {
-            string shelfID = "SPW_ShelfAccess_0" + (i + 1);
-            GameObject shelfObject = GameObject.Find(shelfID);
-
-            shelfIDs[i] = shelfID;
-
-            if (shelfObject != null)
-            {
-                shelfLocations[i] = shelfObject.transform;
-            }
+            return;
         }
 
-        GameObject exitObject = GameObject.Find("SPW_RiderExit");
+        currentOrder = order;
+        currentShelfIDs = new List<string>(shelvesToVisit);
 
-        if (exitObject != null)
-        {
-            exitLocation = exitObject.transform;
-        }
+        deliveryRoutine = StartCoroutine(DeliverOrder());
     }
 
     private Transform FindShelf(string shelfID)
     {
-        for (int i = 0; i < shelfIDs.Length; i++)
+        if (MGR_Inventory.Instance == null)
         {
-            if (shelfIDs[i] == shelfID)
-            {
-                return shelfLocations[i];
-            }
+            Debug.LogWarning(
+                "CTRL_Rider: MGR_Inventory instance is missing.");
+
+            return null;
         }
 
-        return null;
+        return MGR_Inventory.Instance.GetAccessPoint(shelfID);
     }
-
-
 
     private IEnumerator MoveTo(Vector3 destination)
     {
         riderNavMeshAgent.isStopped = false;
         riderNavMeshAgent.speed = 3f;
-
         riderNavMeshAgent.SetDestination(destination);
 
-        //necessary to wait until the path is calculated and the agent has reached the destination
-        while (riderNavMeshAgent.pathPending || riderNavMeshAgent.remainingDistance > riderNavMeshAgent.stoppingDistance + 0.05f)
+        while (riderNavMeshAgent.pathPending)
         {
+            yield return null;
+        }
+
+        while (riderNavMeshAgent.remainingDistance > riderNavMeshAgent.stoppingDistance + 0.05f)
+        {
+            if (!riderNavMeshAgent.hasPath)
+            {
+                break;
+            }
+
             yield return null;
         }
 
@@ -177,6 +152,7 @@ public class CTRL_Rider : MonoBehaviour
 
             if (shelf == null)
             {
+                Debug.LogWarning($"CTRL_Rider: No access point found for {shelfID}.");
                 yield break;
             }
 
@@ -188,27 +164,47 @@ public class CTRL_Rider : MonoBehaviour
         }
 
         CurrentState = RiderState.WalkToExit;
+
         if (exitLocation == null)
         {
+            GameObject exitObject = GameObject.Find("SPW_RiderExit");
+
+            if (exitObject != null)
+            {
+                exitLocation = exitObject.transform;
+            }
+        }
+
+        if (exitLocation == null)
+        {
+            Debug.LogWarning("CTRL_Rider: SPW_RiderExit was not found.");
             yield break;
         }
+
         yield return MoveTo(exitLocation.position);
 
-        // Notify the manager when the rider reaches the door.
-        MGR_Delivery.Instance.NotifyRiderLeft(this);
+        if (MGR_Delivery.Instance != null)
+        {
+            MGR_Delivery.Instance.NotifyRiderLeft(this);
+        }
 
         CurrentState = RiderState.Delivering;
         riderNavMeshAgent.isStopped = true;
         SetRiderVisible(false);
+
         yield return new WaitForSeconds(deliveryPause);
 
         SetRiderVisible(true);
+
         CurrentState = RiderState.Return;
         yield return MoveTo(returnPosition);
+
         riderNavMeshAgent.isStopped = true;
 
-        // Notify the manager after returning.
-        MGR_Delivery.Instance.NotifyRiderReturned(this);
+        if (MGR_Delivery.Instance != null)
+        {
+            MGR_Delivery.Instance.NotifyRiderReturned(this);
+        }
 
         currentOrder = null;
         currentShelfIDs = null;
@@ -234,7 +230,6 @@ public class CTRL_Rider : MonoBehaviour
 
     private void UpdateWalkingBob()
     {
-        // Never apply bobbing to the NavMeshAgent root.
         if (riderTransform == null || riderTransform == transform)
         {
             return;
@@ -245,7 +240,9 @@ public class CTRL_Rider : MonoBehaviour
             CurrentState == RiderState.WalkToExit ||
             CurrentState == RiderState.Return;
 
-        float bob = walking? Mathf.Abs(Mathf.Sin(Time.time * bobFrequency)) * bobHeight: 0f;
+        float bob = walking
+            ? Mathf.Abs(Mathf.Sin(Time.time * bobFrequency)) * bobHeight
+            : 0f;
 
         riderTransform.localPosition = originalLocalPosition + Vector3.up * bob;
     }
