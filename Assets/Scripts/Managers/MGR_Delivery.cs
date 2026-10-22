@@ -81,6 +81,26 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         );
     }
 
+    public void LoadDeliveryState(
+    int stage,
+    int riderCount)
+    {
+        SetStage(stage);
+
+        activeRiderCount =
+            Mathf.Clamp(
+                riderCount,
+                startingRiderCount,
+                maximumRiderCount
+            );
+
+        Debug.Log(
+            $"MGR_Delivery: Delivery state loaded. " +
+            $"Stage: {currentStage}, " +
+            $"Riders: {activeRiderCount}/{maximumRiderCount}"
+        );
+    }
+
     protected override void OnInitialise()
     {
         currentStage = 0;
@@ -276,6 +296,54 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         return null;
     }
 
+    private CTRL_Rider GetOrActivateRider()
+    {
+        CTRL_Rider rider = GetIdleRider();
+
+        if (rider != null)
+        {
+            return rider;
+        }
+
+        if (MGR_Pool.Instance == null)
+        {
+            Debug.LogWarning(
+                "MGR_Delivery: MGR_Pool is not available."
+            );
+
+            return null;
+        }
+
+        GameObject riderObject =
+            MGR_Pool.Instance.GetRider();
+
+        if (riderObject == null)
+        {
+            Debug.LogWarning(
+                "MGR_Delivery: No pooled rider is available."
+            );
+
+            return null;
+        }
+
+        rider =
+            riderObject.GetComponent<CTRL_Rider>();
+
+        if (rider == null)
+        {
+            Debug.LogError(
+                "MGR_Delivery: Pooled rider does not contain CTRL_Rider."
+            );
+
+            MGR_Pool.Instance.Release(riderObject);
+            return null;
+        }
+
+        RegisterRider(rider);
+
+        return rider;
+    }
+
     private void Update()
     {
         TryDispatchWaitingOrder();
@@ -289,18 +357,6 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             return;
         }
 
-        CTRL_Rider rider = GetIdleRider();
-
-        if (rider == null)
-        {
-            return;
-        }
-
-        if (dispatchedOrders.ContainsKey(rider))
-        {
-            return;
-        }
-
         IReadOnlyList<OrderData> activeOrders =
             MGR_Order.Instance.ActiveOrders;
 
@@ -309,6 +365,9 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         {
             return;
         }
+
+        // First find an order that is actually ready for dispatch.
+        OrderData waitingOrder = null;
 
         foreach (OrderData order in activeOrders)
         {
@@ -327,11 +386,29 @@ public class MGR_Delivery : Manager<MGR_Delivery>
                 continue;
             }
 
-            DispatchOrder(rider, order);
+            waitingOrder = order;
+            break;
+        }
 
-            // One free rider can only take one order.
+        // Do not activate a pooled rider unless an order is waiting.
+        if (waitingOrder == null)
+        {
             return;
         }
+
+        CTRL_Rider rider = GetOrActivateRider();
+
+        if (rider == null)
+        {
+            return;
+        }
+
+        if (dispatchedOrders.ContainsKey(rider))
+        {
+            return;
+        }
+
+        DispatchOrder(rider, waitingOrder);
     }
 
     private bool CanFillOrderFromShelves(OrderData order)
@@ -512,6 +589,4 @@ public class MGR_Delivery : Manager<MGR_Delivery>
 
         dispatchedOrders.Remove(rider);
     }
-
-
 }

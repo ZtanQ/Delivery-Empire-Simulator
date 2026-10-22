@@ -1,172 +1,162 @@
 using System;
+using System.Collections;
 using System.IO;
-using System.Text;
-using TMPro;
-using Unity.Profiling;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UI;
+using Unity.Profiling;
+using TMPro;
 
 public class PerformanceOverlay : MonoBehaviour
 {
-    private float fps;
-    private float fpsTimer;
-    private int frameCount;
-
-    private ProfilerRecorder drawCalls;
-    private ProfilerRecorder triangles;
-    private ProfilerRecorder totalMemory;
-
     [SerializeField] private TMP_Text performanceText;
     [SerializeField] private Button recordButton;
 
-    // Recording settings
-    [SerializeField] private float recordingDuration = 600f;
+    private const float Duration = 2400f;       // 40 minutes
+    private const float SampleInterval = 600f; // 10 minutes
 
+    private ProfilerRecorder drawCalls;
+    private ProfilerRecorder triangles;
+    private ProfilerRecorder memory;
+
+    private float elapsed;
+    private float sampleTimer;
     private bool recording;
-    private float recordingTimer;
-    private float csvTimer;
-
-    private StreamWriter csvWriter;
-    private string csvPath;
+    private string filePath;
 
     private void Start()
     {
-        // Profile markers for draw calls, triangles, and total memory usage
         drawCalls = ProfilerRecorder.StartNew(
-            ProfilerCategory.Render,
-            "Draw Calls Count"
-        );
+            ProfilerCategory.Render, "Draw Calls Count");
 
         triangles = ProfilerRecorder.StartNew(
-            ProfilerCategory.Render,
-            "Triangles Count"
-        );
+            ProfilerCategory.Render, "Triangles Count");
 
-        totalMemory = ProfilerRecorder.StartNew(
-            ProfilerCategory.Memory,
-            "Total Used Memory"
-        );
+        memory = ProfilerRecorder.StartNew(
+            ProfilerCategory.Memory, "Total Used Memory");
 
-        recordButton.onClick.AddListener(RecordData);
+        if (recordButton != null)
+            recordButton.onClick.AddListener(StartRecording);
     }
 
     private void Update()
     {
-        // Average FPS over 1 second
-        fpsTimer += Time.unscaledDeltaTime;
-        frameCount++;
+        float fps = 1f / Mathf.Max(Time.unscaledDeltaTime, 0.0001f);
 
-        if (fpsTimer >= 1.0f)
+        if (performanceText != null)
         {
-            fps = frameCount / fpsTimer;
-
-            fpsTimer = 0f;
-            frameCount = 0;
+            performanceText.text =
+                $"FPS: {fps:F1}\n" +
+                $"Battery Temp: {GetBatteryTemperature():F1} °C\n" +
+                $"Draw Calls: {drawCalls.LastValue}\n" +
+                $"Triangles: {triangles.LastValue}\n" +
+                $"Memory: {memory.LastValue / (1024f * 1024f):F1} MB";
         }
 
-        long drawCallsCount = drawCalls.LastValue;
-        long trianglesCount = triangles.LastValue;
-        float memory = totalMemory.LastValue / (1024f * 1024f);
+        if (!recording)
+            return;
 
-        // Display performance information
-        performanceText.text =
-            $"FPS: {fps:F2}\n" +
-            $"Draw Calls: {drawCallsCount}\n" +
-            $"Triangles: {trianglesCount:N0} tris\n" +
-            $"Memory: {memory:F2} MB\n\n" +
-            $"Recording: {(recording ? "ON" : "OFF")}";
+        float previousElapsed = elapsed;
+        elapsed += Time.unscaledDeltaTime;
+        sampleTimer += Time.unscaledDeltaTime;
 
-        if (recording)
+        if (elapsed >= Duration)
         {
-            recordingTimer += Time.unscaledDeltaTime;
-            csvTimer += Time.unscaledDeltaTime;
+            elapsed = Duration;
+            SaveSample(fps);
 
-            // Write exactly one sample approximately every second
-            if (csvTimer >= 1.0f)
-            {
-                csvWriter.WriteLine(
-                    $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}," +
-                    $"{fps:F2}," +
-                    $"{drawCallsCount}," +
-                    $"{trianglesCount}," +
-                    $"{memory:F2}"
-                );
+            recording = false;
+            Debug.Log("40-minute performance test completed: " + filePath);
+            return;
+        }
 
-                csvWriter.Flush();
-
-                csvTimer = 0f;
-            }
-
-            // Stop automatically after the selected duration
-            if (recordingTimer >= recordingDuration)
-            {
-                StopRecording();
-            }
+        if (sampleTimer >= SampleInterval)
+        {
+            sampleTimer -= SampleInterval;
+            SaveSample(fps);
         }
     }
 
-    public void RecordData()
+    private float GetBatteryTemperature()
     {
-        // Prevent starting another recording while already recording
+#if UNITY_ANDROID && !UNITY_EDITOR
+        try
+        {
+            using (AndroidJavaClass unityPlayer =
+                   new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            using (AndroidJavaObject activity =
+                   unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+            using (AndroidJavaObject filter =
+                   new AndroidJavaObject("android.content.IntentFilter",
+                       "android.intent.action.BATTERY_CHANGED"))
+            using (AndroidJavaObject intent =
+                   activity.Call<AndroidJavaObject>("registerReceiver",
+                       null, filter))
+            {
+                // Android reports battery temperature in tenths of a degree Celsius.
+                int temperature = intent.Call<int>("getIntExtra",
+                    "temperature", -1);
+
+                return temperature >= 0 ? temperature / 10f : -1f;
+            }
+        }
+        catch (Exception)
+        {
+            return -1f;
+        }
+#else
+        return -1f;
+#endif
+    }
+
+    private void StartRecording()
+    {
         if (recording)
             return;
 
-        string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        elapsed = 0f;
+        sampleTimer = 0f;
 
-        csvPath = Path.Combine(
+        filePath = Path.Combine(
             Application.persistentDataPath,
-            $"performance_{timestamp}.csv"
-        );
+            "PerformanceTest.csv");
 
-        csvWriter = new StreamWriter(
-            csvPath,
-            false,
-            Encoding.UTF8
-        );
-
-        csvWriter.WriteLine(
-            "Timestamp,FPS,DrawCalls,Triangles,MemoryMB"
-        );
+        File.WriteAllText(filePath,
+            "ElapsedMinutes,Timestamp,FPS,BatteryTempC,DrawCalls,Triangles,MemoryMB\n");
 
         recording = true;
-        recordingTimer = 0f;
-        csvTimer = 0f;
 
-        Debug.Log(
-            $"Performance recording started for {recordingDuration} seconds."
-        );
+        // Record the baseline at minute 0.
+        SaveSample(1f / Mathf.Max(Time.unscaledDeltaTime, 0.0001f));
+
+        Debug.Log("Performance test started. CSV: " + filePath);
     }
 
-    private void StopRecording()
+    private void SaveSample(float fps)
     {
-        recording = false;
+        float temperature = GetBatteryTemperature();
+        float memoryMB = memory.LastValue / (1024f * 1024f);
 
-        if (csvWriter != null)
-        {
-            csvWriter.Flush();
-            csvWriter.Close();
-            csvWriter.Dispose();
-            csvWriter = null;
-        }
+        string line =
+            $"{elapsed / 60f:F1}," +
+            $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}," +
+            $"{fps:F1}," +
+            $"{temperature:F1}," +
+            $"{drawCalls.LastValue}," +
+            $"{triangles.LastValue}," +
+            $"{memoryMB:F1}\n";
 
-        Debug.Log(
-            $"Performance recording finished. CSV saved to: {csvPath}"
-        );
+        File.AppendAllText(filePath, line);
+        Debug.Log("Performance sample saved: " + line);
     }
 
     private void OnDestroy()
     {
-        // Make sure the CSV is closed if the object is destroyed
-        if (csvWriter != null)
-        {
-            csvWriter.Flush();
-            csvWriter.Close();
-            csvWriter.Dispose();
-            csvWriter = null;
-        }
+        if (recordButton != null)
+            recordButton.onClick.RemoveListener(StartRecording);
 
         drawCalls.Dispose();
         triangles.Dispose();
-        totalMemory.Dispose();
+        memory.Dispose();
     }
 }

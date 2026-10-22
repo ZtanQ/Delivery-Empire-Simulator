@@ -809,9 +809,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_07
+  shelfID: SHL_12
   category: 2
   capacity: 20
+  accessPoint: {fileID: 3732690801021530971}
 --- !u!1001 &1435467248017108690
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -889,9 +890,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_08
+  shelfID: SHL_10
   category: 1
   capacity: 20
+  accessPoint: {fileID: 9000004075629165961}
 --- !u!4 &5608502385619462013 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
@@ -977,6 +979,7 @@ MonoBehaviour:
   shelfID: SHL_09
   category: 1
   capacity: 20
+  accessPoint: {fileID: 116904648479351289}
 --- !u!4 &5444318120722065498 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
@@ -1070,6 +1073,7 @@ MonoBehaviour:
   shelfID: SHL_07
   category: 0
   capacity: 20
+  accessPoint: {fileID: 4338967425387647123}
 --- !u!4 &5307752992078299575 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
@@ -1152,9 +1156,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_11
+  shelfID: SHL_14
   category: 2
   capacity: 20
+  accessPoint: {fileID: 7650131086804081960}
 --- !u!4 &7809395707090770536 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
@@ -1242,9 +1247,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_10
+  shelfID: SHL_13
   category: 3
   capacity: 20
+  accessPoint: {fileID: 1071781756631915071}
 --- !u!1001 &5894243849049585752
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1330,9 +1336,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_10
+  shelfID: SHL_16
   category: 1
   capacity: 20
+  accessPoint: {fileID: 2642054428609604729}
 --- !u!4 &1149021958141293047 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
@@ -1420,9 +1427,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_09
+  shelfID: SHL_11
   category: 2
   capacity: 20
+  accessPoint: {fileID: 1947310240865634116}
 --- !u!1001 &7807360364006032334
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1505,9 +1513,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_11
+  shelfID: SHL_17
   category: 0
   capacity: 20
+  accessPoint: {fileID: 704798708866232788}
 --- !u!1001 &8063476603040465485
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1590,9 +1599,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_12
+  shelfID: SHL_15
   category: 1
   capacity: 20
+  accessPoint: {fileID: 164344258327681862}
 --- !u!1001 &8768929534574459301
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1678,6 +1688,7 @@ MonoBehaviour:
   shelfID: SHL_08
   category: 0
   capacity: 20
+  accessPoint: {fileID: 3367060554407662256}
 --- !u!1001 &9155270370911754532
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1768,6 +1779,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_12
+  shelfID: SHL_18
   category: 0
   capacity: 20
+  accessPoint: {fileID: 4103060446428780519}
