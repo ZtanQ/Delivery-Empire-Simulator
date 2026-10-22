@@ -211,7 +211,7 @@ public class MGR_Game : Manager<MGR_Game>
         }
     }
 
-    private int GetRequiredXPForLevel(int level)
+    public int GetRequiredXPForLevel(int level)
     {
         if (level <= 1)
         {

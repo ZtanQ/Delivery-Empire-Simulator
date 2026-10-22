@@ -132,3 +132,24 @@ FPS went from 60.32 (Week 2) to 29.81 (Week 3). This a real drop with the full o
 Avg FPS has increased by 10 and total triangles reduced by 1000 because of updated drink products, draw calls as per Editor are above 100, they are ~150.
 
 
+# Phone Performance Test (Week 5)
+
+**Test Duration:** 40 minutes  
+**Test Date:** 22 October 2026
+**Test Phone Model:** Motorola Moto G54 5G
+
+| Elapsed Time (min) | Timestamp        | FPS  | Battery Temp (°C) | Draw Calls | Triangles | Memory (MB) |
+|-------------------:|:-----------------|-----:|------------------:|-----------:|----------:|------------:|
+| 0                  | 22-10-2026 00:59 | 60.2 | 33                | 0          | 12,616    | 272.2       |
+| 10                 | 22-10-2026 01:09 | 30.1 | 35                | 0          | 12,816    | 282.8       |
+| 20                 | 22-10-2026 01:19 | 30.1 | 36                | 0          | 12,794    | 281.8       |
+| 30                 | 22-10-2026 01:29 | 30.1 | 36                | 0          | 12,794    | 282.6       |
+| 40                 | 22-10-2026 01:39 | 30.1 | 36                | 0          | 12,918    | 281.8       |
+
+### Test Summary
+
+1. **FPS:** Dropped from 60.2 to 30.1 after 10 minutes, then remained stable.
+2. **Battery Temperature:** Increased from 33°C to 36°C.
+3. **Memory Usage:** Stabilized at approximately 282 MB.
+4. **Triangle Count:** Remained within the range of 12,616–12,918.
+5. **Draw Calls:** Starts off as 150, as orders are created and expired, draw calls reaches 155-158 in the Editor.

@@ -253,4 +253,19 @@ public class DeliveryDebugTester : MonoBehaviour
             }
         }
     }
+
+    private IEnumerator VerifyCancellation()
+    {
+        yield return null;
+
+        int restoredStock =
+            MGR_Inventory.Instance.GetTotalShelfStock(
+                testProduct
+            );
+
+        Debug.Log(
+            $"[DeliveryDebugTester] CANCEL TEST RESULT | " +
+            $"Shelf stock restored: {restoredStock}"
+        );
+    }
 }
