@@ -662,6 +662,46 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         return true;
     }
 
+    public void ReleaseReservations(
+    List<ShelfReservation> reservations)
+    {
+        if (reservations == null ||
+            reservations.Count == 0)
+        {
+            return;
+        }
+
+        foreach (ShelfReservation reservation in reservations)
+        {
+            if (reservation == null ||
+                string.IsNullOrEmpty(reservation.ShelfID) ||
+                reservation.Product == null ||
+                reservation.Quantity <= 0)
+            {
+                continue;
+            }
+
+            // Return the reserved units to the exact shelf.
+            AddProductToShelf(
+                reservation.ShelfID,
+                reservation.Category,
+                reservation.Product,
+                reservation.Quantity
+            );
+
+            // Return the same units to global inventory.
+            AddStock(
+                reservation.Product,
+                reservation.Quantity
+            );
+        }
+
+        Debug.Log(
+            $"MGR_Inventory: Released {reservations.Count} " +
+            "shelf reservations."
+        );
+    }
+
     public void AddProductToShelf(
         string shelfId,
         ProductCategory category,
@@ -811,50 +851,68 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         List<ShelfSaveData> result =
             new List<ShelfSaveData>();
 
-        foreach (KeyValuePair<
-            string,
-            Dictionary<DATA_ProductSO, int>> shelfEntry
-            in shelfProductContents)
+        foreach (KeyValuePair<string, ProductCategory> categoryEntry
+            in shelfCategories)
         {
-            string shelfId = shelfEntry.Key;
+            string shelfId =
+                categoryEntry.Key;
 
-            if (!shelfCategories.TryGetValue(
+            ProductCategory category =
+                categoryEntry.Value;
+
+            bool hasSavedProduct = false;
+
+            if (shelfProductContents.TryGetValue(
                 shelfId,
-                out ProductCategory category))
+                out Dictionary<DATA_ProductSO, int> products))
             {
-                continue;
+                foreach (KeyValuePair<DATA_ProductSO, int> productEntry
+                    in products)
+                {
+                    DATA_ProductSO product =
+                        productEntry.Key;
+
+                    int units =
+                        productEntry.Value;
+
+                    if (product == null ||
+                        string.IsNullOrEmpty(product.ProductID) ||
+                        units <= 0)
+                    {
+                        continue;
+                    }
+
+                    ShelfSaveData shelfData =
+                        new ShelfSaveData();
+
+                    shelfData.shelfID = shelfId;
+                    shelfData.productID = product.ProductID;
+                    shelfData.units = units;
+                    shelfData.category = category;
+
+                    result.Add(shelfData);
+
+                    hasSavedProduct = true;
+                }
             }
 
-            foreach (KeyValuePair<DATA_ProductSO, int> productEntry
-                in shelfEntry.Value)
+            if (!hasSavedProduct)
             {
-                DATA_ProductSO product =
-                    productEntry.Key;
-
-                int units =
-                    productEntry.Value;
-
-                if (product == null ||
-                    string.IsNullOrEmpty(product.ProductID) ||
-                    units <= 0)
-                {
-                    continue;
-                }
-
-                ShelfSaveData shelfData =
+                ShelfSaveData emptyShelfData =
                     new ShelfSaveData();
 
-                shelfData.shelfID = shelfId;
-                shelfData.productID = product.ProductID;
-                shelfData.units = units;
-                shelfData.category = category;
+                emptyShelfData.shelfID = shelfId;
+                emptyShelfData.productID = string.Empty;
+                emptyShelfData.units = 0;
+                emptyShelfData.category = category;
 
-                result.Add(shelfData);
+                result.Add(emptyShelfData);
             }
         }
 
         return result;
     }
+
     public DATA_ProductSO GetProductByID(string productID)
     {
         if (string.IsNullOrEmpty(productID))
@@ -935,6 +993,7 @@ public class MGR_Inventory : Manager<MGR_Inventory>
     {
         shelfProductContents.Clear();
         shelfCategories.Clear();
+        shelfContents.Clear();
 
         if (savedShelves == null)
         {
@@ -944,10 +1003,19 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         foreach (ShelfSaveData shelfData in savedShelves)
         {
             if (shelfData == null ||
-                string.IsNullOrEmpty(shelfData.shelfID) ||
-                string.IsNullOrEmpty(shelfData.productID) ||
+                string.IsNullOrEmpty(shelfData.shelfID))
+            {
+                continue;
+            }
+
+            // Restore the shelf category even when the shelf is empty.
+            shelfCategories[shelfData.shelfID] =
+                shelfData.category;
+
+            if (string.IsNullOrEmpty(shelfData.productID) ||
                 shelfData.units <= 0)
             {
+                shelfContents[shelfData.shelfID] = 0;
                 continue;
             }
 
@@ -993,6 +1061,7 @@ public class MGR_Inventory : Manager<MGR_Inventory>
         stock.Clear();
         shelfProductContents.Clear();
         shelfCategories.Clear();
+        shelfContents.Clear();
 
         InitialiseStartingStock();
 

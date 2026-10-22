@@ -38,6 +38,10 @@ public class MGR_Delivery : Manager<MGR_Delivery>
     dispatchedOrders =
         new Dictionary<CTRL_Rider, OrderData>();
 
+    private readonly Dictionary<CTRL_Rider, List<ShelfReservation>>
+dispatchedReservations =
+    new Dictionary<CTRL_Rider, List<ShelfReservation>>();
+
     public IReadOnlyList<CTRL_Rider> Riders => riders;
     public int ActiveRiderCount => activeRiderCount;
     public int MaximumRiderCount => maximumRiderCount;
@@ -506,7 +510,9 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         }
 
         MGR_Order.Instance.MarkOrderReserved(order);
+
         dispatchedOrders[rider] = order;
+        dispatchedReservations[rider] = reservations;
 
         Debug.Log(
             $"MGR_Delivery: Rider {rider.name} dispatched " +
@@ -518,6 +524,52 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             rider,
             order,
             shelvesToVisit
+        );
+    }
+
+    public void ReleaseDispatchedOrder(CTRL_Rider rider)
+    {
+        if (rider == null)
+        {
+            return;
+        }
+
+        if (!dispatchedOrders.TryGetValue(
+                rider,
+                out OrderData order))
+        {
+            Debug.LogWarning(
+                $"MGR_Delivery: Cannot release rider {rider.name} " +
+                "because no dispatched order was found."
+            );
+
+            return;
+        }
+
+        if (dispatchedReservations.TryGetValue(
+                rider,
+                out List<ShelfReservation> reservations))
+        {
+            if (MGR_Inventory.Instance != null)
+            {
+                MGR_Inventory.Instance.ReleaseReservations(
+                    reservations
+                );
+            }
+
+            dispatchedReservations.Remove(rider);
+        }
+
+        if (MGR_Order.Instance != null)
+        {
+            MGR_Order.Instance.ReleaseReservedOrder(order);
+        }
+
+        dispatchedOrders.Remove(rider);
+
+        Debug.Log(
+            $"MGR_Delivery: Released Order #{order.OrderID} " +
+            $"from rider {rider.name}. Order returned to queue."
         );
     }
 
@@ -552,9 +604,17 @@ public class MGR_Delivery : Manager<MGR_Delivery>
 
         if (MGR_Order.Instance != null)
         {
-            MGR_Order.Instance.CompleteReservedOrder(
-                order
-            );
+            bool completed =
+                MGR_Order.Instance.CompleteReservedOrder(
+                    order
+                );
+
+            if (completed)
+            {
+                // The delivery has successfully left the warehouse.
+                // The reserved stock must no longer be refundable.
+                dispatchedReservations.Remove(rider);
+            }
         }
     }
 
@@ -577,6 +637,14 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             return;
         }
 
+        // If the order is still active, the rider returned because
+        // the delivery was cancelled before completion.
+        if (order.IsActive)
+        {
+            ReleaseDispatchedOrder(rider);
+            return;
+        }
+
         Debug.Log(
             $"MGR_Delivery: Rider {rider.name} returned " +
             $"from Order #{order.OrderID}."
@@ -587,6 +655,7 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             order
         );
 
+        dispatchedReservations.Remove(rider);
         dispatchedOrders.Remove(rider);
     }
 }
