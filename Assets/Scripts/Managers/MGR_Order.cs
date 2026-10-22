@@ -556,6 +556,22 @@ public class MGR_Order : Manager<MGR_Order>
         reservedOrders.Add(order);
     }
 
+    public void ReleaseReservedOrder(OrderData order)
+    {
+        if (order == null ||
+            !order.IsActive ||
+            !activeOrders.Contains(order))
+        {
+            return;
+        }
+
+        reservedOrders.Remove(order);
+
+        Debug.Log(
+            $"MGR_Order: Order #{order.OrderID} returned to queue."
+        );
+    }
+
     public void SetOrderGenerationEnabled(bool enabled)
     {
         orderGenerationEnabled = enabled;
