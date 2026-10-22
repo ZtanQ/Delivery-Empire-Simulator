@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class PauseMenuController : MonoBehaviour
@@ -18,13 +19,23 @@ public class PauseMenuController : MonoBehaviour
 
     public void SaveGame()
     {
-        // Placeholder until MGR_Save is implemented
-        Debug.Log("Save button pressed.");
+        if (MGR_Save.Instance != null)
+        {
+            MGR_Save.Instance.SaveGame();
+            Debug.Log("PauseMenuController: Save requested.");
+        }
+        else
+        {
+            Debug.LogError(
+                "PauseMenuController: MGR_Save is unavailable."
+            );
+        }
     }
 
     public void QuitToTitle()
     {
         Time.timeScale = 1f;
-        Debug.Log("Quit to title pressed.");
+        SaveGame();
+        Debug.Log("Save and Quit requested.");
     }
 }
