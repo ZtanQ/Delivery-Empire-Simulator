@@ -34,8 +34,6 @@ public class Bootstrap : MonoBehaviour
                 inventoryManager.InitialiseStartingStockFallback();
             }
         }
-
-        SceneManager.LoadScene("Main_level");
     }
 
     private void InitialiseManagers()
