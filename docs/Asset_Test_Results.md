@@ -26,12 +26,6 @@
 | **Snacks – Chocolate Bar**     |      96 tris |   **300 tris** | **PASS** |
 | **Snacks – Pretzel**           |     206 tris |   **300 tris** | **PASS** |
 | **Snacks – Potato Chips**      |     240 tris |   **300 tris** | **PASS** |
-| **Dairy – Yoghurt**            |     276 tris |   **300 tris** | **PASS** |
-| **Dairy – Milk**               |     296 tris |   **300 tris** | **PASS** |
-| **Dairy – Ice Cream**          |     248 tris |   **300 tris** | **PASS** |
-| **Dairy – Cream Cheese**       |     252 tris |   **300 tris** | **PASS** |
-| **Dairy – Cheddar Cheese**     |     240 tris |   **300 tris** | **PASS** |
-| **Dairy – Butter**             |     216 tris |   **300 tris** | **PASS** |
 | **Bakery – Sliced Bread**      |     224 tris |   **300 tris** | **PASS** |
 | **Bakery – Bagels**            |      64 tris |   **300 tris** | **PASS** |
 | **Bakery – Croissants**        |     236 tris |   **300 tris** | **PASS** |
@@ -42,11 +36,17 @@
 | **Shelf Unit**                 |     600 tris |   **600 tris** | **PASS** |
 | **Truck**                      |   2,834 tris | **3,000 tris** | **PASS** |
 | **Terminal Station**           |   1,436 tris | **1,500 tris** | **PASS** |
-| **Drinks – Water Bottle**      |     284 tris |   **300 tris** | **PASS** |
+| **Rider Bag**                  |     292 tris |   **300 tris** | **PASS** |
+| **Rider (w/ variant texture)** |   2,358 tris |  **3000 tris** | **PASS** |
+| **Drinks – Bottled Water**     |     254 tris |   **300 tris** | **PASS** |
 | **Drinks – Cola Can**          |     276 tris |   **300 tris** | **PASS** |
 | **Drinks – Cold Coffee**       |     276 tris |   **300 tris** | **PASS** |
 | **Drinks – Energy Drink**      |     276 tris |   **300 tris** | **PASS** |
 | **Drinks – Iced Tea**          |     276 tris |   **300 tris** | **PASS** |
-| **Drinks – Juice**             |     286 tris |   **300 tris** | **PASS** |
-| **Rider Bag**                  |     292 tris |   **300 tris** | **PASS** |
-| **Rider (w/ variant texture)** |   2,358 tris |  **3000 tris** | **PASS** |
+| **Drinks – Orange Juice**      |     286 tris |   **300 tris** | **PASS** |
+| **Dairy – Yoghurt**            |     276 tris |   **300 tris** | **PASS** |
+| **Dairy – Milk**               |     296 tris |   **300 tris** | **PASS** |
+| **Dairy – Ice Cream**          |     248 tris |   **300 tris** | **PASS** |
+| **Dairy – Cream Cheese**       |     252 tris |   **300 tris** | **PASS** |
+| **Dairy – Cheddar Cheese**     |     132 tris |   **300 tris** | **PASS** |
+| **Dairy – Butter**             |     108 tris |   **300 tris** | **PASS** |
