@@ -8642,7 +8642,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 603337928062984908, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 654431188904651348, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
+      propertyPath: m_Name
+      value: SHL_12
       objectReference: {fileID: 0}
     - target: {fileID: 1809168350548980795, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
@@ -8674,7 +8678,11 @@ PrefabInstance:
       objectReference: {fileID: 1873687690700291684}
     - target: {fileID: 4316794391642513500, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: shelfID
-      value: SHL_10
+      value: SHL_11
+      objectReference: {fileID: 0}
+    - target: {fileID: 4316794391642513500, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
+      propertyPath: category
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4316794391642513500, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
@@ -8728,9 +8736,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5088706496640269767, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
+      propertyPath: m_Name
+      value: SHL_11
+      objectReference: {fileID: 0}
     - target: {fileID: 6201942027222246927, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: shelfID
-      value: SHL_11
+      value: SHL_12
+      objectReference: {fileID: 0}
+    - target: {fileID: 6201942027222246927, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
+      propertyPath: category
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6201942027222246927, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
@@ -8740,6 +8756,10 @@ PrefabInstance:
       propertyPath: accessPoint
       value: 
       objectReference: {fileID: 1873687690700291695}
+    - target: {fileID: 6816087027538001679, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
+      propertyPath: m_Name
+      value: SHL_10
+      objectReference: {fileID: 0}
     - target: {fileID: 6823314236913541820, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
       value: 
@@ -8754,7 +8774,11 @@ PrefabInstance:
       objectReference: {fileID: 1873687690700291685}
     - target: {fileID: 7134326025127191845, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: shelfID
-      value: SHL_12
+      value: SHL_10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7134326025127191845, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
+      propertyPath: category
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7134326025127191845, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
@@ -8850,5 +8874,5 @@ SceneRoots:
   - {fileID: 1787558284}
   - {fileID: 51714338}
   - {fileID: 133075234}
-  - {fileID: 1882478872}
   - {fileID: 1873687690700291683}
+  - {fileID: 1882478872}
