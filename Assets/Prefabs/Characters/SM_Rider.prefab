@@ -215,6 +215,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7227481669306840189}
+  - component: {fileID: 518590847673083517}
+  - component: {fileID: 5953744975515825218}
   m_Layer: 0
   m_Name: SM_Rider
   m_TagString: Untagged
@@ -240,6 +242,48 @@ Transform:
   - {fileID: 3602331948641950490}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &518590847673083517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5717200473788131937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ddd4fefcf883324c84b86957c22264c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CTRL_Rider
+  CurrentState: 0
+  riderNavMeshAgent: {fileID: 5953744975515825218}
+  riderTransform: {fileID: 8445798717369618024}
+  collectPause: 1
+  deliveryPause: 15
+  exitLocation: {fileID: 0}
+  bobHeight: 0.05
+  bobFrequency: 8
+--- !u!195 &5953744975515825218
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5717200473788131937}
+  m_Enabled: 0
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &8977501177115034896
 GameObject:
   m_ObjectHideFlags: 0

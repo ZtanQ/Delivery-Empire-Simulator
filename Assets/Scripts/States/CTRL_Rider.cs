@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -59,8 +60,8 @@ public class CTRL_Rider : MonoBehaviour
         if (riderNavMeshAgent != null)
         {
             riderNavMeshAgent.speed = 3f;
-            riderNavMeshAgent.isStopped = true;
             riderNavMeshAgent.updatePosition = true;
+            riderNavMeshAgent.enabled = false;
         }
 
         returnPosition = transform.position;
@@ -72,14 +73,59 @@ public class CTRL_Rider : MonoBehaviour
     private void OnEnable()
     {
         MGR_Delivery.OnRiderDispatched += HandleRiderDispatched;
-
+        /*
         returnPosition = transform.position;
 
         if (MGR_Delivery.Instance != null)
         {
             MGR_Delivery.Instance.RegisterRider(this);
             isRegistered = true;
+        }*/
+    }
+
+    private bool PlaceOnNavMesh()
+    {
+        if (riderNavMeshAgent == null)
+        {
+            Debug.LogError("CTRL_Rider: NavMeshAgent is missing.");
+            return false;
         }
+
+        // The agent must be disabled before moving it to a valid position.
+        if (riderNavMeshAgent.enabled)
+        {
+            riderNavMeshAgent.enabled = false;
+        }
+
+        Vector3 requestedPosition = transform.position;
+
+        if (!NavMesh.SamplePosition(requestedPosition, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+        {
+            Debug.LogError($"CTRL_Rider: No NavMesh found within 10m of {requestedPosition}. " + "Check the rider spawn position and baked NavMesh.");
+            return false;
+        }
+
+        // Move the rider onto the sampled NavMesh position first.
+        transform.position = hit.position;
+
+        riderNavMeshAgent.enabled = true;
+
+        if (!riderNavMeshAgent.isOnNavMesh)
+        {
+            Debug.LogError($"CTRL_Rider: Agent is not on NavMesh at {hit.position}.");
+
+            riderNavMeshAgent.enabled = false;
+            return false;
+        }
+
+        riderNavMeshAgent.ResetPath();
+        riderNavMeshAgent.isStopped = true;
+
+        returnPosition = hit.position;
+
+        Debug.Log($"CTRL_Rider: Placed on NavMesh at {hit.position}");
+
+        return true;
     }
 
     private void OnDisable()
@@ -89,15 +135,20 @@ public class CTRL_Rider : MonoBehaviour
         if (isRegistered && MGR_Delivery.Instance != null)
         {
             MGR_Delivery.Instance.UnregisterRider(this);
+            isRegistered = false;
         }
-
-        isRegistered = false;
     }
 
-    private void HandleRiderDispatched(CTRL_Rider rider,OrderData order,List<string> shelvesToVisit)
+    private void HandleRiderDispatched(CTRL_Rider rider, OrderData order, List<string> shelvesToVisit)
     {
         if (rider != this || CurrentState != RiderState.Idle || riderNavMeshAgent == null)
         {
+            return;
+        }
+
+        if (!PlaceOnNavMesh())
+        {
+            Debug.LogError("CTRL_Rider: Dispatch aborted because the rider could not be placed on the NavMesh.");
             return;
         }
 
@@ -214,7 +265,7 @@ public class CTRL_Rider : MonoBehaviour
     {
         Debug.LogWarning($"CTRL_Rider: {reason} Cancelling delivery.");
 
-        if (riderNavMeshAgent != null)
+        if (riderNavMeshAgent != null && riderNavMeshAgent.enabled && riderNavMeshAgent.isOnNavMesh)
         {
             riderNavMeshAgent.isStopped = true;
             riderNavMeshAgent.ResetPath();
