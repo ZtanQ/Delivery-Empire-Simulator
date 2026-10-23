@@ -8687,7 +8687,7 @@ PrefabInstance:
     - target: {fileID: 4316794391642513500, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
       value: 
-      objectReference: {fileID: 1873687690700291692}
+      objectReference: {fileID: 1873687690700291691}
     - target: {fileID: 4345699441101842905, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: shelfID
       value: SHL_13
@@ -8751,7 +8751,7 @@ PrefabInstance:
     - target: {fileID: 6201942027222246927, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
       value: 
-      objectReference: {fileID: 1873687690700291691}
+      objectReference: {fileID: 1873687690700291690}
     - target: {fileID: 6292433458361684183, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
       value: 
@@ -8783,7 +8783,7 @@ PrefabInstance:
     - target: {fileID: 7134326025127191845, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: accessPoint
       value: 
-      objectReference: {fileID: 1873687690700291690}
+      objectReference: {fileID: 1873687690700291692}
     - target: {fileID: 7900332649587404897, guid: 0ce15adb188cec943baae0ff3c07abb9, type: 3}
       propertyPath: shelfID
       value: SHL_14
