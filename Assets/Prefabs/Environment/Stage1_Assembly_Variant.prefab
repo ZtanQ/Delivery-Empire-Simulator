@@ -638,9 +638,9 @@ Transform:
   - {fileID: 5307752992078299575}
   - {fileID: 2850730308502745098}
   - {fileID: 5444318120722065498}
+  - {fileID: 6186903161353840053}
   - {fileID: 5608502385619462013}
   - {fileID: 170803764446982382}
-  - {fileID: 6186903161353840053}
   - {fileID: 7305197519614075755}
   - {fileID: 7809395707090770536}
   - {fileID: 3592064702569876450}
@@ -737,7 +737,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6157962496745624341, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
       propertyPath: m_Name
-      value: SHL_12
+      value: SHL_10
       objectReference: {fileID: 0}
     - target: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -809,10 +809,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47644be4e21eee34aa988b2f29ae40ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
-  shelfID: SHL_12
-  category: 2
+  shelfID: SHL_10
+  category: 1
   capacity: 20
-  accessPoint: {fileID: 3732690801021530971}
+  accessPoint: {fileID: 9000004075629165961}
 --- !u!1001 &1435467248017108690
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -823,7 +823,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6157962496745624341, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
       propertyPath: m_Name
-      value: SHL_10
+      value: SHL_11
       objectReference: {fileID: 0}
     - target: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -891,9 +891,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
   shelfID: SHL_10
-  category: 1
+  category: 2
   capacity: 20
-  accessPoint: {fileID: 9000004075629165961}
+  accessPoint: {fileID: 1947310240865634116}
 --- !u!4 &5608502385619462013 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
@@ -1355,7 +1355,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6157962496745624341, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
       propertyPath: m_Name
-      value: SHL_11
+      value: SHL_12
       objectReference: {fileID: 0}
     - target: {fileID: 6791053232333588911, guid: 67444f00681e8f24e92f15b2c634caf6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1428,9 +1428,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfSlot
   shelfID: SHL_11
-  category: 2
+  category: 3
   capacity: 20
-  accessPoint: {fileID: 1947310240865634116}
+  accessPoint: {fileID: 3732690801021530971}
 --- !u!1001 &7807360364006032334
 PrefabInstance:
   m_ObjectHideFlags: 0
