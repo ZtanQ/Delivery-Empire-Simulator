@@ -20,4 +20,4 @@ MonoBehaviour:
   ColourCode: {r: 0.65882355, g: 0.84705883, b: 0.9411765, a: 1}
   Icon: {fileID: 21300000, guid: 42df723d55135d74d95475aa96e4fa59, type: 3}
   BoxPrefab: {fileID: 1072726016038666765, guid: 374ddbdc0fcb09b4e9310c657bb92992, type: 3}
-  PropPrefab: {fileID: 5787711432254844416, guid: e1e0335d379734945bdeb981cd8a96f8, type: 3}
+  PropPrefab: {fileID: 4825953506132493341, guid: e1e0335d379734945bdeb981cd8a96f8, type: 3}
