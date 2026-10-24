@@ -15,6 +15,7 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     [Header("Player Controls")]
     [SerializeField] private CTRL_FirstPersonController _movementController;
     [SerializeField] private CTRL_FirstPersonCamera _lookController;
+    [SerializeField] private GameObject _hudCanvas;
 
     [Header("Interaction")]
     [SerializeField] private LayerMask _interactableLayer;
@@ -44,12 +45,16 @@ public class CTRL_InteractionRaycast : MonoBehaviour
     private bool _terminalControlsPaused;
     private bool _movementWasEnabled;
     private bool _lookWasEnabled;
+    private bool _hudCanvasWasActive;
+    private VirtualJoystick _joystick;
 
     private string _placementFeedback;
     private float _placementFeedbackTimer;
 
     private void Awake()
     {
+        ResolveHudCanvas();
+
         if (_actionButton != null)
         {
             _actionButton.OnActionTapped.AddListener(HandleActionTapped);
@@ -375,6 +380,8 @@ public class CTRL_InteractionRaycast : MonoBehaviour
 
     private void SyncTerminalControlState()
     {
+        ResolveHudCanvas();
+
         bool terminalIsOpen =
             _terminalPanel != null &&
             _terminalPanel.activeInHierarchy;
@@ -385,6 +392,19 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         }
 
         SetTerminalControlsPaused(terminalIsOpen);
+    }
+
+    private void ResolveHudCanvas()
+    {
+        if (_hudCanvas == null)
+        {
+            _hudCanvas = GameObject.Find("HUD_Canvas");
+        }
+
+        if (_joystick == null && _hudCanvas != null)
+        {
+            _joystick = _hudCanvas.GetComponentInChildren<VirtualJoystick>(true);
+        }
     }
 
     private void SetTerminalControlsPaused(bool paused)
@@ -405,6 +425,14 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             _lookWasEnabled =
                 _lookController != null &&
                 _lookController.enabled;
+            _hudCanvasWasActive =
+                _hudCanvas != null &&
+                _hudCanvas.activeSelf;
+
+            if (_joystick != null)
+            {
+                _joystick.OnPointerUp(null);
+            }
 
             if (_movementController != null)
             {
@@ -414,6 +442,11 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             if (_lookController != null)
             {
                 _lookController.enabled = false;
+            }
+
+            if (_hudCanvas != null)
+            {
+                _hudCanvas.SetActive(false);
             }
 
             return;
@@ -427,6 +460,11 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         if (_lookController != null)
         {
             _lookController.enabled = _lookWasEnabled;
+        }
+
+        if (_hudCanvas != null)
+        {
+            _hudCanvas.SetActive(_hudCanvasWasActive);
         }
     }
 

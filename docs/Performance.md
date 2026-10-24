@@ -153,3 +153,64 @@ Avg FPS has increased by 10 and total triangles reduced by 1000 because of updat
 3. **Memory Usage:** Stabilized at approximately 282 MB.
 4. **Triangle Count:** Remained within the range of 12,616–12,918.
 5. **Draw Calls:** Starts off as 150, as orders are created and expired, draw calls reaches 155-158 in the Editor.
+
+
+# Phone Performance Test after Optimization (Week 5)
+
+# 1. Static Batching
+
+Applied **Static Batching** to the following Stage 0 gameobjects:
+- Ceiling
+- Columns
+- Corners
+- East_Wall
+- North_Wall
+- Floor
+- South_Wall
+- West_Wall
+**Stage 1:** Static Batching was already applied.
+
+**Result:** Draw calls reduced to **105** from *158*.
+
+## 2. Material Optimization
+
+Applied single shared M_Palette_Shared.mat to the following prefabs:
+- SM_SNK-01_PotatoChips
+- SM_SNK-02_Pretzels   
+- SM_SNK-03_ChocolateBar   
+- SM_SNK-04_GummyBears   
+- SM_SNK-05_TrailMix   
+- SM_SNK-06_Popcorn   
+- SM_BAK-01_SlicedBread   
+- SM_BAK-02_Bagels   
+- SM_BAK-03_Croissants   
+- SM_BAK-04_Muffins   
+- SM_BAK-05_ChocolateCake   
+- SM_BAK-06_Cookies
+
+**Result:** Draw calls still **105**.
+
+## 3. Shadow Optimization
+
+Applied the shadow settings for mobile performance optimization.
+
+**Result:** Draw calls reduced from 105 to **56**.
+
+
+## Performance Test Results on Motorola G54 5G Phone
+
+| Elapsed Seconds | Timestamp | FPS | BatteryTempC | DrawCalls | Triangles | MemoryMB |
+|---:|---|---:|---:|---:|---:|---:|
+| 0 | 22-10-2026 20:15:00 | 60.3 | 34 | 0 | 6288 | 278.5 |
+| 1 | 22-10-2026 20:15:01 | 60.3 | 34 | 0 | 6288 | 279.1 |
+| 2 | 22-10-2026 20:15:02 | 60.3 | 34 | 0 | 6288 | 279.7 |
+| 3 | 22-10-2026 20:15:03 | 60.3 | 34 | 0 | 6288 | 278.8 |
+| 4 | 22-10-2026 20:15:04 | 60.3 | 34 | 0 | 6288 | 279.4 |
+| 5 | 22-10-2026 20:15:05 | 60.3 | 34 | 0 | 6288 | 280.0 |
+| 6 | 22-10-2026 20:15:06 | 60.3 | 34 | 0 | 6288 | 279.0 |
+| 7 | 22-10-2026 20:15:07 | 60.3 | 34 | 0 | 6288 | 279.6 |
+| 8 | 22-10-2026 20:15:08 | 60.3 | 34 | 0 | 6288 | 278.9 |
+| 9 | 22-10-2026 20:15:09 | 60.3 | 34 | 0 | 6288 | 279.2 |
+| 10 | 22-10-2026 20:15:10 | 60.3 | 34 | 0 | 6288 | 279.8 |
+
+> Average FPS was around 60 and Draw Calls are under 60 as per Editor Profiler

@@ -12,8 +12,8 @@ public class PerformanceOverlay : MonoBehaviour
     [SerializeField] private TMP_Text performanceText;
     [SerializeField] private Button recordButton;
 
-    private const float Duration = 2400f;       // 40 minutes
-    private const float SampleInterval = 600f; // 10 minutes
+    private const float Duration = 10f;       // 10s
+    private const float SampleInterval = 1f; // 1s
 
     private ProfilerRecorder drawCalls;
     private ProfilerRecorder triangles;
@@ -66,7 +66,7 @@ public class PerformanceOverlay : MonoBehaviour
             SaveSample(fps);
 
             recording = false;
-            Debug.Log("40-minute performance test completed: " + filePath);
+            Debug.Log($"{Duration}-seconds performance test completed: " + filePath);
             return;
         }
 
@@ -122,7 +122,7 @@ public class PerformanceOverlay : MonoBehaviour
             "PerformanceTest.csv");
 
         File.WriteAllText(filePath,
-            "ElapsedMinutes,Timestamp,FPS,BatteryTempC,DrawCalls,Triangles,MemoryMB\n");
+            "ElapsedSeconds,Timestamp,FPS,BatteryTempC,DrawCalls,Triangles,MemoryMB\n");
 
         recording = true;
 
