@@ -1,3 +1,4 @@
+using System.Globalization;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -15,46 +16,64 @@ public class UI_HUDController : MonoBehaviour
 
     public void SetLevel(int level)
     {
-        levelText.text = level.ToString();
+        if (levelText != null)
+            levelText.text = level.ToString();
     }
 
     public void SetXP(int currentXP, int requiredXP)
     {
-        xpText.text = currentXP + " / " + requiredXP + " XP";
+        if (xpText != null)
+            xpText.text = $"{currentXP} / {requiredXP} XP";
 
-        if (xpBar != null && requiredXP > 0)
+        if (xpBar != null)
         {
-            xpBar.fillAmount =
-                (float)currentXP / requiredXP;
+            xpBar.fillAmount = requiredXP > 0
+                ? Mathf.Clamp01((float)currentXP / requiredXP)
+                : 0f;
         }
     }
 
     public void SetCash(int cash)
     {
-        cashText.text = "$ " + cash.ToString("N0");
+        if (cashText != null)
+        {
+            cashText.text = "$" +
+                (cash / 100f).ToString("N2", CultureInfo.InvariantCulture);
+        }
     }
 
     public void SetRating(float rating)
     {
-        ratingText.text = rating.ToString("0.0");
+        if (ratingText != null)
+            ratingText.text = rating.ToString("0.0", CultureInfo.InvariantCulture);
     }
 
     private void OnEnable()
     {
         MGR_Game.OnCashChanged += HandleCashChanged;
         MGR_Game.OnXPChanged += HandleXPChanged;
+        MGR_Game.OnRatingChanged += HandleRatingChanged;
     }
 
     private void OnDisable()
     {
         MGR_Game.OnCashChanged -= HandleCashChanged;
         MGR_Game.OnXPChanged -= HandleXPChanged;
+        MGR_Game.OnRatingChanged -= HandleRatingChanged;
     }
 
-    private void HandleXPChanged(int newXP, int currentLevel)
+    private void Start()
     {
-        SetXP(newXP, 100);
+        if (MGR_Game.Instance == null)
+            return;
+
+        int currentLevel = MGR_Game.Instance.CurrentLevel;
+        int currentXP = MGR_Game.Instance.CurrentXP;
+
         SetLevel(currentLevel);
+        UpdateXPDisplay(currentXP, currentLevel);
+        SetCash(MGR_Game.Instance.CurrentCash);
+        SetRating(MGR_Game.Instance.CurrentRating);
     }
 
     private void HandleCashChanged(int newCash, int delta)
@@ -62,21 +81,31 @@ public class UI_HUDController : MonoBehaviour
         SetCash(newCash);
     }
 
-    private void Start()
+    private void HandleXPChanged(int newXP, int currentLevel)
     {
-        if (MGR_Game.Instance != null)
-        {
-            SetLevel(1);
-            SetXP(
-                MGR_Game.Instance.CurrentXP,
-                100
-            );
+        SetLevel(currentLevel);
+        UpdateXPDisplay(newXP, currentLevel);
+    }
 
-            SetCash(
-                MGR_Game.Instance.CurrentCash
-            );
-        }
+    private void HandleRatingChanged(float newRating)
+    {
+        SetRating(newRating);
+    }
 
-        SetRating(5.0f);
+    private void UpdateXPDisplay(int totalXP, int currentLevel)
+    {
+        if (MGR_Game.Instance == null)
+            return;
+
+        int currentLevelXP =
+            MGR_Game.Instance.GetRequiredXPForLevel(currentLevel);
+
+        int nextLevelXP =
+            MGR_Game.Instance.GetRequiredXPForLevel(currentLevel + 1);
+
+        int xpIntoLevel = Mathf.Max(0, totalXP - currentLevelXP);
+        int xpNeeded = Mathf.Max(1, nextLevelXP - currentLevelXP);
+
+        SetXP(xpIntoLevel, xpNeeded);
     }
 }
