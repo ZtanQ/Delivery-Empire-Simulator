@@ -214,3 +214,26 @@ Applied the shadow settings for mobile performance optimization.
 | 10 | 22-10-2026 20:15:10 | 60.3 | 34 | 0 | 6288 | 279.8 |
 
 > Average FPS was around 60 and Draw Calls are under 60 as per Editor Profiler
+
+
+# Performance Test for Full Loop without errors Motorola G54 5G Phone (Week 5)
+
+| Elapsed Time (min) | Timestamp        | Window Start (s) | Window End (s) | Average FPS | Minimum FPS | Avg. Draw Calls | Min. Draw Calls | Battery Temp (°C) | Triangles | Memory (MB) |
+|-------------------:|------------------|----------------:|--------------:|------------:|------------:|----------------:|----------------:|------------------:|----------:|------------:|
+| 0  | 23-10-2026 14:54 | 0    | 0    | 60.3 | 60.3 | 0 | 0 | 32 | 7,090  | 272.2 |
+| 5  | 23-10-2026 14:59 | 290  | 300  | 60.3 | 60.1 | 0 | 0 | 34 | 9,086  | 279.7 |
+| 10 | 23-10-2026 15:04 | 590  | 600  | 60.3 | 60.0 | 0 | 0 | 34 | 8,520  | 280.8 |
+| 15 | 23-10-2026 15:09 | 890  | 900  | 30.6 | 20.1 | 0 | 0 | 36 | 5,842  | 280.1 |
+| 20 | 23-10-2026 15:14 | 1,190 | 1,200 | 49.7 | 30.1 | 0 | 0 | 36 | 6,172  | 280.8 |
+| 25 | 23-10-2026 15:19 | 1,490 | 1,500 | 49.7 | 30.1 | 0 | 0 | 36 | 6,120  | 279.7 |
+| 30 | 23-10-2026 15:24 | 1,790 | 1,800 | 49.7 | 30.0 | 0 | 0 | 36 | 6,132  | 280.5 |
+| 35 | 23-10-2026 15:29 | 2,090 | 2,100 | 49.7 | 30.1 | 0 | 0 | 36 | 6,120  | 280.9 |
+| 40 | 23-10-2026 15:34 | 2,390 | 2,400 | 49.7 | 30.1 | 0 | 0 | 36 | 6,206  | 280.4 |
+
+## Key Observations
+
+1. **Frame Rate:** Maintained approximately 60 FPS during the first 10 minutes. At 15 minutes, performance dropped significantly, with an average of 30.6 FPS and a minimum of 20.1 FPS. From 20 to 40 minutes, the average stabilized at 49.7 FPS.
+2. **Battery Temperature:** Increased from 32°C to 36°C, then remained stable for the rest of the test.
+3. **Memory Usage:** Increased from 272.2 MB to approximately 280 MB and remained relatively stable.
+4. **Triangle Count:** Varied between 5,842 and 9,086 triangles, with no sustained upward trend.
+5. **Draw Calls:** Reported as 0 throughout the test on Mobile phone. Editor reported increase in draw calls from 58 to 75 over 5 minutes.
