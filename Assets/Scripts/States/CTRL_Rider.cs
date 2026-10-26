@@ -73,14 +73,6 @@ public class CTRL_Rider : MonoBehaviour
     private void OnEnable()
     {
         MGR_Delivery.OnRiderDispatched += HandleRiderDispatched;
-        /*
-        returnPosition = transform.position;
-
-        if (MGR_Delivery.Instance != null)
-        {
-            MGR_Delivery.Instance.RegisterRider(this);
-            isRegistered = true;
-        }*/
     }
 
     private bool PlaceOnNavMesh()
@@ -148,7 +140,11 @@ public class CTRL_Rider : MonoBehaviour
 
         if (!PlaceOnNavMesh())
         {
-            Debug.LogError("CTRL_Rider: Dispatch aborted because the rider could not be placed on the NavMesh.");
+            Debug.LogError(
+                "CTRL_Rider: Dispatch aborted because the rider could not be placed on the NavMesh."
+            );
+
+            CancelDelivery("Rider could not be placed on the NavMesh.");
             return;
         }
 
