@@ -1,6 +1,10 @@
 
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class PauseMenuController : MonoBehaviour
 {
     [SerializeField] private GameObject pauseMenu;
@@ -35,7 +39,15 @@ public class PauseMenuController : MonoBehaviour
     public void QuitToTitle()
     {
         Time.timeScale = 1f;
+
         SaveGame();
-        Debug.Log("Save and Quit requested.");
+
+        Debug.Log("Save and Exit requested.");
+
+        #if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+        #else
+        Application.Quit();
+        #endif
     }
 }
