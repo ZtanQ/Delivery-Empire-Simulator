@@ -237,3 +237,13 @@ Applied the shadow settings for mobile performance optimization.
 3. **Memory Usage:** Increased from 272.2 MB to approximately 280 MB and remained relatively stable.
 4. **Triangle Count:** Varied between 5,842 and 9,086 triangles, with no sustained upward trend.
 5. **Draw Calls:** Reported as 0 throughout the test on Mobile phone. Editor reported increase in draw calls from 58 to 75 over 5 minutes.
+
+## Performance Test: Shelf Stock Visuals and Updated Stages (Week 6)
+
+**Device:** Motorola G54 5G  
+**Test duration:** 3 minutes per run
+
+| Run | Scene conditions | FPS | Draw calls |
+|---|---|---:|---:|
+| Before | Dock roll-up door closed, shelves empty, two riders idle on screen | ~60 | ~334 |
+| After | Dock roll-up door open, shelf props visible, two riders idle on screen | ~60 | Up to ~331 |
