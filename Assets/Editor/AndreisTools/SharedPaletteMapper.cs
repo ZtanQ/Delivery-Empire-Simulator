@@ -28,6 +28,8 @@ namespace RuralGames.EditorTools
         [SerializeField] string outputFolder = "Assets/Art/Generated/SharedPalette";
         readonly List<ColourRow> colours = new List<ColourRow>();
         readonly List<Target> targets = new List<Target>();
+        readonly List<MeshGroup> meshGroups = new List<MeshGroup>();
+        [SerializeField] bool showIndividualOverrides = false;
         readonly List<GameObject> roots = new List<GameObject>();
         readonly List<string> errors = new List<string>();
         readonly Dictionary<Mesh, int> currentCells = new Dictionary<Mesh, int>();
@@ -50,6 +52,15 @@ namespace RuralGames.EditorTools
             public Material[] materials;
             public int[] rows;
             public int chosen, current = -1;
+            public Mesh groupSource;
+        }
+
+        sealed class MeshGroup
+        {
+            public Mesh source;
+            public string displayName;
+            public readonly List<Target> members = new List<Target>();
+            public int chosen;
         }
 
         [Serializable]
@@ -106,6 +117,7 @@ namespace RuralGames.EditorTools
             EditorGUILayout.LabelField("Your current palette: 1 swatch across × 5 bands. Row 1 is the TOP.", EditorStyles.miniLabel);
             if (GUILayout.Button("Find named shared assets")) { FindSharedAssets(); Invalidate(); }
             if (GUILayout.Button("Repair Existing Generated Mesh Names")) RunUI(RepairGeneratedMeshNames);
+            if (GUILayout.Button("Clean Unused Generated Meshes (preview + confirm)")) RunUI(CleanUnusedGeneratedMeshes);
             using (new EditorGUI.DisabledScope(!palette || !sharedMaterial || EditorApplication.isPlayingOrWillChangePlaymode))
             {
                 if (GUILayout.Button("1. Scan Selection", GUILayout.Height(28)))
@@ -153,21 +165,43 @@ namespace RuralGames.EditorTools
             }
             if (objectMode)
             {
-                foreach (Target target in targets)
+                EditorGUILayout.LabelField("Groups by ORIGINAL source mesh", EditorStyles.boldLabel);
+                EditorGUILayout.HelpBox("One selection changes every instance of the same source mesh, even if instances currently use different generated colour variants.", MessageType.None);
+                foreach (MeshGroup group in meshGroups)
                 {
                     using (new EditorGUI.DisabledScope(stamp == null))
                     {
                         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                        EditorGUILayout.ObjectField(target.renderer ? target.renderer.name : "Deleted object", target.renderer ? target.renderer.gameObject : null, typeof(GameObject), true);
+                        EditorGUILayout.LabelField(group.displayName + "  (" + group.members.Count + " objects)", EditorStyles.boldLabel);
                         if (swatches != null)
                         {
-                            EditorGUILayout.BeginHorizontal();
-                            DrawColour("Chosen", swatches[target.chosen]);
-                            target.chosen = EditorGUILayout.Popup("Assign to", target.chosen, labels);
-                            EditorGUILayout.EndHorizontal();
-                            EditorGUILayout.LabelField(target.current >= 0 ? "Current mapping: " + labels[target.current] : "Current UVs span the texture. Apply will place the whole object in the chosen band.", EditorStyles.wordWrappedMiniLabel);
+                            EditorGUI.BeginChangeCheck();
+                            int choice = EditorGUILayout.Popup("Group colour", group.chosen, labels);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                group.chosen = choice;
+                                foreach (Target member in group.members) member.chosen = choice;
+                            }
                         }
                         EditorGUILayout.EndVertical();
+                    }
+                }
+                showIndividualOverrides = EditorGUILayout.Foldout(showIndividualOverrides, "Individual object overrides (optional)", true);
+                if (showIndividualOverrides)
+                {
+                    foreach (Target target in targets)
+                    {
+                        using (new EditorGUI.DisabledScope(stamp == null))
+                        {
+                            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                            EditorGUILayout.ObjectField(target.renderer ? target.renderer.name : "Deleted object", target.renderer ? target.renderer.gameObject : null, typeof(GameObject), true);
+                            if (swatches != null)
+                            {
+                                target.chosen = EditorGUILayout.Popup("Assign to", target.chosen, labels);
+                                EditorGUILayout.LabelField(target.current >= 0 ? "Current mapping: " + labels[target.current] : "Source UV0 will be mapped to selected colour.", EditorStyles.wordWrappedMiniLabel);
+                            }
+                            EditorGUILayout.EndVertical();
+                        }
                     }
                 }
             }
@@ -199,6 +233,7 @@ namespace RuralGames.EditorTools
         {
             batchSwatch = chosen;
             foreach (Target target in targets) target.chosen = chosen;
+            foreach (MeshGroup group in meshGroups) group.chosen = chosen;
         }
         static void DrawColour(string text, Color colour)
         {
@@ -239,7 +274,7 @@ namespace RuralGames.EditorTools
 
         void Scan()
         {
-            Invalidate(); colours.Clear(); targets.Clear(); roots.Clear(); errors.Clear(); currentCells.Clear(); swatches = null;
+            Invalidate(); colours.Clear(); targets.Clear(); meshGroups.Clear(); roots.Clear(); errors.Clear(); currentCells.Clear(); swatches = null;
             ValidateSettings();
             swatches = SamplePalette(palette, columns, bands);
             labels = swatches.Select((s, i) => CellLabel(i) + " #" + ColorUtility.ToHtmlStringRGB(s)).ToArray();
@@ -270,11 +305,40 @@ namespace RuralGames.EditorTools
                     catch (Exception e) { errors.Add(renderer.name + ": " + e.Message); }
                 }
             }
+            if (objectMode && targets.Count > 0) BuildSourceGroups();
             if (targets.Count == 0) errors.Add(objectMode ? "No static MeshRenderers found in the selection." : "No source-colour MeshRenderers found. Use Assign bands to objects for assets already using the shared material.");
             stamp = Fingerprint();
-            status = objectMode ? targets.Count + " objects ready. Choose a band for all, or set individual dropdowns, then Apply." :
+            status = objectMode ? targets.Count + " objects in " + meshGroups.Count + " source-mesh groups. Choose a group colour, then Apply." :
                 targets.Count + " renderers, " + colours.Count + " source materials. " + skipped + " already-shared renderers skipped. " +
                 (errors.Count > 0 ? "Resolve the listed issues and scan again." : "Review source → nearest → chosen colours, then Apply.");
+        }
+
+        void BuildSourceGroups()
+        {
+            // Resolve provenance once per distinct mesh; variants from one FBX source share a group.
+            var resolved = new Dictionary<Mesh, SourceInfo>();
+            List<Mesh> legacyCandidates = null;
+            foreach (Target target in targets)
+            {
+                if (!resolved.TryGetValue(target.mesh, out SourceInfo info))
+                {
+                    info = ResolveSource(target.mesh, ref legacyCandidates, new HashSet<Mesh>());
+                    resolved.Add(target.mesh, info);
+                }
+                target.groupSource = info.mesh;
+                MeshGroup group = meshGroups.FirstOrDefault(g => g.source == info.mesh);
+                if (group == null)
+                {
+                    group = new MeshGroup { source = info.mesh, displayName = string.IsNullOrEmpty(info.name) ? info.mesh.name : info.name, chosen = target.chosen };
+                    meshGroups.Add(group);
+                }
+                group.members.Add(target);
+            }
+            foreach (MeshGroup group in meshGroups)
+            {
+                group.chosen = group.members.GroupBy(t => t.chosen).OrderByDescending(g => g.Count()).First().Key;
+            }
+            meshGroups.Sort((a, b) => string.Compare(a.displayName, b.displayName, StringComparison.OrdinalIgnoreCase));
         }
 
         Target Inspect(MeshRenderer renderer)
@@ -494,7 +558,12 @@ namespace RuralGames.EditorTools
                     Vector2[] uvs = objectMode ? Enumerable.Repeat(CellUV(t.chosen, columns, bands), source.subMeshCount).ToArray() :
                         t.rows.Select(r => CellUV(colours[r].chosen, columns, bands)).ToArray();
                     string key = MeshKey(source, uvs);
-                    string path = outputFolder + "/SP_" + key + ".asset";
+                    // Prefer readable filenames for new variants; reuse the legacy hash path when present.
+                    string legacyPath = outputFolder + "/SP_" + key + ".asset";
+                    string displaySource = sources[t].name;
+                    if (string.IsNullOrWhiteSpace(displaySource)) displaySource = source.name;
+                    string readablePath = outputFolder + "/" + SafeName(displaySource) + "_Palette_" + key + ".asset";
+                    string path = AssetDatabase.LoadAssetAtPath<Mesh>(legacyPath) ? legacyPath : readablePath;
                     Mesh derived;
                     if (!cache.TryGetValue(key, out derived))
                     {
@@ -711,6 +780,61 @@ namespace RuralGames.EditorTools
             {
                 importer.userData = metadata; AssetDatabase.WriteImportSettingsIfDirty(path);
             }
+        }
+
+        void CleanUnusedGeneratedMeshes()
+        {
+            ValidateFolder(outputFolder);
+            if (!AssetDatabase.IsValidFolder(outputFolder)) { status = "No generated folder exists."; return; }
+            // Never clean while scenes have unsaved changes: those references may not yet exist on disk.
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+            {
+                var scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
+                if (scene.isLoaded && (scene.isDirty || string.IsNullOrEmpty(scene.path)))
+                    throw new InvalidOperationException("Save all open scenes before cleanup. Unsaved references cannot be checked safely.");
+            }
+            string[] guids = AssetDatabase.FindAssets("t:Mesh", new[] { outputFolder });
+            var owned = guids.Select(AssetDatabase.GUIDToAssetPath).Distinct()
+                .Where(path => AssetDatabase.LoadAssetAtPath<Mesh>(path) is Mesh m && TryOwnedMesh(m, out _, out _))
+                .ToArray();
+            if (owned.Length == 0) { status = "No tool-owned generated meshes found."; return; }
+            // Dependency checks across ALL assets protect scene/prefab references and indirect references.
+            var allPaths = AssetDatabase.GetAllAssetPaths()
+                .Where(path => path.StartsWith("Assets/", StringComparison.Ordinal) && !owned.Contains(path))
+                .ToArray();
+            var referenced = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < allPaths.Length; i++)
+            {
+                if ((i & 63) == 0) Cancel("Checking asset dependencies (" + i + "/" + allPaths.Length + ")", (float)i / Math.Max(1, allPaths.Length));
+                foreach (string dependency in AssetDatabase.GetDependencies(allPaths[i], true))
+                    referenced.Add(dependency);
+            }
+            // Also guard any loaded prefab stages / temporary objects with unsaved references.
+            foreach (MeshFilter filter in Resources.FindObjectsOfTypeAll<MeshFilter>())
+            {
+                if (filter && filter.sharedMesh)
+                {
+                    string path = AssetDatabase.GetAssetPath(filter.sharedMesh);
+                    if (!string.IsNullOrEmpty(path)) referenced.Add(path);
+                }
+            }
+            string[] unused = owned.Where(path => !referenced.Contains(path)).ToArray();
+            if (unused.Length == 0) { status = "All " + owned.Length + " generated mesh assets remain referenced. Nothing deleted."; return; }
+            string examples = string.Join("\n", unused.Take(8).Select(path => "• " + path));
+            if (!EditorUtility.DisplayDialog("Delete unreferenced generated meshes?",
+                unused.Length + " of " + owned.Length + " owned meshes have no references in project assets or loaded objects.\n\n" + examples +
+                (unused.Length > 8 ? "\n..." : "") + "\n\nThis deletes .asset files and is NOT covered by Ctrl+Z. Commit/back up first.",
+                "Delete " + unused.Length, "Cancel"))
+            { status = "Cleanup cancelled. " + unused.Length + " unreferenced meshes found."; return; }
+            int deleted = 0;
+            foreach (string path in unused)
+            {
+                if (AssetDatabase.DeleteAsset(path)) deleted++;
+                else Debug.LogWarning("Could not delete generated mesh: " + path);
+            }
+            AssetDatabase.Refresh();
+            Invalidate();
+            status = "Deleted " + deleted + " unreferenced generated meshes; kept " + (owned.Length - deleted) + ".";
         }
 
         void RepairGeneratedMeshNames()
