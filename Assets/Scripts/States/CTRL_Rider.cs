@@ -40,6 +40,8 @@ public class CTRL_Rider : MonoBehaviour
     [SerializeField] private float bobFrequency = 8f;
 
     private Vector3 originalLocalPosition;
+    private Transform riderBagTransform;
+    private Vector3 bagOriginalLocalPosition;
 
     private OrderData currentOrder;
     private List<string> currentShelfIDs;
@@ -66,8 +68,11 @@ public class CTRL_Rider : MonoBehaviour
 
         returnPosition = transform.position;
         originalLocalPosition = riderTransform.localPosition;
+        riderBagTransform = transform.Find("SM_Rider_Bag");
+        if (riderBagTransform != null)
+            bagOriginalLocalPosition = riderBagTransform.localPosition;
 
-        riderRenderers = riderTransform.GetComponentsInChildren<Renderer>(true);
+        riderRenderers = GetComponentsInChildren<Renderer>(true);
     }
 
     private void OnEnable()
@@ -300,10 +305,8 @@ public class CTRL_Rider : MonoBehaviour
 
     private void UpdateWalkingBob()
     {
-        if (riderTransform == null || riderTransform == transform)
-        {
+        if (riderTransform == null)
             return;
-        }
 
         bool walking =
             CurrentState == RiderState.WalkToShelf ||
@@ -314,7 +317,10 @@ public class CTRL_Rider : MonoBehaviour
             ? Mathf.Abs(Mathf.Sin(Time.time * bobFrequency)) * bobHeight
             : 0f;
 
-        riderTransform.localPosition = originalLocalPosition + Vector3.up * bob;
+        if (riderTransform != transform)
+            riderTransform.localPosition = originalLocalPosition + Vector3.up * bob;
+        if (riderBagTransform != null)
+            riderBagTransform.localPosition = bagOriginalLocalPosition + Vector3.up * bob;
     }
 
     private void Update()
@@ -322,3 +328,7 @@ public class CTRL_Rider : MonoBehaviour
         UpdateWalkingBob();
     }
 }
+
+
+
+

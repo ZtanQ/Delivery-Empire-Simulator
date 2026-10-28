@@ -2807,6 +2807,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 1848803214738816880}
   - component: {fileID: 8356038001528355647}
   - component: {fileID: 5040837502334620648}
   m_Layer: 0
@@ -4040,6 +4041,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 3309621463625300475}
   - component: {fileID: 3240842835817135505}
   - component: {fileID: 8608569174954068103}
   m_Layer: 0
@@ -6101,6 +6103,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 7253496007727100923}
   - component: {fileID: 3970770520996371171}
   - component: {fileID: 5830232793690362831}
   m_Layer: 0
@@ -9850,6 +9853,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 2127231981094252769}
   - component: {fileID: 235804185100643480}
   - component: {fileID: 3235459950483815257}
   m_Layer: 0
@@ -10011,6 +10015,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 5202109035534154890}
   - component: {fileID: 1494549887361896161}
   - component: {fileID: 500885632200246026}
   m_Layer: 0
@@ -12933,6 +12938,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 1313248990932314450}
   - component: {fileID: 8466122618255390615}
   - component: {fileID: 8782203283242821633}
   m_Layer: 0
@@ -14488,3 +14494,111 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CTRL_Interactable
   _actionType: 2
+
+--- !u!114 &1848803214738816880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040831340760961965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aea2a41a9a340caa4b8d435ce772a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
+  shelf: {fileID: 5040837502334620648}
+  displayOffset: {x: 0, y: 0.12, z: 0}
+  columns: 5
+  horizontalSpacing: 0.28
+  depthSpacing: 0.28
+
+--- !u!114 &3309621463625300475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2802370769744739352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aea2a41a9a340caa4b8d435ce772a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
+  shelf: {fileID: 8608569174954068103}
+  displayOffset: {x: 0, y: 0.12, z: 0}
+  columns: 5
+  horizontalSpacing: 0.28
+  depthSpacing: 0.28
+
+--- !u!114 &7253496007727100923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4241221276592276351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aea2a41a9a340caa4b8d435ce772a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
+  shelf: {fileID: 5830232793690362831}
+  displayOffset: {x: 0, y: 0.12, z: 0}
+  columns: 5
+  horizontalSpacing: 0.28
+  depthSpacing: 0.28
+
+--- !u!114 &2127231981094252769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6451548683842306920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aea2a41a9a340caa4b8d435ce772a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
+  shelf: {fileID: 3235459950483815257}
+  displayOffset: {x: 0, y: 0.12, z: 0}
+  columns: 5
+  horizontalSpacing: 0.28
+  depthSpacing: 0.28
+
+--- !u!114 &5202109035534154890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6569701897933166118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aea2a41a9a340caa4b8d435ce772a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
+  shelf: {fileID: 500885632200246026}
+  displayOffset: {x: 0, y: 0.12, z: 0}
+  columns: 5
+  horizontalSpacing: 0.28
+  depthSpacing: 0.28
+
+--- !u!114 &1313248990932314450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8358542913369247400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aea2a41a9a340caa4b8d435ce772a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
+  shelf: {fileID: 8782203283242821633}
+  displayOffset: {x: 0, y: 0.12, z: 0}
+  columns: 5
+  horizontalSpacing: 0.28
+  depthSpacing: 0.28
