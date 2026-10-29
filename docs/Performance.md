@@ -286,7 +286,7 @@ Applied the shadow settings for mobile performance optimization.
 
 **Total Frame Debugger Events:** 34
 
-| Rendering Event | Event Count | Draw Calls |
+| Rendering Event | Draw Calls | Event Counts |
 |---|---:|---:|
 | Draw Opaque Objects | 145 | 10 |
 | Draw Skybox | 1 | 1 |
@@ -295,10 +295,9 @@ Applied the shadow settings for mobile performance optimization.
 
 ### Observations
 
-- **Draw Calls:** Increased from 286 to 297 after 10 minutes.
-- **SetPass Calls:** Increased from 23 to 24.
-- **Rendering Workload:** Opaque objects account for 10 draw calls, while the UI accounts for 13.
-- **Frame Debugger:** The reported 34 events and the listed rendering-event counts require clarification, as the event counts do not appear to add up consistently.
+- **Draw Calls:** Increased from 286 at the start to 297 after 10 minutes, an increase of 11 draw calls.
+- **SetPass Calls:** Increased from 23 to 24, indicating a minor increase in rendering state changes.
+- **Rendering Workload:** Opaque rendering shows 145 draw calls across 10 events. The Screen Space UI accounts for 13 events, while transparent rendering accounts for 7 events.
 
 ### Conclusion
 
