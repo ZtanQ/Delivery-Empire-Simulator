@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -9,14 +10,22 @@ using TMPro;
 
 public class PerformanceOverlay : MonoBehaviour
 {
-    [Header("UI")]
+    [Header("Main Overlay")]
     [SerializeField] private TMP_Text performanceText;
     [SerializeField] private Button recordButton;
+    [SerializeField] private Button settingsButton;
 
-    [Header("Long Test Settings")]
-    [SerializeField] private float durationSeconds = 2400f;          // 40 minutes
-    [SerializeField] private float sampleIntervalSeconds = 300f;     // 5 minutes
-    [SerializeField] private float measurementWindowSeconds = 10f;  // 10 seconds
+    [Header("Settings Panel")]
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private TMP_InputField durationInput;
+    [SerializeField] private TMP_InputField sampleIntervalInput;
+    [SerializeField] private TMP_InputField measurementWindowInput;
+    [SerializeField] private Button saveButton;
+    [SerializeField] private Button cancelButton;
+
+    private float durationMinutes = 40f;
+    private float sampleIntervalSeconds = 300f;
+    private float measurementWindowSeconds = 10f;
 
     private readonly List<float> fpsSamples = new();
     private readonly List<float> drawCallSamples = new();
@@ -31,6 +40,7 @@ public class PerformanceOverlay : MonoBehaviour
     private float batteryTemperature = -1f;
 
     private bool recording;
+    private bool settingsApplied = true;
     private string filePath;
 
     private void Start()
@@ -46,6 +56,20 @@ public class PerformanceOverlay : MonoBehaviour
 
         batteryTemperature = GetBatteryTemperature();
 
+        RefreshSettingsInputs();
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+
+        if (settingsButton != null)
+            settingsButton.onClick.AddListener(OpenSettings);
+
+        if (saveButton != null)
+            saveButton.onClick.AddListener(SaveSettings);
+
+        if (cancelButton != null)
+            cancelButton.onClick.AddListener(CloseSettings);
+
         if (recordButton != null)
             recordButton.onClick.AddListener(StartRecording);
     }
@@ -55,7 +79,6 @@ public class PerformanceOverlay : MonoBehaviour
         float deltaTime = Time.unscaledDeltaTime;
         float fps = 1f / Mathf.Max(deltaTime, 0.0001f);
 
-        // Refresh battery temperature every 5 seconds.
         temperatureTimer += deltaTime;
 
         if (temperatureTimer >= 5f)
@@ -64,7 +87,6 @@ public class PerformanceOverlay : MonoBehaviour
             batteryTemperature = GetBatteryTemperature();
         }
 
-        // Update the on-screen overlay.
         if (performanceText != null)
         {
             performanceText.text =
@@ -73,16 +95,23 @@ public class PerformanceOverlay : MonoBehaviour
                 (batteryTemperature >= 0f ? " °C" : "") + "\n" +
                 $"Draw Calls: {GetDrawCalls()}\n" +
                 $"Triangles: {GetTriangles()}\n" +
-                $"Memory: {FormatMetric(GetMemoryMB())} MB";
+                $"Memory: {FormatMetric(GetMemoryMB())} MB\n" +
+                $"Duration: {durationMinutes:F2} min\n" +
+                $"Sample Interval: {sampleIntervalSeconds:F1} s\n" +
+                $"Measurement Window: {measurementWindowSeconds:F1} s\n" +
+                $"Elapsed: {elapsed / 60f:F1} min\n" +
+                $"Recording: {(recording ? "Yes" : "No")}";
         }
 
         if (!recording)
             return;
 
-        elapsed = Mathf.Min(elapsed + deltaTime, durationSeconds);
+        elapsed = Mathf.Min(
+            elapsed + deltaTime,
+            durationMinutes * 60f);
 
-        // Collect only during the 10 seconds before the next sample.
-        float windowStart = nextSampleTime - measurementWindowSeconds;
+        float windowStart =
+            nextSampleTime - measurementWindowSeconds;
 
         if (elapsed >= windowStart && elapsed < nextSampleTime)
         {
@@ -94,25 +123,154 @@ public class PerformanceOverlay : MonoBehaviour
                 drawCallSamples.Add(currentDrawCalls);
         }
 
-        // Save when the scheduled sample time is reached.
         if (elapsed >= nextSampleTime)
         {
             SaveSample();
 
-            if (elapsed >= durationSeconds)
+            if (elapsed >= durationMinutes * 60f)
             {
                 recording = false;
-                Debug.Log($"Performance test completed: {filePath}");
+
+                Debug.Log(
+                    $"Performance test completed: {filePath}");
+
                 return;
             }
 
             nextSampleTime = Mathf.Min(
                 nextSampleTime + sampleIntervalSeconds,
-                durationSeconds);
+                durationMinutes * 60f);
 
             fpsSamples.Clear();
             drawCallSamples.Clear();
         }
+    }
+
+    // Opens the settings panel and loads the currently applied values.
+    private void OpenSettings()
+    {
+        if (recording)
+        {
+            Debug.LogWarning(
+                "Stop the current test before changing settings.");
+            return;
+        }
+
+        RefreshSettingsInputs();
+        settingsApplied = false;
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(true);
+    }
+
+    // Applies valid settings and closes the panel.
+    private void SaveSettings()
+    {
+        if (recording)
+            return;
+
+        if (!TryReadPositiveFloat(
+                durationInput, out float minutes) ||
+            !TryReadPositiveFloat(
+                sampleIntervalInput, out float interval) ||
+            !TryReadPositiveFloat(
+                measurementWindowInput, out float window))
+        {
+            Debug.LogWarning(
+                "Enter valid positive numbers in all settings.");
+            return;
+        }
+
+        if (minutes > 1440f)
+        {
+            Debug.LogWarning(
+                "Duration cannot exceed 1440 minutes.");
+            return;
+        }
+
+        float durationSeconds = minutes * 60f;
+
+        if (interval < 1f || interval > durationSeconds)
+        {
+            Debug.LogWarning(
+                "Sample interval must be between 1 second " +
+                "and the total test duration.");
+            return;
+        }
+
+        if (window < 1f || window > interval)
+        {
+            Debug.LogWarning(
+                "Measurement window must be between 1 second " +
+                "and the sample interval.");
+            return;
+        }
+
+        durationMinutes = minutes;
+        sampleIntervalSeconds = interval;
+        measurementWindowSeconds = window;
+
+        settingsApplied = true;
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+
+        Debug.Log(
+            $"Settings saved. Duration: {durationMinutes} min, " +
+            $"Interval: {sampleIntervalSeconds} sec, " +
+            $"Window: {measurementWindowSeconds} sec");
+    }
+
+    // Closes the panel without applying unsaved edits.
+    private void CloseSettings()
+    {
+        RefreshSettingsInputs();
+
+        settingsApplied = true;
+
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+    }
+
+    private void RefreshSettingsInputs()
+    {
+        if (durationInput != null)
+        {
+            durationInput.SetTextWithoutNotify(
+                durationMinutes.ToString(
+                    "0.##", CultureInfo.InvariantCulture));
+        }
+
+        if (sampleIntervalInput != null)
+        {
+            sampleIntervalInput.SetTextWithoutNotify(
+                sampleIntervalSeconds.ToString(
+                    "0.##", CultureInfo.InvariantCulture));
+        }
+
+        if (measurementWindowInput != null)
+        {
+            measurementWindowInput.SetTextWithoutNotify(
+                measurementWindowSeconds.ToString(
+                    "0.##", CultureInfo.InvariantCulture));
+        }
+    }
+
+    private bool TryReadPositiveFloat(
+        TMP_InputField input,
+        out float value)
+    {
+        value = 0f;
+
+        return input != null &&
+               float.TryParse(
+                   input.text,
+                   NumberStyles.Float,
+                   CultureInfo.InvariantCulture,
+                   out value) &&
+               !float.IsNaN(value) &&
+               !float.IsInfinity(value) &&
+               value > 0f;
     }
 
     private void StartRecording()
@@ -120,20 +278,26 @@ public class PerformanceOverlay : MonoBehaviour
         if (recording)
             return;
 
-        durationSeconds = Mathf.Max(1f, durationSeconds);
-        sampleIntervalSeconds = Mathf.Max(1f, sampleIntervalSeconds);
-        measurementWindowSeconds = Mathf.Clamp(
-            measurementWindowSeconds, 1f, sampleIntervalSeconds);
+        if (!settingsApplied)
+        {
+            Debug.LogWarning(
+                "Save or cancel the settings panel before recording.");
+            return;
+        }
 
         elapsed = 0f;
         temperatureTimer = 0f;
-        nextSampleTime = sampleIntervalSeconds;
+
+        nextSampleTime = Mathf.Min(
+            sampleIntervalSeconds,
+            durationMinutes * 60f);
 
         fpsSamples.Clear();
         drawCallSamples.Clear();
 
         string timestamp = DateTime.Now.ToString(
-            "yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture);
+            "yyyy-MM-dd_HH-mm-ss",
+            CultureInfo.InvariantCulture);
 
         filePath = Path.Combine(
             Application.persistentDataPath,
@@ -145,12 +309,12 @@ public class PerformanceOverlay : MonoBehaviour
             "AverageFPS,MinimumFPS,AverageDrawCalls,MinimumDrawCalls," +
             "BatteryTempC,Triangles,MemoryMB\n");
 
-        // Write baseline immediately at 0 minutes.
         SaveBaseline();
 
         recording = true;
 
-        Debug.Log($"Performance test started: {filePath}");
+        Debug.Log(
+            $"Performance test started: {filePath}");
     }
 
     private void SaveBaseline()
@@ -158,20 +322,25 @@ public class PerformanceOverlay : MonoBehaviour
         float currentFPS =
             1f / Mathf.Max(Time.unscaledDeltaTime, 0.0001f);
 
+        long currentDrawCalls = GetDrawCalls();
+
         string line = string.Join(",",
             "0.0",
-            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            DateTime.Now.ToString(
+                "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
             "0.0",
             "0.0",
             FormatCsvMetric(currentFPS),
             FormatCsvMetric(currentFPS),
-            FormatCsvMetric(GetDrawCalls()),
-            FormatCsvMetric(GetDrawCalls()),
+            FormatCsvMetric(currentDrawCalls),
+            FormatCsvMetric(currentDrawCalls),
             FormatCsvMetric(batteryTemperature),
             GetTriangles().ToString(CultureInfo.InvariantCulture),
             FormatCsvMetric(GetMemoryMB()));
 
         File.AppendAllText(filePath, line + "\n");
+
         Debug.Log("Baseline saved: " + line);
     }
 
@@ -204,20 +373,27 @@ public class PerformanceOverlay : MonoBehaviour
             foreach (float calls in drawCallSamples)
             {
                 totalCalls += calls;
-                minimumDrawCalls = Mathf.Min(minimumDrawCalls, calls);
+                minimumDrawCalls = Mathf.Min(
+                    minimumDrawCalls, calls);
             }
 
-            averageDrawCalls = totalCalls / drawCallSamples.Count;
+            averageDrawCalls =
+                totalCalls / drawCallSamples.Count;
         }
 
         float windowStart = Mathf.Max(
             0f, nextSampleTime - measurementWindowSeconds);
 
         string line = string.Join(",",
-            (elapsed / 60f).ToString("F1", CultureInfo.InvariantCulture),
-            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-            windowStart.ToString("F1", CultureInfo.InvariantCulture),
-            nextSampleTime.ToString("F1", CultureInfo.InvariantCulture),
+            (elapsed / 60f).ToString(
+                "F1", CultureInfo.InvariantCulture),
+            DateTime.Now.ToString(
+                "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture),
+            windowStart.ToString(
+                "F1", CultureInfo.InvariantCulture),
+            nextSampleTime.ToString(
+                "F1", CultureInfo.InvariantCulture),
             FormatCsvMetric(averageFPS),
             FormatCsvMetric(minimumFPS),
             FormatCsvMetric(averageDrawCalls),
@@ -227,6 +403,7 @@ public class PerformanceOverlay : MonoBehaviour
             FormatCsvMetric(GetMemoryMB()));
 
         File.AppendAllText(filePath, line + "\n");
+
         Debug.Log("Performance sample saved: " + line);
     }
 
@@ -253,9 +430,11 @@ public class PerformanceOverlay : MonoBehaviour
         try
         {
             using (AndroidJavaClass unityPlayer =
-                   new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                   new AndroidJavaClass(
+                       "com.unity3d.player.UnityPlayer"))
             using (AndroidJavaObject activity =
-                   unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                   unityPlayer.GetStatic<AndroidJavaObject>(
+                       "currentActivity"))
             using (AndroidJavaObject filter =
                    new AndroidJavaObject(
                        "android.content.IntentFilter",
@@ -285,18 +464,36 @@ public class PerformanceOverlay : MonoBehaviour
     {
         return value < 0f
             ? "N/A"
-            : value.ToString("F1", CultureInfo.InvariantCulture);
+            : value.ToString(
+                "F1", CultureInfo.InvariantCulture);
     }
 
     private string FormatCsvMetric(float value)
     {
         return value < 0f
             ? ""
-            : value.ToString("F1", CultureInfo.InvariantCulture);
+            : value.ToString(
+                "F1", CultureInfo.InvariantCulture);
+    }
+
+    private string FormatCsvMetric(long value)
+    {
+        return value < 0
+            ? ""
+            : value.ToString(CultureInfo.InvariantCulture);
     }
 
     private void OnDestroy()
     {
+        if (settingsButton != null)
+            settingsButton.onClick.RemoveListener(OpenSettings);
+
+        if (saveButton != null)
+            saveButton.onClick.RemoveListener(SaveSettings);
+
+        if (cancelButton != null)
+            cancelButton.onClick.RemoveListener(CloseSettings);
+
         if (recordButton != null)
             recordButton.onClick.RemoveListener(StartRecording);
 

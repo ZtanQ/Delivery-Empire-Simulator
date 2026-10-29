@@ -238,6 +238,7 @@ Applied the shadow settings for mobile performance optimization.
 4. **Triangle Count:** Varied between 5,842 and 9,086 triangles, with no sustained upward trend.
 5. **Draw Calls:** Reported as 0 throughout the test on Mobile phone. Editor reported increase in draw calls from 58 to 75 over 5 minutes.
 
+
 ## Performance Test: Shelf Stock Visuals and Updated Stages (Week 6)
 
 **Device:** Motorola G54 5G  
@@ -247,3 +248,57 @@ Applied the shadow settings for mobile performance optimization.
 |---|---|---:|---:|
 | Before | Dock roll-up door closed, shelves empty, two riders idle on screen | ~60 | ~334 |
 | After | Dock roll-up door open, shelf props visible, two riders idle on screen | ~60 | Up to ~331 |
+
+
+## Performance Test — (Week 6)
+
+## Phone Metrics
+
+**Phone Model:** OnePlus Nord CE 3 Lite 5G  
+**Test Duration:** 20 minutes
+
+| Elapsed (min) | Avg FPS | Min FPS | Avg Draw Calls | Min Draw Calls | Battery (°C) | Triangles | Memory (MB) |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 60.1 | 60.1 | 0 | 0 | 35.6 | 20,232 | 250.4 |
+| 5 | 60.0 | 59.2 | 0 | 0 | 36.9 | 23,604 | 254.8 |
+| 10 | 60.0 | 59.5 | 0 | 0 | 38.3 | 6,562 | 255.3 |
+| 15 | 59.9 | 30.0 | 0 | 0 | 38.9 | 23,436 | 255.8 |
+| 20 | 60.0 | 59.4 | 0 | 0 | 39.7 | 32,714 | 255.7 |
+
+### Observations
+
+- **FPS:** Average frame rate remained stable at approximately 60 FPS. A minimum of 30 FPS was recorded at 15 minutes, followed by recovery at 20 minutes.
+- **Memory:** Usage remained stable, increasing from 250.4 MB to 255.7 MB by the end of the test.
+- **Draw Calls:** All readings were 0, indicating that the counter may not be capturing data correctly.
+- **Battery Temperature:** Increased from 35.6°C to 39.7°C over the 20-minute test.
+
+## Editor Metrics and Analysis
+
+**Test Scenario:** Completed 10 orders
+
+| Measurement | Draw Calls | SetPass Calls |
+|---|---:|---:|
+| Start | 286 | 23 |
+| After 10 minutes | 297 | 24 |
+| Change | +11 (+3.85%) | +1 (+4.35%) |
+
+### Frame Debugger Analysis
+
+**Total Frame Debugger Events:** 34
+
+| Rendering Event | Draw Calls | Event Counts |
+|---|---:|---:|
+| Draw Opaque Objects | 145 | 10 |
+| Draw Skybox | 1 | 1 |
+| Draw Transparent Objects | 1 | 7 |
+| Draw Screen Space UI | 1 | 13 |
+
+### Observations
+
+- **Draw Calls:** Increased from 286 at the start to 297 after 10 minutes, an increase of 11 draw calls.
+- **SetPass Calls:** Increased from 23 to 24, indicating a minor increase in rendering state changes.
+- **Rendering Workload:** Opaque rendering shows 145 draw calls across 10 events. The Screen Space UI accounts for 13 events, while transparent rendering accounts for 7 events.
+
+### Conclusion
+
+Draw calls and SetPass calls increased slightly after 10 minutes of gameplay. Further investigation should focus on UI batching and opaque-object rendering to identify potential optimization opportunities.
