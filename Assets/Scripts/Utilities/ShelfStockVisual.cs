@@ -133,7 +133,14 @@ public class ShelfStockVisual : MonoBehaviour
         categoryLabel.fontSizeMin = 1.2f;
         categoryLabel.fontSizeMax = 3f;
         categoryLabel.alignment = TextAlignmentOptions.Center;
-        categoryLabel.color = Color.white;
+        foreach (DATA_ProductSO product in Resources.FindObjectsOfTypeAll<DATA_ProductSO>())
+        {
+            if (product != null && product.Category == shelf.Category)
+            {
+                categoryLabel.color = product.ColourCode;
+                break;
+            }
+        }
         categoryLabel.outlineColor = Color.black;
         categoryLabel.outlineWidth = 0.2f;
         categoryLabel.rectTransform.sizeDelta = categoryLabelSize;
