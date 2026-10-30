@@ -22,6 +22,7 @@ public class MGR_Order : Manager<MGR_Order>
     public static event Action<OrderData> OnOrderFulfilled;
     public static event Action<OrderData> OnOrderExpired;
     public static event Action<OrderData> OnOrderRemoved;
+    public static event Action<OrderData> OnOrderReservationChanged;
 
     public IReadOnlyList<OrderData> ActiveOrders => activeOrders;
 
@@ -559,7 +560,16 @@ public class MGR_Order : Manager<MGR_Order>
             return;
         }
 
-        reservedOrders.Add(order);
+        if (reservedOrders.Add(order))
+        {
+            OnOrderReservationChanged?.Invoke(order);
+        }
+    }
+
+    public bool IsOrderReserved(OrderData order)
+    {
+        return order != null &&
+               reservedOrders.Contains(order);
     }
 
     public void ReleaseReservedOrder(OrderData order)
@@ -571,7 +581,10 @@ public class MGR_Order : Manager<MGR_Order>
             return;
         }
 
-        reservedOrders.Remove(order);
+        if (reservedOrders.Remove(order))
+        {
+            OnOrderReservationChanged?.Invoke(order);
+        }
 
         Debug.Log(
             $"MGR_Order: Order #{order.OrderID} returned to queue."

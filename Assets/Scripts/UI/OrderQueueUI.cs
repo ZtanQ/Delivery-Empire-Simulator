@@ -19,6 +19,7 @@ public class OrderQueueUI : MonoBehaviour
         MGR_Order.OnOrderExpired += HandleOrderCompleted;
         MGR_Inventory.OnInventoryChanged += HandleInventoryChanged;
         MGR_Order.OnOrderRemoved += HandleOrderCompleted;
+        MGR_Order.OnOrderReservationChanged += HandleOrderReservationChanged;
     }
 
     private void OnDisable()
@@ -28,6 +29,7 @@ public class OrderQueueUI : MonoBehaviour
         MGR_Order.OnOrderExpired -= HandleOrderCompleted;
         MGR_Inventory.OnInventoryChanged -= HandleInventoryChanged;
         MGR_Order.OnOrderRemoved -= HandleOrderCompleted;
+        MGR_Order.OnOrderReservationChanged -= HandleOrderReservationChanged;
     }
 
     private void HandleOrderCreated(OrderData order)
@@ -78,6 +80,11 @@ public class OrderQueueUI : MonoBehaviour
         UpdateOutOfStockWarning();
     }
 
+    private void HandleOrderReservationChanged(OrderData order)
+    {
+        UpdateOutOfStockWarning();
+    }
+
     private void UpdateOutOfStockWarning()
     {
         if (outOfStockWarning == null)
@@ -87,6 +94,12 @@ public class OrderQueueUI : MonoBehaviour
         {
             if (order == null)
                 continue;
+
+            if (MGR_Order.Instance != null &&
+                MGR_Order.Instance.IsOrderReserved(order))
+            {
+                continue;
+            }
 
             if (outOfStockWarning.IsOutOfStock(order))
             {
