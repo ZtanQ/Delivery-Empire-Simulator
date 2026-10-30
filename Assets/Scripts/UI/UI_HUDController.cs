@@ -50,12 +50,13 @@ public class UI_HUDController : MonoBehaviour
     
     private void OnEnable()
     {
-        if (MGR_Game.Instance == null)
-            return;
-
+        
         MGR_Game.OnCashChanged += HandleCashChanged;
         MGR_Game.OnXPChanged += HandleXPChanged;
         MGR_Game.OnRatingChanged += HandleRatingChanged;
+
+        if (MGR_Game.Instance == null)
+            return;
 
         int currentLevel = MGR_Game.Instance.CurrentLevel;
         int currentXP = MGR_Game.Instance.CurrentXP;
