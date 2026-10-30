@@ -47,25 +47,15 @@ public class UI_HUDController : MonoBehaviour
         if (ratingText != null)
             ratingText.text = rating.ToString("0.0", CultureInfo.InvariantCulture);
     }
-
+    
     private void OnEnable()
-    {
-        MGR_Game.OnCashChanged += HandleCashChanged;
-        MGR_Game.OnXPChanged += HandleXPChanged;
-        MGR_Game.OnRatingChanged += HandleRatingChanged;
-    }
-
-    private void OnDisable()
-    {
-        MGR_Game.OnCashChanged -= HandleCashChanged;
-        MGR_Game.OnXPChanged -= HandleXPChanged;
-        MGR_Game.OnRatingChanged -= HandleRatingChanged;
-    }
-
-    private void Start()
     {
         if (MGR_Game.Instance == null)
             return;
+
+        MGR_Game.OnCashChanged += HandleCashChanged;
+        MGR_Game.OnXPChanged += HandleXPChanged;
+        MGR_Game.OnRatingChanged += HandleRatingChanged;
 
         int currentLevel = MGR_Game.Instance.CurrentLevel;
         int currentXP = MGR_Game.Instance.CurrentXP;
@@ -75,7 +65,14 @@ public class UI_HUDController : MonoBehaviour
         SetCash(MGR_Game.Instance.CurrentCash);
         SetRating(MGR_Game.Instance.CurrentRating);
     }
-
+    
+    private void OnDisable()
+    {
+        MGR_Game.OnCashChanged -= HandleCashChanged;
+        MGR_Game.OnXPChanged -= HandleXPChanged;
+        MGR_Game.OnRatingChanged -= HandleRatingChanged;
+    }
+    
     private void HandleCashChanged(int newCash, int delta)
     {
         SetCash(newCash);
