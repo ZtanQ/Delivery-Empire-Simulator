@@ -18,6 +18,7 @@ public class OrderQueueUI : MonoBehaviour
         MGR_Order.OnOrderFulfilled += HandleOrderCompleted;
         MGR_Order.OnOrderExpired += HandleOrderCompleted;
         MGR_Inventory.OnInventoryChanged += HandleInventoryChanged;
+        MGR_Order.OnOrderRemoved += HandleOrderCompleted;
     }
 
     private void OnDisable()
@@ -26,6 +27,7 @@ public class OrderQueueUI : MonoBehaviour
         MGR_Order.OnOrderFulfilled -= HandleOrderCompleted;
         MGR_Order.OnOrderExpired -= HandleOrderCompleted;
         MGR_Inventory.OnInventoryChanged -= HandleInventoryChanged;
+        MGR_Order.OnOrderRemoved -= HandleOrderCompleted;
     }
 
     private void HandleOrderCreated(OrderData order)
