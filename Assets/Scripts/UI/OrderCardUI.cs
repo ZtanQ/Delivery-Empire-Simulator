@@ -19,7 +19,7 @@ public class OrderCardUI : MonoBehaviour
         UpdateReward(order);
 
         if (timer != null)
-            timer.Setup(order.TimerTotal);
+            timer.Setup(order);
     }
 
     private void UpdateItems(OrderData order)

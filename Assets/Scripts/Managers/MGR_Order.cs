@@ -21,6 +21,7 @@ public class MGR_Order : Manager<MGR_Order>
     public static event Action<OrderData> OnOrderCreated;
     public static event Action<OrderData> OnOrderFulfilled;
     public static event Action<OrderData> OnOrderExpired;
+    public static event Action<OrderData> OnOrderRemoved;
 
     public IReadOnlyList<OrderData> ActiveOrders => activeOrders;
 
@@ -92,6 +93,9 @@ public class MGR_Order : Manager<MGR_Order>
             {
                 reservedOrders.Remove(order);
                 activeOrders.RemoveAt(i);
+
+                OnOrderRemoved?.Invoke(order);
+
                 continue;
             }
 
@@ -115,6 +119,8 @@ public class MGR_Order : Manager<MGR_Order>
 
                 reservedOrders.Remove(order);
                 activeOrders.RemoveAt(i);
+
+                OnOrderRemoved?.Invoke(order);
             }
         }
     }
@@ -795,6 +801,8 @@ public class MGR_Order : Manager<MGR_Order>
         reservedOrders.Remove(order);
         activeOrders.Remove(order);
 
+        OnOrderRemoved?.Invoke(order);
+
         // -----------------------------------------------------
         // Give rewards.
         // -----------------------------------------------------
@@ -874,6 +882,8 @@ public class MGR_Order : Manager<MGR_Order>
 
         reservedOrders.Remove(order);
         activeOrders.Remove(order);
+
+        OnOrderRemoved?.Invoke(order);
 
         MGR_Game.Instance.AddCash(
             order.CashReward

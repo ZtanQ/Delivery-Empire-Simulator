@@ -3,45 +3,48 @@ using UnityEngine.UI;
 
 public class OrderCardTimer : MonoBehaviour
 {
-    [SerializeField] private float duration = 90f;
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color warningColor = Color.red;
 
     private Image timeBar;
-    private float timeRemaining;
+    private OrderData order;
 
     private void Awake()
     {
         timeBar = GetComponent<Image>();
     }
 
-    public void Setup(float totalTime)
+    public void Setup(OrderData orderData)
     {
-        duration = totalTime;
-        timeRemaining = totalTime;
+        order = orderData;
         UpdateBar();
     }
 
     private void Update()
     {
-        if (timeRemaining <= 0f)
+        if (order == null)
             return;
-
-        timeRemaining -= Time.deltaTime;
-
-        if (timeRemaining < 0f)
-            timeRemaining = 0f;
 
         UpdateBar();
     }
 
     private void UpdateBar()
     {
-        if (timeBar == null || duration <= 0f)
+        if (timeBar == null ||
+            order == null ||
+            order.TimerTotal <= 0f)
+        {
             return;
+        }
 
-        float progress = timeRemaining / duration;
+        float progress = Mathf.Clamp01(
+            order.TimerRemaining / order.TimerTotal
+        );
+
         timeBar.fillAmount = progress;
-        timeBar.color = progress <= 0.25f ? warningColor : normalColor;
+        timeBar.color =
+            progress <= 0.25f
+                ? warningColor
+                : normalColor;
     }
 }
