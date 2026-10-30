@@ -25,6 +25,11 @@ public class MGR_Inventory : Manager<MGR_Inventory>
     [SerializeField] private DATA_ProductSO slicedBread;
     [SerializeField] private DATA_ProductSO bagels;
 
+    [Header("Product Catalog")]
+    [SerializeField]
+    private List<DATA_ProductSO> productCatalog =
+    new List<DATA_ProductSO>();
+
     // Total stock for each exact product.
     private readonly Dictionary<DATA_ProductSO, int> stock =
         new Dictionary<DATA_ProductSO, int>();
@@ -920,23 +925,7 @@ public class MGR_Inventory : Manager<MGR_Inventory>
             return null;
         }
 
-        DATA_ProductSO[] products =
-        {
-        potatoChips,
-        pretzels,
-        chocolateBar,
-        gummyBears,
-        colaCan,
-        bottledWater,
-        orangeJuice,
-        energyDrink,
-        wholeMilk,
-        cheddarCheese,
-        slicedBread,
-        bagels
-    };
-
-        foreach (DATA_ProductSO product in products)
+        foreach (DATA_ProductSO product in productCatalog)
         {
             if (product != null &&
                 product.ProductID == productID)
