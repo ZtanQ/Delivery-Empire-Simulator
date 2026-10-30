@@ -1,9 +1,9 @@
-
 using UnityEngine;
 
 public class BoxProductIcon : MonoBehaviour
 {
-    [SerializeField] private Renderer colourIndicator;
+    [SerializeField] private Renderer colourIndicatorTop;
+    [SerializeField] private Renderer colourIndicatorFront;
 
     private CTRL_BoxContents contents;
     private DATA_ProductSO lastProduct;
@@ -12,40 +12,49 @@ public class BoxProductIcon : MonoBehaviour
     {
         contents = GetComponent<CTRL_BoxContents>();
 
-        if (colourIndicator != null)
-        {
-            colourIndicator.enabled = false;
-        }
+        if (colourIndicatorTop != null)
+            colourIndicatorTop.enabled = false;
+
+        if (colourIndicatorFront != null)
+            colourIndicatorFront.enabled = false;
     }
 
     private void LateUpdate()
     {
         if (contents == null)
-        {
             return;
-        }
 
         DATA_ProductSO currentProduct = contents.Product;
 
         if (currentProduct == lastProduct)
-        {
             return;
-        }
 
         lastProduct = currentProduct;
 
-        if (colourIndicator == null)
-        {
-            return;
-        }
-
         if (currentProduct == null)
         {
-            colourIndicator.enabled = false;
+            SetIndicatorsEnabled(false);
             return;
         }
 
-        colourIndicator.material.color = currentProduct.ColourCode;
-        colourIndicator.enabled = true;
+        SetIndicatorColour(colourIndicatorTop, currentProduct.ColourCode);
+        SetIndicatorColour(colourIndicatorFront, currentProduct.ColourCode);
+
+        SetIndicatorsEnabled(true);
+    }
+
+    private void SetIndicatorColour(Renderer indicator, Color colour)
+    {
+        if (indicator != null)
+            indicator.material.color = colour;
+    }
+
+    private void SetIndicatorsEnabled(bool enabled)
+    {
+        if (colourIndicatorTop != null)
+            colourIndicatorTop.enabled = enabled;
+
+        if (colourIndicatorFront != null)
+            colourIndicatorFront.enabled = enabled;
     }
 }
