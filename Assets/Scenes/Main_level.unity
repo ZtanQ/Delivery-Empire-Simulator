@@ -5063,6 +5063,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: HUD_Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 4976837429342342419, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: cashOrderFeedbackText
+      value: 
+      objectReference: {fileID: 1840544706}
+    - target: {fileID: 4976837429342342419, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: orderResultFeedbackText
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4976837429342342419, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: ratingOrderFeedbackText
+      value: 
+      objectReference: {fileID: 1840544705}
     - target: {fileID: 8979669422067868594, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -5170,6 +5182,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d68670f02179ff04c9c4a52cd1634e1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualJoystick
+--- !u!114 &1840544705 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1292726703589363201, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+  m_PrefabInstance: {fileID: 1840544702}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &1840544706 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6940471121125168815, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+  m_PrefabInstance: {fileID: 1840544702}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &1882478870
 GameObject:
   m_ObjectHideFlags: 0
