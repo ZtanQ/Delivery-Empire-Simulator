@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class TerminalBuyUI : MonoBehaviour
 {
@@ -10,7 +11,9 @@ public class TerminalBuyUI : MonoBehaviour
     [SerializeField] private Button orderButton;
     [SerializeField] private DATA_ProductSO[] products;
     [SerializeField] private GameObject terminalPanel;
+    [SerializeField] private TMP_Text purchaseFeedbackText;
 
+    private Coroutine feedbackCoroutine;
     private TMP_Text[] quantityTexts;
     private TMP_Text[] nameTexts;
     private TMP_Text[] priceTexts;
@@ -112,6 +115,66 @@ public class TerminalBuyUI : MonoBehaviour
         totalText.text = $"Total: ${total:0}";
     }
 
+    private void ShowPurchaseFeedback(string message)
+    {
+        if (purchaseFeedbackText == null)
+            return;
+
+        if (feedbackCoroutine != null)
+            StopCoroutine(feedbackCoroutine);
+
+        purchaseFeedbackText.text = message;
+
+        if (message == "Order placed")
+        {
+            purchaseFeedbackText.color = Color.green;
+        }
+        else if (message == "Not enough cash")
+        {
+            purchaseFeedbackText.color = Color.red;
+        }
+
+        purchaseFeedbackText.gameObject.SetActive(true);
+
+        feedbackCoroutine = StartCoroutine(HidePurchaseFeedback());
+    }
+
+    private IEnumerator HidePurchaseFeedback()
+    {
+        yield return new WaitForSeconds(2f);
+
+        purchaseFeedbackText.gameObject.SetActive(false);
+        feedbackCoroutine = null;
+    }
+
+        private void OnEnable()
+    {
+        MGR_Game.OnPurchaseRejected += HandlePurchaseRejected;
+    }
+
+    private void OnDisable()
+    {
+        MGR_Game.OnPurchaseRejected -= HandlePurchaseRejected;
+
+        if (feedbackCoroutine != null)
+        {
+            StopCoroutine(feedbackCoroutine);
+            feedbackCoroutine = null;
+        }
+
+        if (purchaseFeedbackText != null)
+        {
+            purchaseFeedbackText.gameObject.SetActive(false);
+        }
+    }
+
+    private void HandlePurchaseRejected(PurchaseResult result)
+    {
+        if (result == PurchaseResult.NotEnoughCash)
+        {
+            ShowPurchaseFeedback("Not enough cash");
+        }
+    }
     private void PlaceOrder()
     {
         if (MGR_Game.Instance == null)
@@ -146,6 +209,7 @@ public class TerminalBuyUI : MonoBehaviour
 
         if (result != PurchaseResult.Success)
             return;
+        ShowPurchaseFeedback("Order placed");
 
         for (int i = 0; i < quantities.Length; i++)
         {
