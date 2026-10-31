@@ -30,6 +30,12 @@ public class CTRL_Rider : MonoBehaviour
     [SerializeField] private float collectPause = 1f;
     [SerializeField] private float deliveryPause = 15f;
 
+    [Header("Stuck Safety")]
+    [Tooltip("Seconds without getting closer to the target before the rider is moved there.")]
+    [SerializeField] private float stuckTimeout = 3f;
+    [Tooltip("Maximum seconds for one walk before the rider is moved to its target.")]
+    [SerializeField] private float maxMoveTime = 25f;
+
     [Header("Navigation")]
     [SerializeField] private Transform exitLocation;
 
@@ -129,6 +135,17 @@ public class CTRL_Rider : MonoBehaviour
     {
         MGR_Delivery.OnRiderDispatched -= HandleRiderDispatched;
 
+        // A rider switched off mid-delivery must not keep its order reserved.
+        if (currentOrder != null && MGR_Delivery.Instance != null)
+        {
+            MGR_Delivery.Instance.NotifyRiderReturned(this);
+        }
+
+        currentOrder = null;
+        currentShelfIDs = null;
+        deliveryRoutine = null;
+        CurrentState = RiderState.Idle;
+
         if (isRegistered && MGR_Delivery.Instance != null)
         {
             MGR_Delivery.Instance.UnregisterRider(this);
@@ -138,8 +155,24 @@ public class CTRL_Rider : MonoBehaviour
 
     private void HandleRiderDispatched(CTRL_Rider rider, OrderData order, List<string> shelvesToVisit)
     {
-        if (rider != this || CurrentState != RiderState.Idle || riderNavMeshAgent == null)
+        if (rider != this)
         {
+            return;
+        }
+
+        if (CurrentState != RiderState.Idle || riderNavMeshAgent == null)
+        {
+            // The order was already reserved for this rider: give it back
+            // so it does not stay reserved forever.
+            Debug.LogWarning(
+                $"CTRL_Rider: {name} got Order #{order?.OrderID} while {CurrentState}. Returning the order to the queue."
+            );
+
+            if (MGR_Delivery.Instance != null)
+            {
+                MGR_Delivery.Instance.ReleaseDispatchedOrder(this);
+            }
+
             return;
         }
 
@@ -172,26 +205,98 @@ public class CTRL_Rider : MonoBehaviour
 
     private IEnumerator MoveTo(Vector3 destination)
     {
+        if (riderNavMeshAgent == null ||
+            !riderNavMeshAgent.enabled ||
+            !riderNavMeshAgent.isOnNavMesh)
+        {
+            WarpTo(destination);
+            yield break;
+        }
+
         riderNavMeshAgent.isStopped = false;
         riderNavMeshAgent.speed = 3f;
         riderNavMeshAgent.SetDestination(destination);
 
-        while (riderNavMeshAgent.pathPending)
-        {
-            yield return null;
-        }
+        float elapsed = 0f;
+        float lastProgressTime = 0f;
+        float bestDistance = float.MaxValue;
 
-        while (riderNavMeshAgent.remainingDistance > riderNavMeshAgent.stoppingDistance + 0.05f)
+        // Walk until the rider arrives. If it stops getting closer (blocked,
+        // partial path, no path) or the walk takes too long, move it to the
+        // target so the delivery always finishes and the order is never stuck.
+        while (true)
         {
-            if (!riderNavMeshAgent.hasPath)
+            if (!riderNavMeshAgent.pathPending)
             {
+                float remaining = riderNavMeshAgent.remainingDistance;
+                float arriveDistance = riderNavMeshAgent.stoppingDistance + 0.05f;
+
+                if (!riderNavMeshAgent.hasPath || float.IsInfinity(remaining))
+                {
+                    remaining = FlatDistance(transform.position, destination);
+                    arriveDistance = Mathf.Max(riderNavMeshAgent.stoppingDistance, 0.5f) + 0.05f;
+                }
+
+                if (remaining <= arriveDistance)
+                {
+                    break;
+                }
+
+                if (remaining < bestDistance - 0.1f)
+                {
+                    bestDistance = remaining;
+                    lastProgressTime = elapsed;
+                }
+            }
+
+            if (elapsed - lastProgressTime > stuckTimeout || elapsed > maxMoveTime)
+            {
+                Debug.LogWarning(
+                    $"CTRL_Rider: {name} stopped getting closer while {CurrentState} " +
+                    $"({elapsed:F1}s). Moving it to its target."
+                );
+
+                WarpTo(destination);
                 break;
             }
 
+            elapsed += Time.deltaTime;
             yield return null;
         }
 
-        riderNavMeshAgent.isStopped = true;
+        if (riderNavMeshAgent.enabled && riderNavMeshAgent.isOnNavMesh)
+        {
+            riderNavMeshAgent.isStopped = true;
+        }
+    }
+
+    private void WarpTo(Vector3 destination)
+    {
+        Vector3 target = destination;
+
+        if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        {
+            target = hit.position;
+        }
+
+        if (riderNavMeshAgent != null &&
+            riderNavMeshAgent.enabled &&
+            riderNavMeshAgent.isOnNavMesh)
+        {
+            riderNavMeshAgent.Warp(target);
+            riderNavMeshAgent.ResetPath();
+        }
+        else
+        {
+            transform.position = target;
+        }
+    }
+
+    private static float FlatDistance(Vector3 a, Vector3 b)
+    {
+        a.y = 0f;
+        b.y = 0f;
+        return Vector3.Distance(a, b);
     }
 
     private IEnumerator DeliverOrder()
