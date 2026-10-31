@@ -367,6 +367,45 @@ public class CTRL_Rider : MonoBehaviour
         deliveryRoutine = null;
     }
 
+    public void ReturnAfterDeliveryTimeout()
+    {
+        if (deliveryRoutine != null)
+        {
+            StopCoroutine(deliveryRoutine);
+            deliveryRoutine = null;
+        }
+
+        SetRiderVisible(true);
+
+        if (riderNavMeshAgent != null &&
+            riderNavMeshAgent.enabled &&
+            riderNavMeshAgent.isOnNavMesh)
+        {
+            riderNavMeshAgent.isStopped = true;
+            riderNavMeshAgent.ResetPath();
+        }
+
+        StartCoroutine(ReturnAfterTimeout());
+    }
+
+    private IEnumerator ReturnAfterTimeout()
+    {
+        CurrentState = RiderState.Return;
+
+        yield return MoveTo(returnPosition);
+
+        if (riderNavMeshAgent != null &&
+            riderNavMeshAgent.enabled &&
+            riderNavMeshAgent.isOnNavMesh)
+        {
+            riderNavMeshAgent.isStopped = true;
+        }
+
+        currentOrder = null;
+        currentShelfIDs = null;
+        CurrentState = RiderState.Idle;
+    }
+
     private void CancelDelivery(string reason)
     {
         Debug.LogWarning($"CTRL_Rider: {reason} Cancelling delivery.");
@@ -433,7 +472,3 @@ public class CTRL_Rider : MonoBehaviour
         UpdateWalkingBob();
     }
 }
-
-
-
-

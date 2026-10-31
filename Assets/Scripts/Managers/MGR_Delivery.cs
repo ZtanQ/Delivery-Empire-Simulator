@@ -39,8 +39,19 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         new Dictionary<CTRL_Rider, OrderData>();
 
     private readonly Dictionary<CTRL_Rider, List<ShelfReservation>>
-dispatchedReservations =
-    new Dictionary<CTRL_Rider, List<ShelfReservation>>();
+    dispatchedReservations =
+       new Dictionary<CTRL_Rider, List<ShelfReservation>>();
+
+    [Header("Delivery Timeout")]
+    [SerializeField] private float normalDeliveryTime = 30f;
+    [SerializeField] private float deliveryTimeoutMultiplier = 2f;
+
+    private readonly Dictionary<CTRL_Rider, float>
+    deliveryTimers =
+        new Dictionary<CTRL_Rider, float>();
+
+    private readonly HashSet<OrderData> timedOutOrders =
+        new HashSet<OrderData>();
 
     public IReadOnlyList<CTRL_Rider> Riders => riders;
     public int ActiveRiderCount => activeRiderCount;
@@ -52,12 +63,14 @@ dispatchedReservations =
     {
         MGR_Game.OnDayTick += HandleDayTick;
         MGR_Game.OnRatingChanged += HandleRatingChanged;
+        MGR_Order.OnOrderRemoved += HandleOrderRemoved;
     }
 
     private void OnDisable()
     {
         MGR_Game.OnDayTick -= HandleDayTick;
         MGR_Game.OnRatingChanged -= HandleRatingChanged;
+        MGR_Order.OnOrderRemoved -= HandleOrderRemoved;
     }
 
     public void SetStage(int stage)
@@ -351,6 +364,81 @@ dispatchedReservations =
     private void Update()
     {
         TryDispatchWaitingOrder();
+        UpdateDeliveryTimeouts();
+    }
+
+    private void UpdateDeliveryTimeouts()
+    {
+        if (deliveryTimers.Count == 0)
+        {
+            return;
+        }
+
+        float timeout =
+            normalDeliveryTime * deliveryTimeoutMultiplier;
+
+        List<CTRL_Rider> trackedRiders =
+            new List<CTRL_Rider>(deliveryTimers.Keys);
+
+        List<CTRL_Rider> timedOutRiders =
+            new List<CTRL_Rider>();
+
+        foreach (CTRL_Rider rider in trackedRiders)
+        {
+            if (rider == null ||
+                !dispatchedOrders.ContainsKey(rider))
+            {
+                timedOutRiders.Add(rider);
+                continue;
+            }
+
+            float elapsed =
+                deliveryTimers[rider] + Time.deltaTime;
+
+            deliveryTimers[rider] = elapsed;
+
+            if (elapsed >= timeout)
+            {
+                timedOutRiders.Add(rider);
+            }
+        }
+
+        foreach (CTRL_Rider rider in timedOutRiders)
+        {
+            if (rider == null)
+            {
+                deliveryTimers.Remove(rider);
+                continue;
+            }
+
+            if (dispatchedOrders.TryGetValue(
+                    rider,
+                    out OrderData order))
+            {
+                Debug.LogWarning(
+                    $"MGR_Delivery: Delivery timeout for " +
+                    $"Order #{order.OrderID} assigned to " +
+                    $"{rider.name}. Releasing order and returning rider."
+                );
+
+                timedOutOrders.Add(order);
+
+                ReleaseDispatchedOrder(rider);
+                rider.ReturnAfterDeliveryTimeout();
+            }
+
+            deliveryTimers.Remove(rider);
+        }
+    }
+
+    private void HandleOrderRemoved(OrderData order)
+    {
+        if (order == null)
+        {
+            return;
+        }
+
+        timedOutOrders.Remove(order);
     }
 
     private void TryDispatchWaitingOrder()
@@ -376,6 +464,11 @@ dispatchedReservations =
         foreach (OrderData order in activeOrders)
         {
             if (order == null || !order.IsActive)
+            {
+                continue;
+            }
+
+            if (timedOutOrders.Contains(order))
             {
                 continue;
             }
@@ -513,6 +606,7 @@ dispatchedReservations =
 
         dispatchedOrders[rider] = order;
         dispatchedReservations[rider] = reservations;
+        deliveryTimers[rider] = 0f;
 
         Debug.Log(
             $"MGR_Delivery: Rider {rider.name} dispatched " +
@@ -566,9 +660,10 @@ dispatchedReservations =
         }
 
         dispatchedOrders.Remove(rider);
+        deliveryTimers.Remove(rider);
 
         Debug.Log(
-            $"MGR_Delivery: Released Order #{order.OrderID} " +
+                    $"MGR_Delivery: Released Order #{order.OrderID} " +
             $"from rider {rider.name}. Order returned to queue."
         );
     }
@@ -614,6 +709,7 @@ dispatchedReservations =
                 // The delivery has successfully left the warehouse.
                 // The reserved stock must no longer be refundable.
                 dispatchedReservations.Remove(rider);
+                deliveryTimers.Remove(rider);
             }
         }
     }
@@ -657,5 +753,6 @@ dispatchedReservations =
 
         dispatchedReservations.Remove(rider);
         dispatchedOrders.Remove(rider);
+        deliveryTimers.Remove(rider);
     }
 }
