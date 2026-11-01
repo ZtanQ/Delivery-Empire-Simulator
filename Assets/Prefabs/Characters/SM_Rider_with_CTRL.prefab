@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 518590847673083517, guid: 336823d950e732349a31ebdb988d0748, type: 3}
+      propertyPath: collectPause
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5717200473788131937, guid: 336823d950e732349a31ebdb988d0748, type: 3}
       propertyPath: m_Name
       value: SM_Rider_with_CTRL

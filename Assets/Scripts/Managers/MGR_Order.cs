@@ -591,6 +591,32 @@ public class MGR_Order : Manager<MGR_Order>
         );
     }
 
+    public bool FailReservedOrder(OrderData order)
+    {
+        if (order == null ||
+            !order.IsActive ||
+            !activeOrders.Contains(order))
+        {
+            return false;
+        }
+
+        order.TimerRemaining = 0f;
+        order.IsActive = false;
+
+        Debug.Log(
+            $"MGR_Order: Reserved Order #{order.OrderID} failed due to delivery timeout."
+        );
+
+        OnOrderExpired?.Invoke(order);
+
+        reservedOrders.Remove(order);
+        activeOrders.Remove(order);
+
+        OnOrderRemoved?.Invoke(order);
+
+        return true;
+    }
+
     public void SetOrderGenerationEnabled(bool enabled)
     {
         orderGenerationEnabled = enabled;
