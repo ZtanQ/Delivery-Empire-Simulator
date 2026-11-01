@@ -1,7 +1,6 @@
 
 using System.Collections;
 using System.Globalization;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -18,30 +17,86 @@ public class UI_HUDController : MonoBehaviour
     public TMP_Text ratingText;
 
     [Header("Order Result Feedback")]
-    public TMP_Text cashOrderFeedbackText;
-    public TMP_Text ratingOrderFeedbackText;
+    [SerializeField] private TMP_Text cashOrderHikeText;
+    [SerializeField] private TMP_Text ratingOrderDropText;
 
-    [SerializeField]
-    private float feedbackDuration = 1.5f;
+    [Header("Feedback Animation")]
+    [SerializeField] private float feedbackDuration = 1.5f;
+    [SerializeField] private float feedbackMoveDistance = 30f;
+    [SerializeField] private int feedbackPoolSize = 3;
 
-    private readonly Queue<int> pendingCashRewards =
-        new Queue<int>();
+    private FeedbackItem[] cashFeedbackPool;
+    private FeedbackItem[] ratingFeedbackPool;
 
-    private int pendingFulfilledOrders;
-    private int pendingExpiredOrders;
+    private int nextCashFeedbackIndex;
+    private int nextRatingFeedbackIndex;
 
     private float lastKnownRating;
 
-    private Coroutine cashFeedbackRoutine;
-    private Coroutine ratingFeedbackRoutine;
+    private bool pendingRatingFeedback;
+    private float pendingRatingDelta;
+
+    private class FeedbackItem
+    {
+        public TMP_Text text;
+        public RectTransform rectTransform;
+        public Vector2 startPosition;
+        public Coroutine routine;
+    }
 
     private void Awake()
     {
-        if (cashOrderFeedbackText != null)
-            cashOrderFeedbackText.gameObject.SetActive(false);
+        cashFeedbackPool = CreateFeedbackPool(
+            cashOrderHikeText,
+            feedbackPoolSize
+        );
 
-        if (ratingOrderFeedbackText != null)
-            ratingOrderFeedbackText.gameObject.SetActive(false);
+        ratingFeedbackPool = CreateFeedbackPool(
+            ratingOrderDropText,
+            feedbackPoolSize
+        );
+    }
+
+    private FeedbackItem[] CreateFeedbackPool(
+        TMP_Text template,
+        int poolSize)
+    {
+        if (template == null)
+            return null;
+
+        FeedbackItem[] pool = new FeedbackItem[poolSize];
+
+        RectTransform parent =
+            template.transform.parent as RectTransform;
+
+        for (int i = 0; i < poolSize; i++)
+        {
+            TMP_Text text;
+
+            if (i == 0)
+            {
+                text = template;
+            }
+            else
+            {
+                text = Instantiate(template, parent);
+                text.name = template.name + "_Pool_" + i;
+            }
+
+            RectTransform rect =
+                text.GetComponent<RectTransform>();
+
+            pool[i] = new FeedbackItem
+            {
+                text = text,
+                rectTransform = rect,
+                startPosition = rect.anchoredPosition
+            };
+
+            text.gameObject.SetActive(false);
+        }
+
+        return pool;
     }
 
     public void SetLevel(int level)
@@ -118,48 +173,38 @@ public class UI_HUDController : MonoBehaviour
         MGR_Order.OnOrderFulfilled -= HandleOrderFulfilled;
         MGR_Order.OnOrderExpired -= HandleOrderExpired;
 
-        if (cashFeedbackRoutine != null)
-            StopCoroutine(cashFeedbackRoutine);
+        StopFeedbackPool(cashFeedbackPool);
+        StopFeedbackPool(ratingFeedbackPool);
 
-        if (ratingFeedbackRoutine != null)
-            StopCoroutine(ratingFeedbackRoutine);
-
-        pendingCashRewards.Clear();
-        pendingFulfilledOrders = 0;
-        pendingExpiredOrders = 0;
+        pendingRatingFeedback = false;
+        pendingRatingDelta = 0f;
     }
 
-    private void LateUpdate()
+    private void StopFeedbackPool(FeedbackItem[] pool)
     {
-        while (
-            pendingFulfilledOrders > 0 &&
-            pendingCashRewards.Count > 0
-        )
+        if (pool == null)
+            return;
+
+        foreach (FeedbackItem item in pool)
         {
-            int cashDelta = pendingCashRewards.Dequeue();
+            if (item == null)
+                continue;
 
-            ShowCashFeedback(cashDelta);
-
-            pendingFulfilledOrders--;
-        }
-
-        if (pendingExpiredOrders > 0)
-        {
-            for (int i = 0; i < pendingExpiredOrders; i++)
+            if (item.routine != null)
             {
-                ShowRatingFeedback(0.15f);
+                StopCoroutine(item.routine);
+                item.routine = null;
             }
 
-            pendingExpiredOrders = 0;
+            item.text.gameObject.SetActive(false);
+            item.rectTransform.anchoredPosition =
+                item.startPosition;
         }
     }
 
     private void HandleCashChanged(int newCash, int delta)
     {
         SetCash(newCash);
-
-        if (delta > 0)
-            pendingCashRewards.Enqueue(delta);
     }
 
     private void HandleXPChanged(int newXP, int currentLevel)
@@ -176,8 +221,11 @@ public class UI_HUDController : MonoBehaviour
 
         SetRating(newRating);
 
-        // Rating feedback is handled by order events.
-        // This event updates the actual rating display.
+        if (ratingDelta < 0f)
+        {
+            pendingRatingDelta = ratingDelta;
+            pendingRatingFeedback = true;
+        }
     }
 
     private void HandleOrderFulfilled(OrderData order)
@@ -185,7 +233,17 @@ public class UI_HUDController : MonoBehaviour
         if (order == null)
             return;
 
-        pendingFulfilledOrders++;
+        string amountText = order.CashReward.ToString(
+            "0.##",
+            CultureInfo.InvariantCulture
+        );
+
+        ShowFeedback(
+            cashFeedbackPool,
+            ref nextCashFeedbackIndex,
+            $"+${amountText}",
+            Color.green
+        );
     }
 
     private void HandleOrderExpired(OrderData order)
@@ -193,73 +251,85 @@ public class UI_HUDController : MonoBehaviour
         if (order == null)
             return;
 
-        pendingExpiredOrders++;
-    }
-
-    private void ShowCashFeedback(int amountCents)
-    {
-        if (cashOrderFeedbackText == null)
+        if (!pendingRatingFeedback)
             return;
 
-        float amount = amountCents / 100f;
-
-        string amountText = amount.ToString(
-            "0.##",
+        string ratingTextValue = pendingRatingDelta.ToString(
+            "+0.00;-0.00",
             CultureInfo.InvariantCulture
         );
 
-        cashOrderFeedbackText.text = $"+${amountText}";
-        cashOrderFeedbackText.color = Color.green;
+        ShowFeedback(
+            ratingFeedbackPool,
+            ref nextRatingFeedbackIndex,
+            ratingTextValue,
+            Color.red
+        );
 
-        if (cashFeedbackRoutine != null)
-            StopCoroutine(cashFeedbackRoutine);
-
-        cashFeedbackRoutine =
-            StartCoroutine(FadeFeedback(cashOrderFeedbackText));
+        pendingRatingFeedback = false;
+        pendingRatingDelta = 0f;
     }
 
-    private void ShowRatingFeedback(float amount)
+    private void ShowFeedback(
+        FeedbackItem[] pool,
+        ref int nextIndex,
+        string message,
+        Color color)
     {
-        if (ratingOrderFeedbackText == null)
+        if (pool == null || pool.Length == 0)
             return;
 
-        ratingOrderFeedbackText.text =
-            $"-{amount.ToString("0.00", CultureInfo.InvariantCulture)}";
+        FeedbackItem item = pool[nextIndex];
 
-        ratingOrderFeedbackText.color = Color.red;
+        nextIndex = (nextIndex + 1) % pool.Length;
 
-        if (ratingFeedbackRoutine != null)
-            StopCoroutine(ratingFeedbackRoutine);
+        if (item.routine != null)
+            StopCoroutine(item.routine);
 
-        ratingFeedbackRoutine =
-            StartCoroutine(FadeFeedback(ratingOrderFeedbackText));
+        item.text.text = message;
+        item.text.color = color;
+        item.rectTransform.anchoredPosition =
+            item.startPosition;
+
+        item.text.gameObject.SetActive(true);
+
+        item.routine = StartCoroutine(
+            AnimateFeedback(item)
+        );
     }
 
-    private IEnumerator FadeFeedback(TMP_Text feedbackText)
+    private IEnumerator AnimateFeedback(FeedbackItem item)
     {
-        feedbackText.gameObject.SetActive(true);
-
-        Color originalColor = feedbackText.color;
-        originalColor.a = 1f;
-        feedbackText.color = originalColor;
-
         float elapsed = 0f;
+
+        Color originalColor = item.text.color;
 
         while (elapsed < feedbackDuration)
         {
             elapsed += Time.deltaTime;
 
-            float alpha = 1f -
-                Mathf.Clamp01(elapsed / feedbackDuration);
+            float progress = Mathf.Clamp01(
+                elapsed / feedbackDuration
+            );
 
-            Color color = feedbackText.color;
-            color.a = alpha;
-            feedbackText.color = color;
+            item.rectTransform.anchoredPosition =
+                item.startPosition +
+                Vector2.up * feedbackMoveDistance * progress;
+
+            Color color = originalColor;
+            color.a = 1f - progress;
+            item.text.color = color;
 
             yield return null;
         }
 
-        feedbackText.gameObject.SetActive(false);
+        item.text.gameObject.SetActive(false);
+
+        item.rectTransform.anchoredPosition =
+            item.startPosition;
+
+        item.text.color = originalColor;
+        item.routine = null;
     }
 
     private void UpdateXPDisplay(int totalXP, int currentLevel)

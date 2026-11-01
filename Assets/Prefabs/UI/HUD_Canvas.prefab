@@ -1260,9 +1260,11 @@ MonoBehaviour:
   xpBar: {fileID: 4528757491551616438}
   cashText: {fileID: 7341276918451016918}
   ratingText: {fileID: 3992055422295569359}
-  cashOrderFeedbackText: {fileID: 0}
-  ratingOrderFeedbackText: {fileID: 0}
+  cashOrderHikeText: {fileID: 6940471121125168815}
+  ratingOrderDropText: {fileID: 1292726703589363201}
   feedbackDuration: 1.5
+  feedbackMoveDistance: 30
+  feedbackPoolSize: 3
 --- !u!1 &1517776082448884962
 GameObject:
   m_ObjectHideFlags: 0
