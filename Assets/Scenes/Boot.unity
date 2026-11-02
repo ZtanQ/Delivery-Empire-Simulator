@@ -319,6 +319,8 @@ MonoBehaviour:
   startingRiderCount: 1
   stage0MaximumRiders: 1
   stage1MaximumRiders: 3
+  normalDeliveryTime: 45
+  deliveryTimeoutMultiplier: 2
 --- !u!4 &201096773
 Transform:
   m_ObjectHideFlags: 0
