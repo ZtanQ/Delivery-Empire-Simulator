@@ -319,7 +319,7 @@ MonoBehaviour:
   startingRiderCount: 1
   stage0MaximumRiders: 1
   stage1MaximumRiders: 3
-  normalDeliveryTime: 30
+  normalDeliveryTime: 45
   deliveryTimeoutMultiplier: 2
 --- !u!4 &201096773
 Transform:

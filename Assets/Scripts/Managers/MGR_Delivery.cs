@@ -50,9 +50,6 @@ public class MGR_Delivery : Manager<MGR_Delivery>
     deliveryTimers =
         new Dictionary<CTRL_Rider, float>();
 
-    private readonly HashSet<OrderData> timedOutOrders =
-        new HashSet<OrderData>();
-
     private readonly List<CTRL_Rider> trackedRiders =
     new List<CTRL_Rider>();
 
@@ -69,14 +66,12 @@ public class MGR_Delivery : Manager<MGR_Delivery>
     {
         MGR_Game.OnDayTick += HandleDayTick;
         MGR_Game.OnRatingChanged += HandleRatingChanged;
-        MGR_Order.OnOrderRemoved += HandleOrderRemoved;
     }
 
     private void OnDisable()
     {
         MGR_Game.OnDayTick -= HandleDayTick;
         MGR_Game.OnRatingChanged -= HandleRatingChanged;
-        MGR_Order.OnOrderRemoved -= HandleOrderRemoved;
     }
 
     public void SetStage(int stage)
@@ -390,8 +385,13 @@ public class MGR_Delivery : Manager<MGR_Delivery>
 
         foreach (CTRL_Rider rider in trackedRiders)
         {
-            if (rider == null ||
-                !dispatchedOrders.ContainsKey(rider))
+            if (rider == null)
+            {
+                deliveryTimers.Remove(rider);
+                continue;
+            }
+
+            if (!dispatchedOrders.ContainsKey(rider))
             {
                 timedOutRiders.Add(rider);
                 continue;
@@ -453,16 +453,6 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         }
     }
 
-    private void HandleOrderRemoved(OrderData order)
-    {
-        if (order == null)
-        {
-            return;
-        }
-
-        timedOutOrders.Remove(order);
-    }
-
     private void TryDispatchWaitingOrder()
     {
         if (MGR_Order.Instance == null ||
@@ -486,11 +476,6 @@ public class MGR_Delivery : Manager<MGR_Delivery>
         foreach (OrderData order in activeOrders)
         {
             if (order == null || !order.IsActive)
-            {
-                continue;
-            }
-
-            if (timedOutOrders.Contains(order))
             {
                 continue;
             }
