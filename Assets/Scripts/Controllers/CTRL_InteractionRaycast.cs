@@ -543,7 +543,7 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         );
         _heldObject.transform.localRotation = Quaternion.identity;
         UpdateHeldBoxPosition(true);
-
+        FindAnyObjectByType<UI_FirstTimeHints>()?.NotifyBoxPickedUp();
         SetActionButton("Drop");
     }
 
@@ -583,6 +583,7 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         switch (result)
         {
             case ShelfPlacementResult.Success:
+                FindAnyObjectByType<UI_FirstTimeHints>()?.NotifyBoxPlaced();
                 ReturnPlacedBoxToPool();
                 break;
 
