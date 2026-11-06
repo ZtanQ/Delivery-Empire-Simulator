@@ -302,3 +302,31 @@ Applied the shadow settings for mobile performance optimization.
 ### Conclusion
 
 Draw calls and SetPass calls increased slightly after 10 minutes of gameplay. Further investigation should focus on UI batching and opaque-object rendering to identify potential optimization opportunities.
+
+
+
+## 1106 — Sprint 1 APK and phone run
+
+20-Minute Performance Test – 6 November 2026
+
+60 FPS maintained for first 15 minutes but FPS drop at 20 minutes
+
+Performance results
+Elapsed time	Avg FPS	Min FPS	Battery temp.	Triangles	Memory
+0 min	        60.3	60.3	32°C	        16,530	    280.9 MB
+5 min	        60.3	59.9	33°C	        16,704	    282.0 MB
+10 min	        60.3	60.1	34°C	        16,786	    281.6 MB
+15 min	        60.3	59.9	35°C	        16,778	    281.6 MB
+20 min	        49.7	30.1	36°C	        16,820	    281.4 MB
+
+Draw calls: 0 throughout all measurements (not available or not recorded).
+
+Key observations
+1. FPS stability: Average FPS remained at 60.3 for the first 15 minutes, but dropped to 49.7 at 20 minutes. Minimum FPS also fell to 30.1.
+2. Temperature: Battery temperature increased gradually from 32°C to 36°C.
+3. Memory: Memory usage remained stable between 280.9 MB and 282 MB.
+4. Rendering load: Triangle count remained relatively stable, increasing from 16,530 to 16,820.
+5. Draw calls: All recorded values were zero, so draw-call performance cannot be evaluated from this test.
+
+Short summary
+The device maintained stable performance at approximately 60 FPS for the first 15 minutes. At the 20-minute mark, performance declined significantly, with average FPS dropping to 49.7 and minimum FPS reaching 30.1. Battery temperature increased by 4°C, while memory usage and triangle count remained stable.
