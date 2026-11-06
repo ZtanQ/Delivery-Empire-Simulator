@@ -12563,11 +12563,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
   shelf: {fileID: 2850115346971248102}
-  displayOffset: {x: 0, y: 0.12, z: 0}
-  verticalSpacing: 0.18
-  productFrontOffset: 0.3
-  categoryLabelHeight: 0.65
-  categoryLabelFrontOffset: 0.6
+  displayOffset: {x: 1, y: 0.3, z: 0.05}
+  gridSpacingX: 10
+  gridSpacingY: 0.5
+  stackSpacingZ: 0.15
+  gridColumns: 1
+  gridRows: 3
+  placementRotationY: 90
+  productFrontOffset: 0.4
+  categoryLabelHeight: 2.3
+  categoryLabelFrontOffset: 0.4
   categoryLabelSize: {x: 2.4, y: 0.45}
 --- !u!4 &3387976147895387849
 Transform:
@@ -13970,11 +13975,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
   shelf: {fileID: 5428380327534254}
-  displayOffset: {x: 0, y: 0.12, z: 0}
-  verticalSpacing: 0.18
-  productFrontOffset: 0.3
-  categoryLabelHeight: 0.65
-  categoryLabelFrontOffset: 0.6
+  displayOffset: {x: 1, y: 0.3, z: 0.05}
+  gridSpacingX: 10
+  gridSpacingY: 0.5
+  stackSpacingZ: 0.15
+  gridColumns: 1
+  gridRows: 3
+  placementRotationY: 90
+  productFrontOffset: 0.4
+  categoryLabelHeight: 2.3
+  categoryLabelFrontOffset: 0.4
   categoryLabelSize: {x: 2.4, y: 0.45}
 --- !u!4 &4261335270952253764
 Transform:
@@ -14091,11 +14101,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
   shelf: {fileID: 1517374164753768073}
-  displayOffset: {x: 0, y: 0.12, z: 0}
-  verticalSpacing: 0.18
-  productFrontOffset: 0.3
-  categoryLabelHeight: 0.65
-  categoryLabelFrontOffset: 0.6
+  displayOffset: {x: 1, y: 0.3, z: 0.05}
+  gridSpacingX: 10
+  gridSpacingY: 0.5
+  stackSpacingZ: 0.15
+  gridColumns: 1
+  gridRows: 3
+  placementRotationY: 90
+  productFrontOffset: 0.4
+  categoryLabelHeight: 2.3
+  categoryLabelFrontOffset: 0.4
   categoryLabelSize: {x: 2.4, y: 0.45}
 --- !u!65 &4350100025498819409
 BoxCollider:
@@ -16537,11 +16552,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
   shelf: {fileID: 2961903560430364000}
-  displayOffset: {x: 0, y: 0.12, z: 0}
-  verticalSpacing: 0.18
-  productFrontOffset: 0.3
-  categoryLabelHeight: 0.65
-  categoryLabelFrontOffset: 0.6
+  displayOffset: {x: 1, y: 0.3, z: 0.05}
+  gridSpacingX: 10
+  gridSpacingY: 0.5
+  stackSpacingZ: 0.15
+  gridColumns: 1
+  gridRows: 3
+  placementRotationY: 90
+  productFrontOffset: 0.4
+  categoryLabelHeight: 2.3
+  categoryLabelFrontOffset: 0.4
   categoryLabelSize: {x: 2.4, y: 0.45}
 --- !u!1 &5925898637281413798
 GameObject:
@@ -20726,11 +20746,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
   shelf: {fileID: 6199745947408993899}
-  displayOffset: {x: 0, y: 0.12, z: 0}
-  verticalSpacing: 0.18
-  productFrontOffset: 0.3
-  categoryLabelHeight: 0.65
-  categoryLabelFrontOffset: 0.6
+  displayOffset: {x: 1, y: 0.3, z: 0.05}
+  gridSpacingX: 10
+  gridSpacingY: 0.5
+  stackSpacingZ: 0.15
+  gridColumns: 1
+  gridRows: 3
+  placementRotationY: 90
+  productFrontOffset: 0.4
+  categoryLabelHeight: 2.3
+  categoryLabelFrontOffset: 0.4
   categoryLabelSize: {x: 2.4, y: 0.45}
 --- !u!1 &8679411000736094898
 GameObject:
@@ -21158,11 +21183,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfStockVisual
   shelf: {fileID: 8943240034157901368}
-  displayOffset: {x: 0, y: 0.12, z: 0}
-  verticalSpacing: 0.18
-  productFrontOffset: 0.3
-  categoryLabelHeight: 0.65
-  categoryLabelFrontOffset: 0.6
+  displayOffset: {x: 1, y: 0.3, z: 0.05}
+  gridSpacingX: 10
+  gridSpacingY: 0.5
+  stackSpacingZ: 0.15
+  gridColumns: 1
+  gridRows: 3
+  placementRotationY: 90
+  productFrontOffset: 0.4
+  categoryLabelHeight: 2.3
+  categoryLabelFrontOffset: 0.4
   categoryLabelSize: {x: 2.4, y: 0.45}
 --- !u!4 &8967444748701242900
 Transform:
