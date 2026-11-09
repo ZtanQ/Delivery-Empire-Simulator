@@ -34,6 +34,12 @@ public class Bootstrap : MonoBehaviour
                 inventoryManager.InitialiseStartingStockFallback();
             }
         }
+        else
+        {
+            saveManager.InitialiseNewGameHints();
+        }
+
+        uiManager.InitialiseFirstTimeHints();
     }
 
     private void InitialiseManagers()

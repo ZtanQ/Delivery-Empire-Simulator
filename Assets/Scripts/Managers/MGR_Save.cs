@@ -32,6 +32,10 @@ public class GameSaveData
     public int riders;
     public int day;
 
+    public bool tutorialInitialized;
+    public int tutorialStep = 0;
+    public bool hintsDone = false;
+
     public List<ProductStockSaveData> productStock =
         new List<ProductStockSaveData>();
 
@@ -50,6 +54,9 @@ public class MGR_Save : Manager<MGR_Save>
     );
 
     public bool HasLoadedSave { get; private set; }
+    public int TutorialStep { get; private set; }
+    public bool HintsDone { get; private set; }
+    public bool TutorialInitialized { get; private set; }
     public bool SaveFileExists =>
           System.IO.File.Exists(SavePath);
 
@@ -62,15 +69,33 @@ public class MGR_Save : Manager<MGR_Save>
         );
     }
 
+    public void InitialiseNewGameHints()
+    {
+        TutorialInitialized = true;
+        TutorialStep = 0;
+        HintsDone = false;
+
+        Debug.Log("MGR_Save: First-time hints enabled for new game.");
+    }
+
+    public void UpdateTutorialProgress(int step, bool done)
+    {
+        TutorialInitialized = true;
+        TutorialStep = Mathf.Clamp(step, 0, 4);
+        HintsDone = done;
+
+        SaveGame();
+
+        Debug.Log(
+            $"MGR_Save: Tutorial progress updated. Step: {TutorialStep}, Done: {HintsDone}"
+        );
+    }
+
     public void SaveGame()
     {
         if (MGR_Game.Instance == null ||
             MGR_Inventory.Instance == null)
         {
-            Debug.LogError(
-                "MGR_Save: Cannot save because required managers are unavailable."
-            );
-
             return;
         }
 
@@ -78,6 +103,9 @@ public class MGR_Save : Manager<MGR_Save>
             new GameSaveData();
 
         data.saveVersion = CurrentSaveVersion;
+        data.tutorialInitialized = TutorialInitialized;
+        data.tutorialStep = TutorialStep;
+        data.hintsDone = HintsDone;
 
         data.cash = MGR_Game.Instance.CurrentCash;
         data.xp = MGR_Game.Instance.CurrentXP;
@@ -180,6 +208,19 @@ public class MGR_Save : Manager<MGR_Save>
                 return false;
             }
 
+            // Existing saves created before the tutorial system
+            // should not show first-time hints.
+            if (!data.tutorialInitialized)
+            {
+                data.tutorialInitialized = true;
+                data.tutorialStep = 4;
+                data.hintsDone = true;
+
+                Debug.Log(
+                    "MGR_Save: Existing save detected. First-time hints disabled."
+                );
+            }
+
             if (data.saveVersion != CurrentSaveVersion)
             {
                 Debug.LogWarning(
@@ -241,6 +282,9 @@ public class MGR_Save : Manager<MGR_Save>
                 data.shelfContents
             );
 
+            TutorialInitialized = data.tutorialInitialized;
+            TutorialStep = data.tutorialStep;
+            HintsDone = data.hintsDone;
             HasLoadedSave = true;
 
             Debug.Log(
