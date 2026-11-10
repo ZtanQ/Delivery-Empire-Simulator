@@ -330,3 +330,54 @@ Key observations
 
 Short summary
 The device maintained stable performance at approximately 60 FPS for the first 15 minutes. At the 20-minute mark, performance declined significantly, with average FPS dropping to 49.7 and minimum FPS reaching 30.1. Battery temperature increased by 4°C, while memory usage and triangle count remained stable.
+
+## Minute 20 drop – Investigation
+
+**Date:** 11 November 2026  
+**Branch:** `sys/fps-minute-20`
+
+### Original phone test
+
+According to the Sprint 1 phone test recorded in PR #177 (6 November):
+- FPS remained around 60 for the first 15 minutes.
+- At minute 20, average FPS dropped to 49.7, with a minimum of 30.1 FPS.
+- Memory usage remained around 281 MB.
+- Triangle count remained around 16,800.
+- Device temperature increased from 32°C to 36°C.
+
+### Unity Editor investigation
+
+A 20-minute Editor test was performed using a fresh save, with Unity Profiler recording enabled and Deep Profile disabled.
+
+| Measurement | Minute 2 | Minute 18–20 |
+|---|---|---|
+| Total CPU | ~16.38 ms | ~16.58 ms (minute 20) |
+| PlayerLoop | ~3.30 ms | ~1.42 ms (minute 20) |
+| PlayerLoop GC Alloc | 179 B | 162 B |
+| Active riders | 1 | 3 |
+| Active orders | 2 | 1 |
+| Expired orders | 0 | 2 |
+| Visible order cards | 2 | 3 |
+| Boxes in scene | 1 | 1 |
+
+*Note: These are readings from selected Profiler frames and observations. They are not a fully matched comparison.*
+
+### Observations
+- The Editor test did not reproduce the significant FPS drop reported on the phone.
+- CPU and GC Alloc readings did not show a clear increase over time.
+- Two expired order cards remained visible in the UI.
+- Two riders appeared stuck while one rider was delivering.
+- These UI and rider observations require further investigation and are not confirmed as the cause of the FPS drop.
+
+### Current conclusion
+
+The Editor investigation did not identify a confirmed root cause. Physical-device profiling is still required to investigate CPU usage, GC Alloc, FPS and thermal throttling.
+
+### Pending investigation
+- Repeat the test using a Development build with Unity Profiler connected to an Android device.
+- Compare CPU Usage and GC Alloc at minute 2 and minute 18–20.
+- Record FPS and device temperature.
+- Check whether FPS recovers after the device cools down.
+- Investigate order-card cleanup and rider behaviour if profiling indicates they contribute to the slowdown.
+
+**Status:** Editor investigation completed; physical-device profiling and root-cause verification pending. No performance fix has been confirmed.
