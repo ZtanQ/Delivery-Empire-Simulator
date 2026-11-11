@@ -1132,6 +1132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrderCardTimer
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   warningColor: {r: 1, g: 0, b: 0, a: 1}
+  reservedColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &1470087188456967363
 GameObject:
   m_ObjectHideFlags: 0
@@ -2606,6 +2607,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrderCardTimer
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   warningColor: {r: 1, g: 0, b: 0, a: 1}
+  reservedColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &2305458881167051747
 GameObject:
   m_ObjectHideFlags: 0
@@ -5031,6 +5033,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrderCardTimer
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   warningColor: {r: 1, g: 0, b: 0, a: 1}
+  reservedColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!1 &4704475703424107575
 GameObject:
   m_ObjectHideFlags: 0
@@ -8486,6 +8489,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrderCardTimer
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   warningColor: {r: 1, g: 0, b: 0, a: 1}
+  reservedColor: {r: 0, g: 0.2823528, b: 1, a: 1}
 --- !u!1 &8054704728228935618
 GameObject:
   m_ObjectHideFlags: 0

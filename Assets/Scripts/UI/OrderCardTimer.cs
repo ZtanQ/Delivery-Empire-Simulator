@@ -5,6 +5,7 @@ public class OrderCardTimer : MonoBehaviour
 {
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color warningColor = Color.red;
+    [SerializeField] private Color reservedColor = Color.blue;
 
     private Image timeBar;
     private OrderData order;
@@ -42,8 +43,14 @@ public class OrderCardTimer : MonoBehaviour
         );
 
         timeBar.fillAmount = progress;
-        timeBar.color =
-            progress <= 0.25f
+
+        bool isReserved =
+            MGR_Order.Instance != null &&
+            MGR_Order.Instance.IsOrderReserved(order);
+
+        timeBar.color = isReserved
+            ? reservedColor
+            : progress <= 0.25f
                 ? warningColor
                 : normalColor;
     }

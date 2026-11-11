@@ -272,23 +272,38 @@ public class CTRL_Rider : MonoBehaviour
 
     private void WarpTo(Vector3 destination)
     {
-        Vector3 target = destination;
-
-        if (NavMesh.SamplePosition(destination, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+        if (!NavMesh.SamplePosition(
+            destination,
+            out NavMeshHit hit,
+            2f,
+            NavMesh.AllAreas))
         {
-            target = hit.position;
+            Debug.LogError(
+                $"CTRL_Rider: Could not find NavMesh near destination {destination}."
+            );
+            return;
         }
 
         if (riderNavMeshAgent != null &&
             riderNavMeshAgent.enabled &&
             riderNavMeshAgent.isOnNavMesh)
         {
-            riderNavMeshAgent.Warp(target);
+            bool warped = riderNavMeshAgent.Warp(hit.position);
+
+            if (!warped)
+            {
+                Debug.LogError(
+                    $"CTRL_Rider: Warp failed for {name} at {hit.position}."
+                );
+                return;
+            }
+
             riderNavMeshAgent.ResetPath();
+            riderNavMeshAgent.isStopped = true;
         }
         else
         {
-            transform.position = target;
+            transform.position = hit.position;
         }
     }
 
