@@ -5075,6 +5075,10 @@ PrefabInstance:
       propertyPath: ratingOrderFeedbackText
       value: 
       objectReference: {fileID: 1840544705}
+    - target: {fileID: 5209644627178746764, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 60
+      objectReference: {fileID: 0}
     - target: {fileID: 8979669422067868594, guid: ec7c18ec3bced5346896a484b953600f, type: 3}
       propertyPath: m_Pivot.x
       value: 0
