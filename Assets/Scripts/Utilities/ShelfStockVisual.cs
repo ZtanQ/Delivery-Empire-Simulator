@@ -6,15 +6,22 @@ using UnityEngine;
 public class ShelfStockVisual : MonoBehaviour
 {
     [SerializeField] private ShelfSlot shelf;
-    [SerializeField] private Vector3 displayOffset = new Vector3(0f, 0.12f, 0f);
-    [SerializeField, Min(0.01f)] private float verticalSpacing = 0.18f;
-    [SerializeField, Min(0f)] private float productFrontOffset = 0.3f;
-    [SerializeField, Min(0.1f)] private float categoryLabelHeight = 0.65f;
-    [SerializeField, Min(0f)] private float categoryLabelFrontOffset = 0.6f;
+    [SerializeField] private Vector3 displayOffset = new Vector3(1f, 0.3f, 0.05f);
+    [SerializeField, Min(0.01f)] private float gridSpacingX = 10f;
+    [SerializeField, Min(0.01f)] private float gridSpacingY = 0.5f;
+    [SerializeField, Min(0.01f)] private float stackSpacingZ = 0.15f;
+    [SerializeField, Min(1)] private int gridColumns = 1;
+    [SerializeField, Min(1)] private int gridRows = 3;
+    [SerializeField, HideInInspector] private float placementRotationY = 90f;
+    [SerializeField, Min(0f)] private float productFrontOffset = 0.4f;
+    [SerializeField, Min(0.1f)] private float categoryLabelHeight = 2.3f;
+    [SerializeField, Min(0f)] private float categoryLabelFrontOffset = 0.4f;
     [SerializeField] private Vector2 categoryLabelSize = new Vector2(2.4f, 0.45f);
 
     private readonly Dictionary<DATA_ProductSO, List<GameObject>> pools =
         new Dictionary<DATA_ProductSO, List<GameObject>>();
+    private readonly List<DATA_ProductSO> orderedProducts =
+        new List<DATA_ProductSO>();
     private TextMeshPro categoryLabel;
     private bool poolReady;
 
@@ -35,7 +42,15 @@ public class ShelfStockVisual : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (categoryLabel == null || Camera.main == null)
+        PositionActiveProps();
+
+        if (categoryLabel == null)
+            return;
+
+        UpdateCategoryLabelPosition();
+        categoryLabel.rectTransform.sizeDelta = categoryLabelSize;
+
+        if (Camera.main == null)
             return;
 
         Vector3 direction = categoryLabel.transform.position - Camera.main.transform.position;
@@ -76,36 +91,60 @@ public class ShelfStockVisual : MonoBehaviour
                 productPool.Add(prop);
             }
             pools.Add(product, productPool);
+            orderedProducts.Add(product);
         }
 
+        orderedProducts.Sort((a, b) => string.Compare(a.name, b.name, System.StringComparison.Ordinal));
         poolReady = true;
     }
 
     private void UpdateProps()
     {
         MGR_Inventory inventory = MGR_Inventory.Instance;
-        int totalUnits = 0;
-        foreach (DATA_ProductSO product in pools.Keys)
-            totalUnits += Mathf.Max(0, inventory.GetShelfProductUnits(shelf.ShelfID, product));
-
-        int slot = 0;
-        foreach (KeyValuePair<DATA_ProductSO, List<GameObject>> entry in pools)
+        // Keep each product type together in its own grid cell, with its units
+        // extending along the shelf's local Z axis.
+        int cell = 0;
+        foreach (DATA_ProductSO product in orderedProducts)
         {
-            int productUnits = Mathf.Max(0, inventory.GetShelfProductUnits(shelf.ShelfID, entry.Key));
-            int showCount = Mathf.Min(productUnits, shelf.Capacity - slot);
+            List<GameObject> productPool = pools[product];
+            int productUnits = Mathf.Max(0, inventory.GetShelfProductUnits(shelf.ShelfID, product));
+            int showCount = Mathf.Min(productUnits, Mathf.Min(productPool.Count, shelf.Capacity));
+            int productCell = cell++;
+            int maxGridCells = Mathf.Max(1, gridColumns) * Mathf.Max(1, gridRows);
+            if (productCell >= maxGridCells)
+                showCount = 0;
 
-            for (int i = 0; i < entry.Value.Count; i++)
+            for (int i = 0; i < productPool.Count; i++)
             {
-                GameObject prop = entry.Value[i];
+                GameObject prop = productPool[i];
                 bool show = i < showCount;
                 prop.SetActive(show);
-                if (show)
-                    prop.transform.SetPositionAndRotation(GetPropPosition(slot++), Quaternion.identity);
+            }
+        }
+
+        PositionActiveProps();
+    }
+
+    private void PositionActiveProps()
+    {
+        if (pools.Count == 0)
+            return;
+
+        int cell = 0;
+        foreach (DATA_ProductSO product in orderedProducts)
+        {
+            List<GameObject> productPool = pools[product];
+            int productCell = cell++;
+            for (int i = 0; i < productPool.Count; i++)
+            {
+                GameObject prop = productPool[i];
+                if (prop != null && prop.activeSelf)
+                    prop.transform.SetPositionAndRotation(GetPropPosition(productCell, i), transform.rotation);
             }
         }
     }
 
-    private Vector3 GetPropPosition(int slot)
+    private Vector3 GetPropPosition(int cell, int stackIndex)
     {
         Vector3 front = shelf.AccessPoint != null
             ? Vector3.ProjectOnPlane(shelf.AccessPoint.position - transform.position, Vector3.up).normalized
@@ -113,7 +152,23 @@ public class ShelfStockVisual : MonoBehaviour
         if (front.sqrMagnitude < 0.001f)
             front = Vector3.back;
 
-        return transform.position + displayOffset + Vector3.up * (slot * verticalSpacing) + front * productFrontOffset;
+        int columns = Mathf.Max(1, gridColumns);
+        int rows = Mathf.Max(1, gridRows);
+        int column = cell % columns;
+        int row = (cell / columns) % rows;
+
+        float x = (column - (columns - 1) * 0.5f) * gridSpacingX;
+        float y = row * gridSpacingY;
+        Vector3 offset = displayOffset
+            + transform.right * x
+            + transform.up * y
+            + front * (productFrontOffset + stackIndex * stackSpacingZ);
+        return transform.position + RotatePlacementOffset(offset);
+    }
+
+    private Vector3 RotatePlacementOffset(Vector3 offset)
+    {
+        return Quaternion.AngleAxis(placementRotationY, transform.up) * offset;
     }
 
     private void CreateCategoryLabel()
@@ -145,12 +200,88 @@ public class ShelfStockVisual : MonoBehaviour
         categoryLabel.outlineWidth = 0.2f;
         categoryLabel.rectTransform.sizeDelta = categoryLabelSize;
 
+        UpdateCategoryLabelPosition();
+    }
+
+    private void UpdateCategoryLabelPosition()
+    {
+        if (shelf == null || categoryLabel == null)
+            return;
+
         Vector3 front = shelf.AccessPoint != null
             ? Vector3.ProjectOnPlane(shelf.AccessPoint.position - transform.position, Vector3.up).normalized
             : Vector3.back;
         if (front.sqrMagnitude < 0.001f)
             front = Vector3.back;
-        label.transform.position = transform.position + Vector3.up * categoryLabelHeight + front * categoryLabelFrontOffset;
+
+        categoryLabel.transform.position = transform.position
+            + Vector3.up * categoryLabelHeight
+            + front * categoryLabelFrontOffset;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 front = shelf != null && shelf.AccessPoint != null
+            ? Vector3.ProjectOnPlane(shelf.AccessPoint.position - transform.position, Vector3.up).normalized
+            : Vector3.back;
+        if (front.sqrMagnitude < 0.001f)
+            front = Vector3.back;
+
+        int columns = Mathf.Max(1, gridColumns);
+        int rows = Mathf.Max(1, gridRows);
+        Gizmos.color = new Color(0.2f, 0.85f, 1f, 0.9f);
+        Vector3[] cellCenters = new Vector3[columns * rows];
+        for (int row = 0; row < rows; row++)
+        {
+            for (int column = 0; column < columns; column++)
+            {
+                int index = row * columns + column;
+                Vector3 gridOffset = transform.right * ((column - (columns - 1) * 0.5f) * gridSpacingX)
+                    + transform.up * (row * gridSpacingY);
+                Vector3 offset = displayOffset + front * productFrontOffset + gridOffset;
+                Vector3 center = transform.position + RotatePlacementOffset(offset);
+                cellCenters[index] = center;
+                Gizmos.DrawLine(center - transform.right * 0.08f, center + transform.right * 0.08f);
+                Gizmos.DrawLine(center - transform.forward * 0.08f, center + transform.forward * 0.08f);
+            }
+        }
+
+        for (int row = 0; row < rows; row++)
+            for (int column = 0; column < columns - 1; column++)
+                Gizmos.DrawLine(cellCenters[row * columns + column], cellCenters[row * columns + column + 1]);
+
+        for (int column = 0; column < columns; column++)
+            for (int row = 0; row < rows - 1; row++)
+                Gizmos.DrawLine(cellCenters[row * columns + column], cellCenters[(row + 1) * columns + column]);
+
+        if (pools == null)
+            return;
+
+        Gizmos.color = new Color(1f, 0.65f, 0.15f, 1f);
+        foreach (KeyValuePair<DATA_ProductSO, List<GameObject>> entry in pools)
+        {
+            if (entry.Value == null)
+                continue;
+
+            foreach (GameObject prop in entry.Value)
+            {
+                if (prop == null || !prop.activeInHierarchy)
+                    continue;
+
+                Renderer[] renderers = prop.GetComponentsInChildren<Renderer>();
+                if (renderers.Length == 0)
+                {
+                    Gizmos.DrawWireSphere(prop.transform.position, 0.08f);
+                    continue;
+                }
+
+                foreach (Renderer renderer in renderers)
+                {
+                    if (renderer != null && renderer.enabled)
+                        Gizmos.DrawWireCube(renderer.bounds.center, renderer.bounds.size);
+                }
+            }
+        }
     }
 }
 
