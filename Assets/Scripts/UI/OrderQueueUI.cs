@@ -15,8 +15,6 @@ public class OrderQueueUI : MonoBehaviour
     private void OnEnable()
     {
         MGR_Order.OnOrderCreated += HandleOrderCreated;
-        MGR_Order.OnOrderFulfilled += HandleOrderCompleted;
-        MGR_Order.OnOrderExpired += HandleOrderCompleted;
         MGR_Inventory.OnInventoryChanged += HandleInventoryChanged;
         MGR_Order.OnOrderRemoved += HandleOrderCompleted;
         MGR_Order.OnOrderReservationChanged += HandleOrderReservationChanged;
@@ -25,8 +23,6 @@ public class OrderQueueUI : MonoBehaviour
     private void OnDisable()
     {
         MGR_Order.OnOrderCreated -= HandleOrderCreated;
-        MGR_Order.OnOrderFulfilled -= HandleOrderCompleted;
-        MGR_Order.OnOrderExpired -= HandleOrderCompleted;
         MGR_Inventory.OnInventoryChanged -= HandleInventoryChanged;
         MGR_Order.OnOrderRemoved -= HandleOrderCompleted;
         MGR_Order.OnOrderReservationChanged -= HandleOrderReservationChanged;
@@ -58,19 +54,32 @@ public class OrderQueueUI : MonoBehaviour
         Debug.LogWarning("OrderQueueUI: no available card for the new order.");
     }
 
+
+
     private void HandleOrderCompleted(OrderData order)
     {
         if (order == null)
+        {
+            Debug.LogWarning(
+                "OrderQueueUI: Cannot remove card for a null order."
+            );
             return;
+        }
 
-        if (!activeCards.TryGetValue(order.OrderID, out OrderCardUI card))
+        if (!activeCards.TryGetValue(
+                order.OrderID,
+                out OrderCardUI card))
+        {
             return;
+        }
 
         activeCards.Remove(order.OrderID);
         activeOrders.Remove(order.OrderID);
 
         if (card != null)
+        {
             card.gameObject.SetActive(false);
+        }
 
         UpdateOutOfStockWarning();
     }

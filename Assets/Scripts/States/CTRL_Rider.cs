@@ -126,8 +126,6 @@ public class CTRL_Rider : MonoBehaviour
 
         returnPosition = hit.position;
 
-        Debug.Log($"CTRL_Rider: Placed on NavMesh at {hit.position}");
-
         return true;
     }
 
@@ -278,9 +276,11 @@ public class CTRL_Rider : MonoBehaviour
             2f,
             NavMesh.AllAreas))
         {
-            Debug.LogError(
-                $"CTRL_Rider: Could not find NavMesh near destination {destination}."
+            Debug.LogWarning(
+                $"CTRL_Rider: Could not find NavMesh near destination {destination}. Moving rider directly to target."
             );
+
+            transform.position = destination;
             return;
         }
 
@@ -292,9 +292,11 @@ public class CTRL_Rider : MonoBehaviour
 
             if (!warped)
             {
-                Debug.LogError(
-                    $"CTRL_Rider: Warp failed for {name} at {hit.position}."
+                Debug.LogWarning(
+                    $"CTRL_Rider: Warp failed for {name} at {hit.position}. Moving rider directly to target."
                 );
+
+                transform.position = destination;
                 return;
             }
 
