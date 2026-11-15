@@ -19,6 +19,16 @@ public class ShelfSaveData
 }
 
 [Serializable]
+public class DockBoxSaveData
+{
+    public string productID;
+    public int units;
+    public bool hasCargoTransform;
+    public Vector3 cargoLocalPosition;
+    public Quaternion cargoLocalRotation = Quaternion.identity;
+}
+
+[Serializable]
 public class GameSaveData
 {
     public int saveVersion = 1;
@@ -41,6 +51,13 @@ public class GameSaveData
 
     public List<ShelfSaveData> shelfContents =
     new List<ShelfSaveData>();
+
+    public List<DockBoxSaveData> dockBoxes =
+        new List<DockBoxSaveData>();
+    public bool hasDockedTruck;
+    public bool hasDockedTruckTransform;
+    public Vector3 dockedTruckPosition;
+    public Quaternion dockedTruckRotation;
 }
 
 public class MGR_Save : Manager<MGR_Save>
@@ -59,6 +76,13 @@ public class MGR_Save : Manager<MGR_Save>
     public bool TutorialInitialized { get; private set; }
     public bool SaveFileExists =>
           System.IO.File.Exists(SavePath);
+
+    private List<DockBoxSaveData> savedDockBoxes =
+        new List<DockBoxSaveData>();
+    private bool savedHasDockedTruck;
+    private bool savedHasDockedTruckTransform;
+    private Vector3 savedDockedTruckPosition;
+    private Quaternion savedDockedTruckRotation = Quaternion.identity;
 
     protected override void OnInitialise()
     {
@@ -143,6 +167,33 @@ public class MGR_Save : Manager<MGR_Save>
         {
             data.shelfContents.Add(shelfData);
         }
+
+        if (CTRL_TruckDelivery.Instance != null)
+        {
+            CTRL_TruckDelivery truckDelivery = CTRL_TruckDelivery.Instance;
+            data.dockBoxes = truckDelivery.GetDockBoxesForSave();
+            data.hasDockedTruck = truckDelivery.HasTruckForSave;
+            data.hasDockedTruckTransform = truckDelivery.HasTruckForSave;
+            if (data.hasDockedTruckTransform)
+            {
+                data.dockedTruckPosition = truckDelivery.TruckPositionForSave;
+                data.dockedTruckRotation = truckDelivery.TruckRotationForSave;
+            }
+        }
+        else
+        {
+            data.dockBoxes = new List<DockBoxSaveData>(savedDockBoxes);
+            data.hasDockedTruck = savedHasDockedTruck;
+            data.hasDockedTruckTransform = savedHasDockedTruckTransform;
+            data.dockedTruckPosition = savedDockedTruckPosition;
+            data.dockedTruckRotation = savedDockedTruckRotation;
+        }
+
+        savedDockBoxes = new List<DockBoxSaveData>(data.dockBoxes);
+        savedHasDockedTruck = data.hasDockedTruck;
+        savedHasDockedTruckTransform = data.hasDockedTruckTransform;
+        savedDockedTruckPosition = data.dockedTruckPosition;
+        savedDockedTruckRotation = data.dockedTruckRotation;
 
         string json =
             JsonUtility.ToJson(
@@ -282,6 +333,16 @@ public class MGR_Save : Manager<MGR_Save>
                 data.shelfContents
             );
 
+            savedDockBoxes = data.dockBoxes != null
+                ? new List<DockBoxSaveData>(data.dockBoxes)
+                : new List<DockBoxSaveData>();
+            // Saves from the earlier dock-box format contain the box list but
+            // no truck transform. Restore that cargo at the configured dock.
+            savedHasDockedTruck = data.hasDockedTruck || savedDockBoxes.Count > 0;
+            savedHasDockedTruckTransform = data.hasDockedTruckTransform;
+            savedDockedTruckPosition = data.dockedTruckPosition;
+            savedDockedTruckRotation = data.dockedTruckRotation;
+
             TutorialInitialized = data.tutorialInitialized;
             TutorialStep = data.tutorialStep;
             HintsDone = data.hintsDone;
@@ -305,6 +366,29 @@ public class MGR_Save : Manager<MGR_Save>
 
             return false;
         }
+    }
+
+    public List<DockBoxSaveData> ConsumeSavedDockBoxes(
+        out bool hasTruck,
+        out bool hasTruckTransform,
+        out Vector3 truckPosition,
+        out Quaternion truckRotation)
+    {
+        List<DockBoxSaveData> result = savedDockBoxes != null
+            ? new List<DockBoxSaveData>(savedDockBoxes)
+            : new List<DockBoxSaveData>();
+        savedDockBoxes = new List<DockBoxSaveData>();
+
+        hasTruck = savedHasDockedTruck;
+        hasTruckTransform = savedHasDockedTruckTransform;
+        truckPosition = savedDockedTruckPosition;
+        truckRotation = savedDockedTruckRotation;
+
+        savedHasDockedTruck = false;
+        savedHasDockedTruckTransform = false;
+        savedDockedTruckPosition = Vector3.zero;
+        savedDockedTruckRotation = Quaternion.identity;
+        return result;
     }
     public bool HasValidSaveFile()
     {
