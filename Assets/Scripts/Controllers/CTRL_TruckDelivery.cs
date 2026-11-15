@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,52 @@ public class CTRL_TruckDelivery : MonoBehaviour
 {
     private const int UnitsPerBox = 5;
     private const int MaxBoxesPerTruck = 6;
+
+    public static CTRL_TruckDelivery Instance { get; private set; }
+    public static event Action<bool, int> OnDockStateChanged;
+    public int BoxesPerTruck => GetBoxesPerTruck();
+    public bool HasTruckForSave => _truck != null;
+    public Vector3 TruckPositionForSave => _truck != null ? _truck.transform.position : Vector3.zero;
+    public Quaternion TruckRotationForSave => _truck != null ? _truck.transform.rotation : Quaternion.identity;
+
+    public bool IsDockBusy
+    {
+        get
+        {
+            PruneDockQueue();
+            return _truck != null ||
+                _deliveryRoutine != null ||
+                _pendingDeliveries.Count > 0 ||
+                _dockQueue.Count > 0;
+        }
+    }
+
+    public int BoxesLeftAtDock
+    {
+        get
+        {
+            PruneDockQueue();
+            int count = _dockQueue.Count;
+
+            foreach (GameObject box in _boxes)
+            {
+                if (box != null && _truck != null && box.transform.IsChildOf(_truck.transform))
+                {
+                    count++;
+                }
+            }
+
+            foreach (List<ShelfBoxData> delivery in _pendingDeliveries)
+            {
+                if (delivery != null)
+                {
+                    count += delivery.Count;
+                }
+            }
+
+            return count;
+        }
+    }
 
     [Header("Delivery")]
     [SerializeField] private GameObject _truckPrefab;
@@ -39,15 +86,62 @@ public class CTRL_TruckDelivery : MonoBehaviour
     private GameObject _truck;
     private Coroutine _deliveryRoutine;
     private ShelfSlot[] _shelfSlots;
+    private float _dockStateRefreshTimer;
+    private bool _lastReportedDockBusy;
+    private int _lastReportedBoxesLeft = -1;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void OnEnable()
     {
+        Instance = this;
         MGR_Game.OnSupplierOrderCreated += HandleSupplierOrderCreated;
+        ReportDockState(true);
+    }
+
+    private void Start()
+    {
+        if (MGR_Save.Instance != null)
+        {
+            List<DockBoxSaveData> savedBoxes =
+                MGR_Save.Instance.ConsumeSavedDockBoxes(
+                    out bool hasTruck,
+                    out bool hasTruckTransform,
+                    out Vector3 truckPosition,
+                    out Quaternion truckRotation
+                );
+            RestoreDockBoxes(
+                savedBoxes,
+                hasTruck,
+                hasTruckTransform,
+                truckPosition,
+                truckRotation
+            );
+        }
     }
 
     private void OnDisable()
     {
         MGR_Game.OnSupplierOrderCreated -= HandleSupplierOrderCreated;
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
+    private void Update()
+    {
+        _dockStateRefreshTimer -= Time.deltaTime;
+        if (_dockStateRefreshTimer > 0f)
+        {
+            return;
+        }
+
+        _dockStateRefreshTimer = 0.1f;
+        ReportDockState();
     }
 
     /// <summary>
@@ -86,6 +180,16 @@ public class CTRL_TruckDelivery : MonoBehaviour
         {
             Debug.LogWarning(
                 "CTRL_TruckDelivery: Supplier order had no valid products or quantities."
+            );
+            return;
+        }
+
+        // This controller remains the final guard for deliveries created
+        // outside the terminal (for example, a debug delivery).
+        if (IsDockBusy)
+        {
+            Debug.LogWarning(
+                "CTRL_TruckDelivery: Ignoring a supplier order because the dock is busy."
             );
             return;
         }
@@ -191,11 +295,24 @@ public class CTRL_TruckDelivery : MonoBehaviour
     {
         while (_pendingDeliveries.Count > 0)
         {
+            while (_dockQueue.Count > 0)
+            {
+                PruneDockQueue();
+                if (_dockQueue.Count == 0)
+                {
+                    break;
+                }
+
+                yield return null;
+            }
+
             List<ShelfBoxData> delivery = _pendingDeliveries.Dequeue();
+            ReportDockState();
             yield return DeliverTruck(delivery);
         }
 
         _deliveryRoutine = null;
+        ReportDockState();
     }
 
     private IEnumerator DeliverTruck(List<ShelfBoxData> cargo)
@@ -225,6 +342,7 @@ public class CTRL_TruckDelivery : MonoBehaviour
             _truckStart.position,
             _truckStart.rotation
         );
+        ReportDockState();
 
         Transform cargoPoint = _truck.transform.Find("CargoSpawnPoint");
 
@@ -247,6 +365,8 @@ public class CTRL_TruckDelivery : MonoBehaviour
             yield break;
         }
 
+        ReportDockState();
+
         yield return MoveTruck(_truckStart, _truckEnd);
 
         float shelfCheckTimer = 0f;
@@ -262,6 +382,18 @@ public class CTRL_TruckDelivery : MonoBehaviour
                 if (AreAllShelvesFull())
                 {
                     MoveCargoToDockQueue();
+
+                    while (_dockQueue.Count > 0)
+                    {
+                        PruneDockQueue();
+                        if (_dockQueue.Count == 0)
+                        {
+                            break;
+                        }
+
+                        yield return null;
+                    }
+
                     break;
                 }
             }
@@ -278,13 +410,14 @@ public class CTRL_TruckDelivery : MonoBehaviour
         }
 
         _truck = null;
+        ReportDockState();
     }
 
     private bool AreAllShelvesFull()
     {
         if (_shelfSlots == null)
         {
-            _shelfSlots = FindObjectsOfType<ShelfSlot>();
+            _shelfSlots = FindObjectsByType<ShelfSlot>();
         }
 
         if (_shelfSlots.Length == 0)
@@ -342,10 +475,7 @@ public class CTRL_TruckDelivery : MonoBehaviour
 
     private void RestackDockQueue()
     {
-        Transform queueAnchor =
-            _dockQueueAnchor != null ? _dockQueueAnchor : _truckEnd;
-
-        if (queueAnchor == null)
+        if (_dockQueueAnchor == null && _truckEnd == null)
         {
             return;
         }
@@ -353,16 +483,7 @@ public class CTRL_TruckDelivery : MonoBehaviour
         float spacing = Mathf.Max(0.55f, _dockQueueSpacing);
         const int columns = 3;
 
-        for (int i = _dockQueue.Count - 1; i >= 0; i--)
-        {
-            GameObject box = _dockQueue[i];
-
-            // Picked up or pooled boxes no longer belong to the dock queue.
-            if (box == null || box.transform.parent != null)
-            {
-                _dockQueue.RemoveAt(i);
-            }
-        }
+        PruneDockQueue();
 
         for (int i = 0; i < _dockQueue.Count; i++)
         {
@@ -370,25 +491,276 @@ public class CTRL_TruckDelivery : MonoBehaviour
             int row = i / columns;
 
             float x = (column - (columns - 1) * 0.5f) * spacing;
-
-            // If no explicit dock anchor is assigned, keep the boxes to the
-            // side of the truck's endpoint so the truck can still leave.
-            if (_dockQueueAnchor == null)
+            GameObject box = _dockQueue[i];
+            if (_dockQueueAnchor != null)
             {
-                x += 1.5f;
+                Vector3 localPosition = new Vector3(x, row * spacing, 0f);
+                box.transform.SetPositionAndRotation(
+                    _dockQueueAnchor.TransformPoint(localPosition),
+                    _dockQueueAnchor.rotation
+                );
+            }
+            else
+            {
+                Vector3 dockDirection = _truckStart != null
+                    ? Vector3.ProjectOnPlane(
+                        _truckEnd.position - _truckStart.position,
+                        Vector3.up
+                    ).normalized
+                    : _truckEnd.forward;
+                if (dockDirection.sqrMagnitude < 0.001f)
+                {
+                    dockDirection = _truckEnd.forward;
+                }
+
+                Vector3 queueRight = Vector3.Cross(Vector3.up, dockDirection).normalized;
+                Vector3 queueOrigin = _truckEnd.position + dockDirection * 8.5f;
+                Vector3 position = queueOrigin + queueRight * (x + 1.5f) + Vector3.up * (row * spacing);
+                box.transform.SetPositionAndRotation(position, _truckEnd.rotation);
+            }
+        }
+
+        ReportDockState();
+    }
+
+    private void PruneDockQueue()
+    {
+        for (int i = _dockQueue.Count - 1; i >= 0; i--)
+        {
+            GameObject box = _dockQueue[i];
+            // Picked up or pooled boxes no longer belong to the dock queue.
+            if (box == null || box.transform.parent != null)
+            {
+                _dockQueue.RemoveAt(i);
+            }
+        }
+    }
+
+    private void ReportDockState(bool force = false)
+    {
+        bool busy = IsDockBusy;
+        int boxesLeft = BoxesLeftAtDock;
+        if (!force && busy == _lastReportedDockBusy && boxesLeft == _lastReportedBoxesLeft)
+        {
+            return;
+        }
+
+        _lastReportedDockBusy = busy;
+        _lastReportedBoxesLeft = boxesLeft;
+        OnDockStateChanged?.Invoke(busy, boxesLeft);
+    }
+
+    public List<DockBoxSaveData> GetDockBoxesForSave()
+    {
+        List<DockBoxSaveData> savedBoxes = new List<DockBoxSaveData>();
+        HashSet<GameObject> capturedBoxes = new HashSet<GameObject>();
+        Transform cargoPoint = _truck != null
+            ? _truck.transform.Find("CargoSpawnPoint")
+            : null;
+
+        foreach (GameObject box in _boxes)
+        {
+            if (box == null || _truck == null || !box.transform.IsChildOf(_truck.transform))
+            {
+                continue;
             }
 
-            Vector3 localPosition = new Vector3(
-                x,
-                0f,
-                row * spacing
-            );
+            AddBoxSaveData(box, capturedBoxes, savedBoxes, cargoPoint);
+        }
 
-            GameObject box = _dockQueue[i];
-            box.transform.SetPositionAndRotation(
-                queueAnchor.TransformPoint(localPosition),
-                queueAnchor.rotation
+        PruneDockQueue();
+        foreach (GameObject box in _dockQueue)
+        {
+            AddBoxSaveData(box, capturedBoxes, savedBoxes, null);
+        }
+
+        return savedBoxes;
+    }
+
+    private static void AddBoxSaveData(
+        GameObject box,
+        HashSet<GameObject> capturedBoxes,
+        List<DockBoxSaveData> savedBoxes,
+        Transform cargoPoint)
+    {
+        if (box == null || !capturedBoxes.Add(box))
+        {
+            return;
+        }
+
+        CTRL_BoxContents contents = box.GetComponent<CTRL_BoxContents>();
+        if (contents == null || contents.Product == null || contents.Units <= 0)
+        {
+            return;
+        }
+
+        DockBoxSaveData saveData = new DockBoxSaveData
+        {
+            productID = contents.Product.ProductID,
+            units = contents.Units
+        };
+
+        if (cargoPoint != null && box.transform.IsChildOf(cargoPoint))
+        {
+            saveData.hasCargoTransform = true;
+            saveData.cargoLocalPosition = box.transform.localPosition;
+            saveData.cargoLocalRotation = box.transform.localRotation;
+        }
+
+        savedBoxes.Add(saveData);
+    }
+
+    public void RestoreDockBoxes(
+        IReadOnlyList<DockBoxSaveData> savedBoxes,
+        bool hasSavedTruck,
+        bool hasSavedTruckTransform,
+        Vector3 savedTruckPosition,
+        Quaternion savedTruckRotation)
+    {
+        if ((savedBoxes == null || savedBoxes.Count == 0) && !hasSavedTruck)
+        {
+            ReportDockState(true);
+            return;
+        }
+
+        List<ShelfBoxData> cargo = new List<ShelfBoxData>();
+        List<DockBoxSaveData> restoredBoxData = new List<DockBoxSaveData>();
+        if (savedBoxes != null)
+        {
+            foreach (DockBoxSaveData savedBox in savedBoxes)
+            {
+                if (savedBox == null ||
+                    string.IsNullOrEmpty(savedBox.productID) ||
+                    savedBox.units <= 0 ||
+                    savedBox.units > UnitsPerBox)
+                {
+                    continue;
+                }
+
+                DATA_ProductSO product = MGR_Inventory.Instance != null
+                    ? MGR_Inventory.Instance.GetProductByID(savedBox.productID)
+                    : null;
+                if (product == null)
+                {
+                    Debug.LogWarning(
+                        $"CTRL_TruckDelivery: Could not restore dock box for product '{savedBox.productID}'."
+                    );
+                    continue;
+                }
+
+                cargo.Add(new ShelfBoxData
+                {
+                    Product = product,
+                    Units = savedBox.units
+                });
+                restoredBoxData.Add(savedBox);
+            }
+        }
+
+        if (_truckPrefab == null || _boxPrefab == null || _truckEnd == null)
+        {
+            Debug.LogError(
+                "CTRL_TruckDelivery: Cannot restore the saved truck without truck, box, and dock references."
             );
+            ReportDockState(true);
+            return;
+        }
+
+        Vector3 truckPosition = hasSavedTruckTransform
+            ? savedTruckPosition
+            : _truckEnd.position;
+        Quaternion truckRotation = hasSavedTruckTransform
+            ? savedTruckRotation
+            : _truckEnd.rotation;
+        _truck = Instantiate(_truckPrefab, truckPosition, truckRotation);
+
+        Transform cargoPoint = _truck.transform.Find("CargoSpawnPoint");
+        if (cargoPoint == null)
+        {
+            Debug.LogError("CTRL_TruckDelivery: CargoSpawnPoint was not found on the restored truck.");
+            Destroy(_truck);
+            _truck = null;
+            ReportDockState(true);
+            return;
+        }
+
+        if (cargo.Count > 0 && !SpawnBoxes(cargoPoint, cargo))
+        {
+            ReleaseTrackedBoxes();
+            Destroy(_truck);
+            _truck = null;
+            ReportDockState(true);
+            return;
+        }
+
+        int boxCount = Mathf.Min(_boxes.Count, restoredBoxData.Count);
+        for (int i = 0; i < boxCount; i++)
+        {
+            DockBoxSaveData boxData = restoredBoxData[i];
+            if (!boxData.hasCargoTransform)
+            {
+                continue;
+            }
+
+            _boxes[i].transform.localPosition = boxData.cargoLocalPosition;
+            _boxes[i].transform.localRotation = boxData.cargoLocalRotation;
+        }
+
+        _deliveryRoutine = StartCoroutine(ResumeRestoredTruck());
+    }
+
+    private IEnumerator ResumeRestoredTruck()
+    {
+        if (_truckEnd != null &&
+            Vector3.Distance(_truck.transform.position, _truckEnd.position) > 0.05f)
+        {
+            yield return MoveTruckTo(_truckEnd);
+        }
+
+        while (HasCargoRemaining())
+        {
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(_leaveDelay);
+        yield return MoveTruck(_truckEnd, _truckStart);
+
+        if (_truck != null)
+        {
+            Destroy(_truck);
+        }
+
+        _truck = null;
+        _deliveryRoutine = null;
+        ReportDockState();
+    }
+
+    private IEnumerator MoveTruckTo(Transform target)
+    {
+        if (_truck == null || target == null)
+        {
+            yield break;
+        }
+
+        Vector3 startPosition = _truck.transform.position;
+        Quaternion startRotation = _truck.transform.rotation;
+        float elapsed = 0f;
+
+        while (elapsed < _travelDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / _travelDuration);
+            t = t * t * (3f - 2f * t);
+            _truck.transform.SetPositionAndRotation(
+                Vector3.Lerp(startPosition, target.position, t),
+                Quaternion.Slerp(startRotation, target.rotation, t)
+            );
+            yield return null;
+        }
+
+        if (_truck != null)
+        {
+            _truck.transform.SetPositionAndRotation(target.position, target.rotation);
         }
     }
 

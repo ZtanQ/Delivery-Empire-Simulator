@@ -4,5 +4,7 @@ public enum PurchaseResult
 {
     Success,
     NotEnoughCash,
-    EmptyOrder
+    EmptyOrder,
+    DockBusy,
+    TooManyBoxes
 }

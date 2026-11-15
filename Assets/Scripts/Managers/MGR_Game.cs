@@ -359,6 +359,22 @@ public class MGR_Game : Manager<MGR_Game>
             return PurchaseResult.EmptyOrder;
         }
 
+        if (CTRL_TruckDelivery.Instance != null &&
+            CTRL_TruckDelivery.Instance.IsDockBusy)
+        {
+            OnPurchaseRejected?.Invoke(PurchaseResult.DockBusy);
+            return PurchaseResult.DockBusy;
+        }
+
+        int maximumBoxes = CTRL_TruckDelivery.Instance != null
+            ? CTRL_TruckDelivery.Instance.BoxesPerTruck
+            : 6;
+        if (GetRequiredBoxCount(lines) > maximumBoxes)
+        {
+            OnPurchaseRejected?.Invoke(PurchaseResult.TooManyBoxes);
+            return PurchaseResult.TooManyBoxes;
+        }
+
         if (currentCash < totalCostCents)
         {
             OnPurchaseRejected?.Invoke(
@@ -389,6 +405,36 @@ public class MGR_Game : Manager<MGR_Game>
         );
 
         return PurchaseResult.Success;
+    }
+
+    private static int GetRequiredBoxCount(List<PurchaseItem> lines)
+    {
+        const int unitsPerBox = 5;
+        Dictionary<DATA_ProductSO, int> unitsByProduct =
+            new Dictionary<DATA_ProductSO, int>();
+
+        foreach (PurchaseItem line in lines)
+        {
+            if (line == null || line.Product == null || line.Quantity <= 0)
+            {
+                continue;
+            }
+
+            if (!unitsByProduct.ContainsKey(line.Product))
+            {
+                unitsByProduct[line.Product] = 0;
+            }
+
+            unitsByProduct[line.Product] += line.Quantity;
+        }
+
+        int totalBoxes = 0;
+        foreach (KeyValuePair<DATA_ProductSO, int> entry in unitsByProduct)
+        {
+            totalBoxes += (entry.Value - 1) / unitsPerBox + 1;
+        }
+
+        return totalBoxes;
     }
 
     public void LoadGameState(
