@@ -22,6 +22,7 @@ public class TerminalBuyUI : MonoBehaviour
     private Button[] plusButtons;
     private CTRL_TruckDelivery truckDelivery;
     private int[] quantities;
+    private bool dockBusyFeedbackActive;
 
     public void Open()
     {
@@ -89,6 +90,7 @@ public class TerminalBuyUI : MonoBehaviour
             orderButton.onClick.AddListener(PlaceOrder);
 
         truckDelivery = FindAnyObjectByType<CTRL_TruckDelivery>();
+        RefreshDockAvailability();
     }
 
     private void ChangeQuantity(int index, int amount)
@@ -123,6 +125,11 @@ public class TerminalBuyUI : MonoBehaviour
     {
         if (purchaseFeedbackText == null)
             return;
+
+        if (dockBusyFeedbackActive)
+        {
+            return;
+        }
 
         if (feedbackCoroutine != null)
             StopCoroutine(feedbackCoroutine);
@@ -159,11 +166,14 @@ public class TerminalBuyUI : MonoBehaviour
     private void OnEnable()
     {
         MGR_Game.OnPurchaseRejected += HandlePurchaseRejected;
+        CTRL_TruckDelivery.OnDockStateChanged += HandleDockStateChanged;
+        RefreshDockAvailability();
     }
 
     private void OnDisable()
     {
         MGR_Game.OnPurchaseRejected -= HandlePurchaseRejected;
+        CTRL_TruckDelivery.OnDockStateChanged -= HandleDockStateChanged;
 
         if (feedbackCoroutine != null)
         {
@@ -183,10 +193,85 @@ public class TerminalBuyUI : MonoBehaviour
         {
             ShowPurchaseFeedback("Not enough cash");
         }
+        else if (result == PurchaseResult.DockBusy)
+        {
+            RefreshDockAvailability(true);
+        }
+        else if (result == PurchaseResult.TooManyBoxes)
+        {
+            ShowPurchaseFeedback("Order exceeds the 6 box truck limit");
+        }
+    }
+
+    private void HandleDockStateChanged(bool isBusy, int boxesLeft)
+    {
+        RefreshDockAvailability(isBusy, boxesLeft);
+    }
+
+    private void RefreshDockAvailability(bool forceRefresh = false)
+    {
+        CTRL_TruckDelivery truckDelivery = CTRL_TruckDelivery.Instance;
+        bool isBusy = truckDelivery != null && truckDelivery.IsDockBusy;
+        int boxesLeft = truckDelivery != null ? truckDelivery.BoxesLeftAtDock : 0;
+        RefreshDockAvailability(isBusy, boxesLeft, forceRefresh);
+    }
+
+    private void RefreshDockAvailability(
+        bool isBusy,
+        int boxesLeft,
+        bool forceRefresh = false)
+    {
+        if (orderButton != null)
+        {
+            orderButton.interactable = !isBusy;
+        }
+
+        if (isBusy)
+        {
+            if (purchaseFeedbackText == null)
+            {
+                return;
+            }
+
+            string boxLabel = boxesLeft == 1 ? "box" : "boxes";
+            string message = $"Unload the truck first ({boxesLeft} {boxLabel} left)";
+            if (!forceRefresh && dockBusyFeedbackActive && purchaseFeedbackText.text == message)
+            {
+                return;
+            }
+
+            if (feedbackCoroutine != null)
+            {
+                StopCoroutine(feedbackCoroutine);
+                feedbackCoroutine = null;
+            }
+
+            dockBusyFeedbackActive = true;
+            purchaseFeedbackText.text = message;
+            purchaseFeedbackText.color = Color.red;
+            purchaseFeedbackText.gameObject.SetActive(true);
+            return;
+        }
+
+        if (dockBusyFeedbackActive)
+        {
+            dockBusyFeedbackActive = false;
+            if (purchaseFeedbackText != null)
+            {
+                purchaseFeedbackText.gameObject.SetActive(false);
+            }
+        }
     }
 
     private void PlaceOrder()
     {
+        if (CTRL_TruckDelivery.Instance != null &&
+            CTRL_TruckDelivery.Instance.IsDockBusy)
+        {
+            RefreshDockAvailability(true);
+            return;
+        }
+
         if (MGR_Game.Instance == null)
         {
             Debug.LogWarning("TerminalBuyUI: MGR_Game is not available.");
@@ -230,6 +315,15 @@ public class TerminalBuyUI : MonoBehaviour
             return;
 
         ShowPurchaseFeedback("Order placed");
+        if (CTRL_TruckDelivery.Instance != null &&
+            CTRL_TruckDelivery.Instance.IsDockBusy)
+        {
+            RefreshDockAvailability(true);
+        }
+        else
+        {
+            ShowPurchaseFeedback("Order placed");
+        }
 
         for (int i = 0; i < quantities.Length; i++)
         {
