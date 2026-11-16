@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +20,7 @@ public class TerminalBuyUI : MonoBehaviour
     private TMP_Text[] priceTexts;
     private Button[] minusButtons;
     private Button[] plusButtons;
+    private CTRL_TruckDelivery truckDelivery;
     private int[] quantities;
 
     public void Open()
@@ -85,6 +87,8 @@ public class TerminalBuyUI : MonoBehaviour
 
         if (orderButton != null)
             orderButton.onClick.AddListener(PlaceOrder);
+
+        truckDelivery = FindAnyObjectByType<CTRL_TruckDelivery>();
     }
 
     private void ChangeQuantity(int index, int amount)
@@ -129,9 +133,14 @@ public class TerminalBuyUI : MonoBehaviour
         {
             purchaseFeedbackText.color = Color.green;
         }
-        else if (message == "Not enough cash")
+        else if (message == "Not enough cash" ||
+                 message == "Unload the truck first")
         {
             purchaseFeedbackText.color = Color.red;
+        }
+        else if (message == "Select products first")
+        {
+            purchaseFeedbackText.color = Color.yellow;
         }
 
         purchaseFeedbackText.gameObject.SetActive(true);
@@ -147,7 +156,7 @@ public class TerminalBuyUI : MonoBehaviour
         feedbackCoroutine = null;
     }
 
-        private void OnEnable()
+    private void OnEnable()
     {
         MGR_Game.OnPurchaseRejected += HandlePurchaseRejected;
     }
@@ -175,11 +184,18 @@ public class TerminalBuyUI : MonoBehaviour
             ShowPurchaseFeedback("Not enough cash");
         }
     }
+
     private void PlaceOrder()
     {
         if (MGR_Game.Instance == null)
         {
             Debug.LogWarning("TerminalBuyUI: MGR_Game is not available.");
+            return;
+        }
+
+        if (truckDelivery != null && truckDelivery.HasUndeliveredCargo)
+        {
+            ShowPurchaseFeedback("Unload the truck first");
             return;
         }
 
@@ -201,7 +217,10 @@ public class TerminalBuyUI : MonoBehaviour
         }
 
         if (lines.Count == 0)
+        {
+            ShowPurchaseFeedback("Select products first");
             return;
+        }
 
         PurchaseResult result = MGR_Game.Instance.TryPurchase(lines);
 
@@ -209,6 +228,7 @@ public class TerminalBuyUI : MonoBehaviour
 
         if (result != PurchaseResult.Success)
             return;
+
         ShowPurchaseFeedback("Order placed");
 
         for (int i = 0; i < quantities.Length; i++)
