@@ -20,7 +20,6 @@ public class TerminalBuyUI : MonoBehaviour
     private TMP_Text[] priceTexts;
     private Button[] minusButtons;
     private Button[] plusButtons;
-    private CTRL_TruckDelivery truckDelivery;
     private int[] quantities;
     private bool dockBusyFeedbackActive;
 
@@ -88,9 +87,6 @@ public class TerminalBuyUI : MonoBehaviour
 
         if (orderButton != null)
             orderButton.onClick.AddListener(PlaceOrder);
-
-        truckDelivery = FindAnyObjectByType<CTRL_TruckDelivery>();
-        RefreshDockAvailability();
     }
 
     private void ChangeQuantity(int index, int amount)
@@ -278,12 +274,6 @@ public class TerminalBuyUI : MonoBehaviour
             return;
         }
 
-        if (truckDelivery != null && truckDelivery.HasUndeliveredCargo)
-        {
-            ShowPurchaseFeedback("Unload the truck first");
-            return;
-        }
-
         List<PurchaseItem> lines = new List<PurchaseItem>();
 
         for (int i = 0; i < quantities.Length; i++)
@@ -314,7 +304,6 @@ public class TerminalBuyUI : MonoBehaviour
         if (result != PurchaseResult.Success)
             return;
 
-        ShowPurchaseFeedback("Order placed");
         if (CTRL_TruckDelivery.Instance != null &&
             CTRL_TruckDelivery.Instance.IsDockBusy)
         {

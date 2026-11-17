@@ -86,41 +86,6 @@ public class CTRL_TruckDelivery : MonoBehaviour
     private GameObject _truck;
     private Coroutine _deliveryRoutine;
     private ShelfSlot[] _shelfSlots;
-    public bool HasUndeliveredCargo
-    {
-        get
-        {
-            // Check boxes still inside the truck.
-            if (_truck != null)
-            {
-                foreach (GameObject box in _boxes)
-                {
-                    if (box != null &&
-                        box.transform.IsChildOf(_truck.transform))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            // Remove boxes that have been picked up or destroyed.
-            for (int i = _dockQueue.Count - 1; i >= 0; i--)
-            {
-                GameObject box = _dockQueue[i];
-
-                if (box == null || box.transform.parent != null)
-                {
-                    _dockQueue.RemoveAt(i);
-                }
-            }
-            // Check boxes waiting in the dock queue.
-            if (_dockQueue.Count > 0)
-                return true;
-
-            // Check deliveries waiting for another truck.
-            return _pendingDeliveries.Count > 0;
-        }
-    }
     private float _dockStateRefreshTimer;
     private bool _lastReportedDockBusy;
     private int _lastReportedBoxesLeft = -1;
