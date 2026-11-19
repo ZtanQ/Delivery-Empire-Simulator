@@ -12477,15 +12477,15 @@ MonoBehaviour:
   gridRows: 3
   cellMargin: 0.035
   unitSpacing: 0.02
-  displayOffset: {x: 0, y: 0.12, z: 0}
+  displayOffset: {x: 0, y: 0, z: 0}
   productFrontOffset: 0.1
   boardClearance: 0.01
   productScaleMultiplier: 1.2
-  horizontalCenterOffset: 0.2
+  horizontalCenterOffset: 0
   shelfBoardTopLocalY:
-  - 1.25
-  - 0.7
-  - 0.05
+  - 1.388
+  - 0.763
+  - 0.154
   categoryLabelHeight: 0.65
   categoryLabelFrontOffset: 0.6
   categoryLabelSize: {x: 2.4, y: 0.45}
@@ -13894,15 +13894,15 @@ MonoBehaviour:
   gridRows: 3
   cellMargin: 0.035
   unitSpacing: 0.02
-  displayOffset: {x: 0, y: 0.12, z: 0}
+  displayOffset: {x: 0, y: 0, z: 0}
   productFrontOffset: 0.1
   boardClearance: 0.01
   productScaleMultiplier: 1.2
-  horizontalCenterOffset: 0.2
+  horizontalCenterOffset: 0
   shelfBoardTopLocalY:
-  - 1.25
-  - 0.7
-  - 0.05
+  - 1.388
+  - 0.763
+  - 0.154
   categoryLabelHeight: 0.65
   categoryLabelFrontOffset: 0.6
   categoryLabelSize: {x: 2.4, y: 0.45}
@@ -14025,15 +14025,15 @@ MonoBehaviour:
   gridRows: 3
   cellMargin: 0.035
   unitSpacing: 0.02
-  displayOffset: {x: 0, y: 0.12, z: 0}
+  displayOffset: {x: 0, y: 0, z: 0}
   productFrontOffset: 0.1
   boardClearance: 0.01
   productScaleMultiplier: 1.2
-  horizontalCenterOffset: 0.2
+  horizontalCenterOffset: 0
   shelfBoardTopLocalY:
-  - 1.25
-  - 0.7
-  - 0.05
+  - 1.388
+  - 0.763
+  - 0.154
   categoryLabelHeight: 0.65
   categoryLabelFrontOffset: 0.6
   categoryLabelSize: {x: 2.4, y: 0.45}
@@ -16481,15 +16481,15 @@ MonoBehaviour:
   gridRows: 3
   cellMargin: 0.035
   unitSpacing: 0.02
-  displayOffset: {x: 0, y: 0.12, z: 0}
+  displayOffset: {x: 0, y: 0, z: 0}
   productFrontOffset: 0.1
   boardClearance: 0.01
   productScaleMultiplier: 1.2
-  horizontalCenterOffset: 0.2
+  horizontalCenterOffset: 0
   shelfBoardTopLocalY:
-  - 1.25
-  - 0.7
-  - 0.05
+  - 1.388
+  - 0.763
+  - 0.154
   categoryLabelHeight: 0.65
   categoryLabelFrontOffset: 0.6
   categoryLabelSize: {x: 2.4, y: 0.45}
@@ -20680,15 +20680,15 @@ MonoBehaviour:
   gridRows: 3
   cellMargin: 0.035
   unitSpacing: 0.02
-  displayOffset: {x: 0, y: 0.12, z: 0}
+  displayOffset: {x: 0, y: 0, z: 0}
   productFrontOffset: 0.1
   boardClearance: 0.01
   productScaleMultiplier: 1.2
-  horizontalCenterOffset: 0.2
+  horizontalCenterOffset: 0
   shelfBoardTopLocalY:
-  - 1.25
-  - 0.7
-  - 0.05
+  - 1.388
+  - 0.763
+  - 0.154
   categoryLabelHeight: 0.65
   categoryLabelFrontOffset: 0.6
   categoryLabelSize: {x: 2.4, y: 0.45}
@@ -21122,15 +21122,15 @@ MonoBehaviour:
   gridRows: 3
   cellMargin: 0.035
   unitSpacing: 0.02
-  displayOffset: {x: 0, y: 0.12, z: 0}
+  displayOffset: {x: 0, y: 0, z: 0}
   productFrontOffset: 0.1
   boardClearance: 0.01
   productScaleMultiplier: 1.2
-  horizontalCenterOffset: 0.2
+  horizontalCenterOffset: 0
   shelfBoardTopLocalY:
-  - 1.25
-  - 0.7
-  - 0.05
+  - 1.388
+  - 0.763
+  - 0.154
   categoryLabelHeight: 0.65
   categoryLabelFrontOffset: 0.6
   categoryLabelSize: {x: 2.4, y: 0.45}

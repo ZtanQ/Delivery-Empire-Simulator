@@ -15,20 +15,24 @@ public class ShelfStockVisual : MonoBehaviour
     [SerializeField, Min(0f)] private float cellMargin = 0.035f;
     [SerializeField, Min(0f)] private float unitSpacing = 0.02f;
 
+    [Header("Product Display Grid")]
+    [SerializeField, Min(1)] private int productDisplayColumns = 3;
+    [SerializeField, Min(1)] private int productDisplayRows = 2;
+
     [Header("Product Placement")]
     [SerializeField] private Vector3 displayOffset = Vector3.zero;
     [SerializeField, Min(0f)] private float productFrontOffset = 0.1f;
     [SerializeField, Min(0f)] private float boardClearance = 0.01f;
     [SerializeField, Range(1f, 1.5f)] private float productScaleMultiplier = 1.2f;
-    [SerializeField] private float horizontalCenterOffset = 0.2f;
+    [SerializeField] private float horizontalCenterOffset = 0f;
 
     [Header("Shelf Board Heights (Local Y, Top to Bottom)")]
     [SerializeField]
     private float[] shelfBoardTopLocalY =
     {
-    1.25f,
-    0.70f,
-    0.05f
+    1.388f,
+    0.763f,
+    0.154f
     };
 
     [Header("Category Label")]
@@ -41,6 +45,9 @@ public class ShelfStockVisual : MonoBehaviour
 
     private readonly Dictionary<GameObject, Vector3> originalScales =
     new Dictionary<GameObject, Vector3>();
+
+    private readonly HashSet<DATA_ProductSO> warnedProducts =
+    new HashSet<DATA_ProductSO>();
 
     private readonly List<DATA_ProductSO> orderedProducts =
         new List<DATA_ProductSO>();
@@ -215,9 +222,87 @@ public class ShelfStockVisual : MonoBehaviour
             float cellCenterRight =
                 minRight + (column + 0.5f) * cellWidth;
 
+
             int productUnits = Mathf.Max(
                 0,
                 inventory.GetShelfProductUnits(shelf.ShelfID, product));
+
+            // No stock: hide all pooled props and move to the next product.
+            if (productUnits == 0)
+            {
+                foreach (GameObject pooledProp in productPool)
+                {
+                    if (pooledProp != null)
+                        pooledProp.SetActive(false);
+                }
+
+                continue;
+            }
+
+            if (productPool.Count == 0)
+                continue;
+
+            // Use the first pooled prop to calculate the product's visual dimensions.
+            GameObject sampleProp = productPool[0];
+
+            sampleProp.SetActive(true);
+
+            if (originalScales.TryGetValue(sampleProp, out Vector3 sampleOriginalScale))
+            {
+                sampleProp.transform.localScale =
+                    Vector3.Scale(
+                        sampleOriginalScale,
+                        Vector3.one * productScaleMultiplier);
+            }
+
+            if (!TryGetProductBounds(sampleProp, out Bounds sampleBounds))
+            {
+                Debug.LogWarning(
+                    $"ShelfStockVisual: No renderer bounds found for {product.name}.",
+                    this);
+
+                foreach (GameObject pooledProp in productPool)
+                {
+                    if (pooledProp != null)
+                        pooledProp.SetActive(false);
+                }
+
+                continue;
+            }
+
+            float productWidth =
+                GetProjectedExtent(sampleBounds, right) * 2f;
+
+            float productDepth =
+                GetProjectedExtent(sampleBounds, front) * 2f;
+
+            float usableWidth = cellWidth - 2f * cellMargin;
+
+            // Reserve space for the front offset and the shelf back panel.
+            const float backPanelDepth = 0.05f;
+
+            float usableDepth =
+                frontExtent * 2f
+                - 2f * cellMargin
+                - productFrontOffset
+                - backPanelDepth;
+
+            usableDepth = Mathf.Max(0f, usableDepth);
+
+            int unitsPerRow = Mathf.Max(1, productDisplayColumns);
+            int depthRows = Mathf.Max(1, productDisplayRows);
+
+            int maxVisibleUnits = unitsPerRow * depthRows;
+
+            // Log visual overflow only once per product.
+            if (productUnits > maxVisibleUnits &&
+                warnedProducts.Add(product))
+            {
+                Debug.LogWarning(
+                    $"ShelfStockVisual: {product.name}: " +
+                    $"{productUnits} stocked, {maxVisibleUnits} fit.",
+                    this);
+            }
 
             for (int i = 0; i < productPool.Count; i++)
             {
@@ -235,7 +320,9 @@ public class ShelfStockVisual : MonoBehaviour
                 if (originalScales.TryGetValue(prop, out Vector3 originalScale))
                 {
                     prop.transform.localScale =
-                        Vector3.Scale(originalScale, Vector3.one * productScaleMultiplier);
+                        Vector3.Scale(
+                            originalScale,
+                            Vector3.one * productScaleMultiplier);
                 }
 
                 if (!TryGetProductBounds(prop, out Bounds productBounds))
@@ -247,34 +334,9 @@ public class ShelfStockVisual : MonoBehaviour
                     continue;
                 }
 
-                float productWidth =
-                    GetProjectedExtent(productBounds, right) * 2f;
-
-                float productDepth =
-                    GetProjectedExtent(productBounds, front) * 2f;
-
-                float usableWidth = cellWidth - 2f * cellMargin;
-                float usableDepth = frontExtent * 2f - 2f * cellMargin;
-
-                int unitsPerRow = Mathf.Max(
-                    1,
-                    Mathf.FloorToInt(
-                        usableWidth / Mathf.Max(0.001f, productWidth + unitSpacing)));
-
-                int depthRows = Mathf.Max(
-                    1,
-                    Mathf.FloorToInt(
-                        usableDepth / Mathf.Max(0.001f, productDepth + unitSpacing)));
-
-                int maxVisibleUnits = unitsPerRow * depthRows;
-
+                // Hide units that exceed the calculated visual capacity.
                 if (i >= maxVisibleUnits)
                 {
-                    Debug.LogWarning(
-                        $"ShelfStockVisual: {product.name} exceeds its calculated cell capacity. " +
-                        $"Visible: {maxVisibleUnits}, stocked: {productUnits}.",
-                        prop);
-
                     prop.SetActive(false);
                     continue;
                 }
