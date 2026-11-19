@@ -85,36 +85,48 @@ public class ContextualActionButton : MonoBehaviour,
             return;
         }
 
-        if (labelText != null)
-            labelText.text = label;
-
-        currentVisual = actionVisual;
-        isPressed = false;
-
-        currentNormal = icon;
-        currentPressed = null;
-        currentDisabled = null;
+        Sprite nextNormal = icon;
+        Sprite nextPressed = null;
+        Sprite nextDisabled = null;
 
         switch (actionVisual)
         {
             case ActionVisual.Pickup:
-                currentNormal = pickupNormal;
-                currentPressed = pickupPressed;
-                currentDisabled = pickupDisabled;
+                nextNormal = pickupNormal;
+                nextPressed = pickupPressed;
+                nextDisabled = pickupDisabled;
                 break;
 
             case ActionVisual.Place:
-                currentNormal = placeNormal;
-                currentPressed = placePressed;
-                currentDisabled = placeDisabled;
+                nextNormal = placeNormal;
+                nextPressed = placePressed;
+                nextDisabled = placeDisabled;
                 break;
 
             case ActionVisual.UsePC:
-                currentNormal = usePCNormal;
-                currentPressed = usePCPressed;
-                currentDisabled = usePCDisabled;
+                nextNormal = usePCNormal;
+                nextPressed = usePCPressed;
+                nextDisabled = usePCDisabled;
                 break;
         }
+
+        bool actionChanged =
+            currentVisual != actionVisual ||
+            currentNormal != nextNormal ||
+            (labelText != null && labelText.text != label);
+
+        if (actionChanged)
+        {
+            isPressed = false;
+        }
+
+        if (labelText != null)
+            labelText.text = label;
+
+        currentVisual = actionVisual;
+        currentNormal = nextNormal;
+        currentPressed = nextPressed;
+        currentDisabled = nextDisabled;
 
         if (actionButton != null)
         {
