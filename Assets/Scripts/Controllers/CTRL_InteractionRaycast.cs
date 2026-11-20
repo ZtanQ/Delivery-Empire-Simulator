@@ -91,9 +91,17 @@ public class CTRL_InteractionRaycast : MonoBehaviour
             }
             else
             {
-                SetActionButton(
-                    _currentShelfTarget != null ? "Place" : "Drop"
-                );
+                if (_currentShelfTarget != null)
+                {
+                    SetActionButton(
+                        "Place",
+                        ContextualActionButton.ActionVisual.Place
+                    );
+                }
+                else
+                {
+                    SetActionButton("Drop");
+                }
             }
 
             return;
@@ -687,21 +695,31 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         _heldBoxSmoothingVelocity = Vector3.zero;
     }
 
+
     private void UpdateActionButton(
         CTRL_Interactable.ActionType actionType)
     {
         switch (actionType)
         {
             case CTRL_Interactable.ActionType.PickUp:
-                SetActionButton("Pick up");
+                SetActionButton(
+                    "Pick up",
+                    ContextualActionButton.ActionVisual.Pickup
+                );
                 break;
 
             case CTRL_Interactable.ActionType.Place:
-                SetActionButton("Place");
+                SetActionButton(
+                    "Place",
+                    ContextualActionButton.ActionVisual.Place
+                );
                 break;
 
             case CTRL_Interactable.ActionType.Use:
-                SetActionButton("Use");
+                SetActionButton(
+                    "Use",
+                    ContextualActionButton.ActionVisual.UsePC
+                );
                 break;
         }
     }
@@ -711,6 +729,16 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         if (_actionButton != null)
         {
             _actionButton.SetAction(label, null);
+        }
+    }
+
+    private void SetActionButton(
+        string label,
+        ContextualActionButton.ActionVisual actionVisual)
+    {
+        if (_actionButton != null)
+        {
+            _actionButton.SetAction(label, null, actionVisual);
         }
     }
 
