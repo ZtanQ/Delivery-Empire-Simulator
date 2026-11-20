@@ -136,3 +136,4 @@ One row per APK shared with the team. The next version code is the last one + 1.
 |---|---|---|---|---|---|---|
 | 06/11/2026 | Sprint 1 | Murtaza | (see PR #177) | 1 | Dev_Inbox/Builds/Sprint1 | 41.6 MB |
 | 18/11/2026 | Build A0 | Gabriel | 8081f32 | 2 | Dev_Inbox/Builds/Sprint3/DES_Sprint3_1811.apk | 41.7 MB |
+| 20/11/2026 | Build A | Priyanka | 6a145ba | 3 | Dev_Inbox/Builds/Sprint3/DES_Sprint3_2011.apk | 39.8 MB |

@@ -381,3 +381,56 @@ The Editor investigation did not identify a confirmed root cause. Physical-devic
 - Investigate order-card cleanup and rider behaviour if profiling indicates they contribute to the slowdown.
 
 **Status:** Editor investigation completed; physical-device profiling and root-cause verification pending. No performance fix has been confirmed.
+
+
+## Sprint 3 Build A — 15-Minute Phone Test (20 November 2026)
+
+**Device:** OnePlus Nord CE 3 Lite 5G  
+**Build:** `DES_Sprint3_2011.apk`  
+**Build branch:** `dev`  
+**Build commit:** `6a145ba`  
+**Version code:** `3`  
+**APK size:** 39.8 MB  
+**Test duration:** 15 minutes  
+**FPS measurement:** OnePlus Game Assistant (HyperBoost) overlay
+
+| Elapsed Time | FPS (overlay) | Device Temperature (overlay) |
+|---:|---:|---:|
+| 0 min | 60 | 36°C |
+| 15 min | 60 | 38°C |
+
+**First delivery:** Completed within 2 minutes of starting the new save.
+
+### Observations
+
+- The Game Assistant overlay displayed 60 FPS at the start and at the 15-minute check.
+- The temperature displayed by the overlay increased from 36°C to 38°C.
+- The first delivery was completed within 2 minutes.
+- The 15-minute gameplay test was completed, and the `save.json` contained updated game progress.
+- Draw calls, triangle count and memory usage were not measured during this Release-build phone test.
+
+**Note:** FPS and temperature values above are readings visible in the phone's Game Assistant overlay. The first-delivery time was reported as "within 2 minutes"; an exact stopwatch time was not recorded.
+
+
+## Sprint 3 Build A — 20-Minute Development Build Test (20 November 2026)
+
+**Device:** OnePlus Nord CE 3 Lite 5G  
+**Build:** `DES_Sprint3_2011_dev.apk`  
+**Test duration:** 20 minutes  
+**Test conditions:** Fresh save, Development Build, Unity Profiler connected to Android device.
+
+| Elapsed Time | FPS | Memory (MB) | Temperature (°C) | Draw Calls |
+|---:|---:|---:|---:|---:|
+| 0 min | 60 | N/A | 36 | N/A |
+| 5 min | 60 | 434.3 | 36 | 0 |
+| 10 min | 58 | 434.6 | 39 | 0 |
+| 15 min | 59 | 439.3 | 39 | 0 |
+| 20 min | 60 | 430.2 | 39 | 0 |
+
+**Notes:**
+- Memory values represent Total Committed Memory from Unity Profiler.
+- Temperature values are from the phone's Game Assistant overlay; they are device-temperature readings, not verified battery temperatures.
+- Draw Calls were reported as 0 by the Profiler. The counter may not be populated correctly.
+- N/A indicates a measurement was not available in the recorded results.
+
+**Result:** The 20-minute Development-build test was completed. The phone displayed 60 FPS at the final checkpoint.
