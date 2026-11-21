@@ -117,6 +117,8 @@ public class MGR_Audio : Manager<MGR_Audio>
         ConfigureSceneAudio(scene);
     }
 
+    // GDD v3 R4 (decision 17 Nov): MUS_Menu on the title screen (Boot);
+    // MUS_Main loops through the game, together with the warehouse ambience.
     private void ConfigureSceneAudio(Scene scene)
     {
         if (scene.name == "Boot")
@@ -124,8 +126,8 @@ public class MGR_Audio : Manager<MGR_Audio>
             StopLoop(_ambientSource);
             PlayLoop(
                 _musicSource,
-                mainMusicClip,
-                mainMusicVolumePercent
+                menuMusicClip != null ? menuMusicClip : mainMusicClip,
+                menuMusicClip != null ? menuMusicVolumePercent : mainMusicVolumePercent
             );
         }
         else if (scene.name == "Main_level" || scene.name == "Sandbox_gp")
@@ -135,7 +137,11 @@ public class MGR_Audio : Manager<MGR_Audio>
                 ambientLoopClip,
                 ambientVolumePercent
             );
-            StopLoop(_musicSource);
+            PlayLoop(
+                _musicSource,
+                mainMusicClip,
+                mainMusicVolumePercent
+            );
         }
     }
 
@@ -360,7 +366,11 @@ public class MGR_Audio : Manager<MGR_Audio>
                     );
                 }
 
-                StopLoop(Instance._musicSource);
+                PlayLoop(
+                    Instance._musicSource,
+                    Instance.mainMusicClip,
+                    Instance.mainMusicVolumePercent
+                );
             }
             else
             {
