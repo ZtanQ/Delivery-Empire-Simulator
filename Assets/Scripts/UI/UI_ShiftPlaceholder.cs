@@ -60,6 +60,7 @@ public class UI_ShiftPlaceholder : MonoBehaviour
         MGR_Shift.OnShiftEnded += ShowSummary;
         MGR_Shift.OnContractWon += ShowContractWon;
         MGR_Shift.OnEmergencyBox += ShowEmergencyToast;
+        MGR_Shift.OnTargetReached += ShowTargetReached;
     }
 
     private void OnDisable()
@@ -70,6 +71,7 @@ public class UI_ShiftPlaceholder : MonoBehaviour
         MGR_Shift.OnShiftEnded -= ShowSummary;
         MGR_Shift.OnContractWon -= ShowContractWon;
         MGR_Shift.OnEmergencyBox -= ShowEmergencyToast;
+        MGR_Shift.OnTargetReached -= ShowTargetReached;
     }
 
     private void Update()
@@ -215,6 +217,15 @@ public class UI_ShiftPlaceholder : MonoBehaviour
         ShowModal("Contract won!", body, -1,
             "Free play", shift.StartFreePlay,
             "Save and exit", shift.SaveAndExit);
+    }
+
+    private void ShowTargetReached(MGR_Shift shift)
+    {
+        toastText.text = "Goal reached!";
+        toastText.color = GoodColour;
+        toastText.gameObject.SetActive(true);
+        toastTimer = 2.5f;
+        MGR_Audio.PlayUITap();
     }
 
     private void ShowEmergencyToast()

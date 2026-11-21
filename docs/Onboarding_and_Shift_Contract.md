@@ -58,7 +58,8 @@ GDD v3 (Release block, R3 and R8); this page explains the code and who continues
 
 ### Shift contract (1121-GP Arnab, pair part 1121-LEAD Gabriel)
 - `MGR_Shift.cs`, created at runtime when Main_level loads. 5 shifts of 300 s with
-  the GDD R8 targets; stars (1 met, 2 also <= 1 expired, 3 also rating 4.0+); fail
+  the GDD R8 targets; the shift ends 2 s after the target is met ("Goal reached!") or
+  when the time runs out; stars (1 met, 2 also <= 1 expired, 3 also rating 4.0+); fail
   at the end or at once at rating 1.0; Retry; one emergency box per shift when the
   player has no cash and no stock; Free play after shift 5; saves at shift start;
   the game pauses on every card.

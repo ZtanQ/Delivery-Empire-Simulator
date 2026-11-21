@@ -28,6 +28,7 @@ public class MGR_Shift : MonoBehaviour
 
     public enum EndReason
     {
+        TargetReached,
         TimeUp,
         CustomersLeft,
         Debug
@@ -62,6 +63,12 @@ public class MGR_Shift : MonoBehaviour
     public static event Action<ShiftResult> OnShiftEnded;
     public static event Action<MGR_Shift> OnContractWon;
     public static event Action OnEmergencyBox;
+    public static event Action<MGR_Shift> OnTargetReached;
+
+    // The shift ends this many seconds after the target is met, so the
+    // player sees "Goal reached!" first (Gabriel's playtest 21 Nov: a met
+    // goal did nothing until the 5 minutes ran out).
+    private const float TargetReachedDelay = 2f;
 
     public DATA_ShiftContractSO Contract { get; private set; }
     public Phase CurrentPhase { get; private set; }
@@ -80,6 +87,7 @@ public class MGR_Shift : MonoBehaviour
     private bool emergencyUsed;
     private float emergencyTimer;
     private float previousTimeScale = 1f;
+    private float targetReachedTimer = -1f;
 
     // ---------------------------------------------------------
     // BOOTSTRAP
@@ -189,6 +197,7 @@ public class MGR_Shift : MonoBehaviour
         CashEarned = 0f;
         emergencyUsed = false;
         emergencyTimer = EmergencyCheckInterval;
+        targetReachedTimer = -1f;
         TimeLeft = Contract.shiftSeconds;
 
         if (MGR_Game.Instance != null)
@@ -224,6 +233,25 @@ public class MGR_Shift : MonoBehaviour
         {
             EndShift(EndReason.CustomersLeft);
             return;
+        }
+
+        float rating = MGR_Game.Instance != null ? MGR_Game.Instance.CurrentRating : 5f;
+
+        if (targetReachedTimer < 0f && IsTargetMet(rating))
+        {
+            targetReachedTimer = TargetReachedDelay;
+            OnTargetReached?.Invoke(this);
+        }
+
+        if (targetReachedTimer >= 0f)
+        {
+            targetReachedTimer -= Time.deltaTime;
+
+            if (targetReachedTimer <= 0f)
+            {
+                EndShift(EndReason.TargetReached);
+                return;
+            }
         }
 
         if (TimeLeft <= 0f)
