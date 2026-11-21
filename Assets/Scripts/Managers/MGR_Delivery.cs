@@ -42,6 +42,9 @@ public class MGR_Delivery : Manager<MGR_Delivery>
     dispatchedReservations =
        new Dictionary<CTRL_Rider, List<ShelfReservation>>();
 
+    [Header("Dispatch")]
+    [SerializeField] private float minOrderVisibleSeconds = 4f;
+
     [Header("Delivery Timeout")]
     [SerializeField] private float normalDeliveryTime = 45f;
     [SerializeField] private float deliveryTimeoutMultiplier = 2f;
@@ -323,6 +326,14 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             return rider;
         }
 
+        // Only bring a new rider from the pool while fewer riders are out
+        // than the player hired. Without this, extra riders appeared from
+        // nowhere and stood idle (Team log row 336).
+        if (riders.Count >= activeRiderCount)
+        {
+            return null;
+        }
+
         if (MGR_Pool.Instance == null)
         {
             Debug.LogWarning(
@@ -481,6 +492,15 @@ public class MGR_Delivery : Manager<MGR_Delivery>
             }
 
             if (IsOrderAlreadyDispatched(order))
+            {
+                continue;
+            }
+
+            // Leave a new order on screen long enough to be read before a
+            // rider takes it (Gabriel's playtest 20 Nov: orders that were
+            // already in stock vanished before the player saw them).
+            if (order.TimerTotal - order.TimerRemaining <
+                minOrderVisibleSeconds)
             {
                 continue;
             }
