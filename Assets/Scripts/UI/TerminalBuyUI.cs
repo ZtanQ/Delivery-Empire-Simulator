@@ -7,6 +7,9 @@ using System.Collections;
 
 public class TerminalBuyUI : MonoBehaviour
 {
+    // Status messages that are not errors (light blue, atlas v3 cyan).
+    private static readonly Color InfoColour = new Color(0.45f, 0.85f, 1f, 1f);
+
     [SerializeField] private Transform productGrid;
     [SerializeField] private TMP_Text totalText;
     [SerializeField] private Button orderButton;
@@ -22,6 +25,43 @@ public class TerminalBuyUI : MonoBehaviour
     private Button[] plusButtons;
     private int[] quantities;
     private bool dockBusyFeedbackActive;
+
+    // Read by TerminalStockInfoUI (stock, needed products, box counter).
+    public int CardCount => quantities != null ? quantities.Length : 0;
+    public Transform ProductGrid => productGrid;
+    public TMP_Text TotalText => totalText;
+    public Button OrderButton => orderButton;
+    public GameObject TerminalPanel => terminalPanel;
+
+    public DATA_ProductSO GetProduct(int index)
+    {
+        return products != null && index >= 0 && index < products.Length
+            ? products[index]
+            : null;
+    }
+
+    public TMP_Text GetPriceText(int index)
+    {
+        return priceTexts != null && index >= 0 && index < priceTexts.Length
+            ? priceTexts[index]
+            : null;
+    }
+
+    public int GetQuantity(int index)
+    {
+        return quantities != null && index >= 0 && index < quantities.Length
+            ? quantities[index]
+            : 0;
+    }
+
+    // Sets the cart quantity of one product (used by "Add missing").
+    public void SetQuantity(int index, int value)
+    {
+        if (quantities == null || index < 0 || index >= quantities.Length)
+            return;
+
+        ChangeQuantity(index, Mathf.Max(0, value) - quantities[index]);
+    }
 
     public void Open()
     {
@@ -88,7 +128,18 @@ public class TerminalBuyUI : MonoBehaviour
         totalText.text = "Total: $0";
 
         if (orderButton != null)
+        {
             orderButton.onClick.AddListener(PlaceOrder);
+
+            // Customer orders and supplier purchases both said "Order";
+            // the purchase button now says "Buy".
+            TMP_Text label = orderButton.GetComponentInChildren<TMP_Text>();
+            if (label != null)
+                label.text = "Buy";
+        }
+
+        if (GetComponent<TerminalStockInfoUI>() == null)
+            gameObject.AddComponent<TerminalStockInfoUI>().Build(this);
     }
 
     private void ChangeQuantity(int index, int amount)
@@ -141,10 +192,14 @@ public class TerminalBuyUI : MonoBehaviour
         {
             purchaseFeedbackText.color = Color.green;
         }
-        else if (message == "Not enough cash" ||
-                 message == "Unload the truck first")
+        else if (message == "Not enough cash")
         {
             purchaseFeedbackText.color = Color.red;
+        }
+        else if (message == "Unload the truck first")
+        {
+            // Not an error: the truck is waiting at the dock.
+            purchaseFeedbackText.color = InfoColour;
         }
         else if (message == "Select products first")
         {
@@ -168,7 +223,10 @@ public class TerminalBuyUI : MonoBehaviour
     {
         MGR_Game.OnPurchaseRejected += HandlePurchaseRejected;
         CTRL_TruckDelivery.OnDockStateChanged += HandleDockStateChanged;
-        RefreshDockAvailability();
+
+        // Force: the message was hidden in OnDisable, so show it again when
+        // the terminal reopens with the truck still at the dock.
+        RefreshDockAvailability(true);
     }
 
     private void OnDisable()
@@ -186,6 +244,10 @@ public class TerminalBuyUI : MonoBehaviour
         {
             purchaseFeedbackText.gameObject.SetActive(false);
         }
+
+        // The text is hidden now; without this, reopening the terminal with
+        // the same truck kept the Buy button grey and showed no reason.
+        dockBusyFeedbackActive = false;
     }
 
     private void HandlePurchaseRejected(PurchaseResult result)
@@ -235,7 +297,7 @@ public class TerminalBuyUI : MonoBehaviour
             }
 
             string boxLabel = boxesLeft == 1 ? "box" : "boxes";
-            string message = $"Unload the truck first ({boxesLeft} {boxLabel} left)";
+            string message = $"Your truck is at the dock: unload {boxesLeft} {boxLabel} first";
             if (!forceRefresh && dockBusyFeedbackActive && purchaseFeedbackText.text == message)
             {
                 return;
@@ -249,7 +311,7 @@ public class TerminalBuyUI : MonoBehaviour
 
             dockBusyFeedbackActive = true;
             purchaseFeedbackText.text = message;
-            purchaseFeedbackText.color = Color.red;
+            purchaseFeedbackText.color = InfoColour;
             purchaseFeedbackText.gameObject.SetActive(true);
             return;
         }

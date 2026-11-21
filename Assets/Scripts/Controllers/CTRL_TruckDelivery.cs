@@ -173,6 +173,32 @@ public class CTRL_TruckDelivery : MonoBehaviour
         HandleSupplierOrderCreated(debugOrder);
     }
 
+    // Sends a truck with free boxes (no cash, no purchase event). Used by the
+    // first-time hints for the starter box; can also serve the emergency box
+    // of the shift contract. Returns false if the dock is busy.
+    public bool DeliverFreeBoxes(DATA_ProductSO product, int units)
+    {
+        if (product == null || units <= 0 || IsDockBusy)
+        {
+            return false;
+        }
+
+        HandleSupplierOrderCreated(
+            new SupplierOrder(
+                new List<PurchaseItem>
+                {
+                    new PurchaseItem
+                    {
+                        Product = product,
+                        Quantity = units
+                    }
+                }
+            )
+        );
+
+        return true;
+    }
+
     private void HandleSupplierOrderCreated(SupplierOrder order)
     {
         List<ShelfBoxData> orderBoxes = BuildBoxes(order);
