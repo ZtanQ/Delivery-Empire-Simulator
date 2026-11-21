@@ -803,7 +803,7 @@ public class MGR_Inventory : Manager<MGR_Inventory>
     Scene scene,
     LoadSceneMode mode)
     {
-        if (scene.name != "Main_level")
+        if (scene.name != "Sandbox_gp" && scene.name != "Main_level")
         {
             return;
         }

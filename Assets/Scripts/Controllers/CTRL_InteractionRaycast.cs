@@ -1,7 +1,10 @@
+using System;
 using UnityEngine;
 
 public class CTRL_InteractionRaycast : MonoBehaviour
 {
+    public static event Action OnBoxPickedUp;
+
     [Header("References")]
     [SerializeField] private Camera _playerCamera;
     [SerializeField] private ContextualActionButton _actionButton;
@@ -551,6 +554,11 @@ public class CTRL_InteractionRaycast : MonoBehaviour
         );
         _heldObject.transform.localRotation = Quaternion.identity;
         UpdateHeldBoxPosition(true);
+        if (_heldObject.GetComponentInChildren<CTRL_BoxContents>() != null)
+        {
+            OnBoxPickedUp?.Invoke();
+        }
+
         FindAnyObjectByType<UI_FirstTimeHints>()?.NotifyBoxPickedUp();
         SetActionButton("Drop");
     }

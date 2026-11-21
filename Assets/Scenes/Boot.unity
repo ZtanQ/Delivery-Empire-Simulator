@@ -413,6 +413,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84b2686cc10570e4a909df5609316c23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MGR_Audio
+  purchaseClip: {fileID: 8300000, guid: 7a33aa59aae4fde4ca069fc3387fff3b, type: 3}
+  truckArriveClip: {fileID: 8300000, guid: 1cb3ec6156e056f459d0037446c4bdc5, type: 3}
+  boxPickClip: {fileID: 8300000, guid: 6556c6fa6f3aa0747ae53cc8a857530b, type: 3}
+  boxPlaceClip: {fileID: 8300000, guid: b32547dcbfd3d4443805cacb9de2313c, type: 3}
+  newOrderClip: {fileID: 8300000, guid: 41e37f6ce4b96f4409c8f7b3bafe66ac, type: 3}
+  orderFulfilledClip: {fileID: 8300000, guid: 7a209a6a08cfad947a4bddca6149b150, type: 3}
+  orderExpiredClip: {fileID: 8300000, guid: d77f61dd6613ff142802036e0c860513, type: 3}
+  ambientLoopClip: {fileID: 8300000, guid: 76b5e467e923abe489c0bfcaaec5ffdc, type: 3}
+  masterVolume: 0.75
 --- !u!4 &258485643
 Transform:
   m_ObjectHideFlags: 0

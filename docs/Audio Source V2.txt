@@ -1,0 +1,81 @@
+
+1. SFX_OrderNew.wav
+
+Source: Sound design created using multiple audio samples. Edited, layered, processed and mixed.
+
+Author: Mugilan Prabhu (Sound Design).
+Original Sample Sources:
+
+Sample 1: https://freesound.org/people/Takimeko/sounds/787341/
+Creator: Freesound.org
+Licence: Healing by Takimeko -- https://freesound.org/s/787341/ -- License: Creative Commons 0
+
+Sample 2: https://freesound.org/people/Vrymaa/sounds/770064/
+Creator: Freesound.org
+Licence: Nemorum by Vrymaa -- https://freesound.org/s/770064/ -- License: Creative Commons 0
+
+Sample 3: https://freesound.org/people/stuniverso/sounds/761564/
+Creator: Freesound.org
+Licence: magic riser by stuniverso -- https://freesound.org/s/761564/ -- License: Creative Commons 0
+
+Sample 4: https://freesound.org/people/zazz.sound.design/sounds/683323/
+Creator: Freesound.org
+Licence: Magic Spell Fairy Dust by zazz.sound.design -- https://freesound.org/s/683323/ -- License: Creative Commons 0
+
+Sample 5: https://freesound.org/people/NearTheAtmoshphere/sounds/683185/
+Creator: Freesound.org
+Licence: Power Up by NearTheAtmoshphere -- https://freesound.org/s/683185/ -- License: Creative Commons 0
+
+Sample 6: https://freesound.org/people/gekofish/sounds/716462/
+Creator: Freesound.org
+Licence: Bleep gekofish by gekofish -- https://freesound.org/s/716462/ -- License: Creative Commons 0
+
+Final Sound Design: Mugilan Prabhu
+
+2. SFX_OrderSuccess.wav
+
+Source: Sound design created using multiple audio samples. Edited, layered, processed and mixed.
+
+Author: Mugilan Prabhu (Sound Design).
+
+Original Sample Sources:
+
+Sample 1: https://freesound.org/people/DustyWind/sounds/724165/
+Creator: Freesound.org
+Licence: Alarming Flashing Sound by DustyWind -- https://freesound.org/s/724165/ -- License: Creative Commons 0
+
+Sample 2: https://freesound.org/people/msx2plus/sounds/678380/
+Creator: Freesound.org
+Licence: a cute little sparkly synth rise by msx2plus -- https://freesound.org/s/678380/ -- License: Creative Commons 0
+
+Sample 3: https://freesound.org/people/sounagix/sounds/677451/
+Creator: Freesound.org
+Licence: magical whistle by sounagix -- https://freesound.org/s/677451/ -- License: Creative Commons 0
+
+Sample 4: https://freesound.org/people/msx2plus/sounds/678380/
+Creator: Freesound.org
+Licence: a cute little sparkly synth rise by msx2plus -- https://freesound.org/s/678380/ -- License: Creative Commons 0
+
+Sample 5: https://freesound.org/people/fons/sounds/98617/
+Creator: Freesound.org
+Licence: magic wand.wav by fons -- https://freesound.org/s/98617/ -- License: Creative Commons 0
+
+Sample 6: https://freesound.org/people/hjohnl/sounds/61521/
+Creator: Freesound.org
+Licence: Final angelic sound.wav by hjohnl -- https://freesound.org/s/61521/ -- License: Creative Commons 0
+
+Sample 7: https://freesound.org/people/hjohnl/sounds/61521/
+Creator: Freesound.org
+Licence: Final angelic sound.wav by hjohnl -- https://freesound.org/s/61521/ -- License: Creative Commons 0
+
+Sample 8: https://freesound.org/people/Rob_Marion/sounds/541985/
+Creator: Freesound.org
+Licence: GASP_Chimes_Success_4.wav by Rob_Marion -- https://freesound.org/s/541985/ -- License: Creative Commons 0
+
+Sample 8: https://freesound.org/people/FunWithSound/sounds/456965/
+Creator: Freesound.org
+Licence: Short Success Sound Glockenspiel Treasure Video Game.mp3 by FunWithSound -- https://freesound.org/s/456965/ -- License: Creative Commons 0
+
+Final Sound Design: Mugilan Prabhu
+
+

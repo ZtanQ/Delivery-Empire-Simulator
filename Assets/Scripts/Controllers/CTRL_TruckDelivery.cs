@@ -10,6 +10,7 @@ public class CTRL_TruckDelivery : MonoBehaviour
 
     public static CTRL_TruckDelivery Instance { get; private set; }
     public static event Action<bool, int> OnDockStateChanged;
+    public static event Action OnTruckArrived;
     public int BoxesPerTruck => GetBoxesPerTruck();
     public bool HasTruckForSave => _truck != null;
     public Vector3 TruckPositionForSave => _truck != null ? _truck.transform.position : Vector3.zero;
@@ -368,6 +369,10 @@ public class CTRL_TruckDelivery : MonoBehaviour
         ReportDockState();
 
         yield return MoveTruck(_truckStart, _truckEnd);
+        if (_truck != null)
+        {
+            OnTruckArrived?.Invoke();
+        }
 
         float shelfCheckTimer = 0f;
 
