@@ -223,7 +223,10 @@ public class TerminalBuyUI : MonoBehaviour
     {
         MGR_Game.OnPurchaseRejected += HandlePurchaseRejected;
         CTRL_TruckDelivery.OnDockStateChanged += HandleDockStateChanged;
-        RefreshDockAvailability();
+
+        // Force: the message was hidden in OnDisable, so show it again when
+        // the terminal reopens with the truck still at the dock.
+        RefreshDockAvailability(true);
     }
 
     private void OnDisable()
@@ -241,6 +244,10 @@ public class TerminalBuyUI : MonoBehaviour
         {
             purchaseFeedbackText.gameObject.SetActive(false);
         }
+
+        // The text is hidden now; without this, reopening the terminal with
+        // the same truck kept the Buy button grey and showed no reason.
+        dockBusyFeedbackActive = false;
     }
 
     private void HandlePurchaseRejected(PurchaseResult result)
