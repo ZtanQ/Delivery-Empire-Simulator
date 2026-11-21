@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -88,8 +89,6 @@ public class TerminalBuyUI : MonoBehaviour
 
         if (orderButton != null)
             orderButton.onClick.AddListener(PlaceOrder);
-
-        RefreshDockAvailability();
     }
 
     private void ChangeQuantity(int index, int amount)
@@ -142,9 +141,14 @@ public class TerminalBuyUI : MonoBehaviour
         {
             purchaseFeedbackText.color = Color.green;
         }
-        else if (message == "Not enough cash")
+        else if (message == "Not enough cash" ||
+                 message == "Unload the truck first")
         {
             purchaseFeedbackText.color = Color.red;
+        }
+        else if (message == "Select products first")
+        {
+            purchaseFeedbackText.color = Color.yellow;
         }
 
         purchaseFeedbackText.gameObject.SetActive(true);
@@ -160,7 +164,7 @@ public class TerminalBuyUI : MonoBehaviour
         feedbackCoroutine = null;
     }
 
-        private void OnEnable()
+    private void OnEnable()
     {
         MGR_Game.OnPurchaseRejected += HandlePurchaseRejected;
         CTRL_TruckDelivery.OnDockStateChanged += HandleDockStateChanged;
@@ -259,6 +263,7 @@ public class TerminalBuyUI : MonoBehaviour
             }
         }
     }
+
     private void PlaceOrder()
     {
         if (CTRL_TruckDelivery.Instance != null &&
@@ -292,7 +297,10 @@ public class TerminalBuyUI : MonoBehaviour
         }
 
         if (lines.Count == 0)
+        {
+            ShowPurchaseFeedback("Select products first");
             return;
+        }
 
         PurchaseResult result = MGR_Game.Instance.TryPurchase(lines);
 
@@ -300,6 +308,7 @@ public class TerminalBuyUI : MonoBehaviour
 
         if (result != PurchaseResult.Success)
             return;
+
         if (CTRL_TruckDelivery.Instance != null &&
             CTRL_TruckDelivery.Instance.IsDockBusy)
         {

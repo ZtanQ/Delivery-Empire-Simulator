@@ -124,8 +124,6 @@ public class CTRL_Rider : MonoBehaviour
         riderNavMeshAgent.ResetPath();
         riderNavMeshAgent.isStopped = true;
 
-        returnPosition = hit.position;
-
         return true;
     }
 
@@ -184,6 +182,7 @@ public class CTRL_Rider : MonoBehaviour
             return;
         }
 
+        returnPosition = transform.position;
         currentOrder = order;
         currentShelfIDs = new List<string>(shelvesToVisit);
 
@@ -201,45 +200,112 @@ public class CTRL_Rider : MonoBehaviour
         return MGR_Inventory.Instance.GetAccessPoint(shelfID);
     }
 
+
+
+
     private IEnumerator MoveTo(Vector3 destination)
     {
-        if (riderNavMeshAgent == null ||
-            !riderNavMeshAgent.enabled ||
-            !riderNavMeshAgent.isOnNavMesh)
+        // Stop if the delivery has already been cancelled.
+        if (currentOrder == null)
         {
-            WarpTo(destination);
             yield break;
+        }
+
+        // Check whether the NavMeshAgent exists.
+        if (riderNavMeshAgent == null)
+        {
+            CancelDelivery("NavMeshAgent is missing.");
+            yield break;
+        }
+
+        // Restore the agent if it is disabled or not on the NavMesh.
+        if (!riderNavMeshAgent.enabled || !riderNavMeshAgent.isOnNavMesh)
+        {
+            if (!PlaceOnNavMesh())
+            {
+                CancelDelivery("Rider could not be placed on NavMesh before movement.");
+                yield break;
+            }
         }
 
         riderNavMeshAgent.isStopped = false;
         riderNavMeshAgent.speed = 3f;
-        riderNavMeshAgent.SetDestination(destination);
+
+        // Try to set the destination.
+        if (!riderNavMeshAgent.SetDestination(destination))
+        {
+            Debug.LogWarning(
+                $"CTRL_Rider: {name} could not set destination {destination}. Using fallback."
+            );
+
+            WarpTo(destination);
+            yield break;
+        }
 
         float elapsed = 0f;
         float lastProgressTime = 0f;
         float bestDistance = float.MaxValue;
 
-        // Walk until the rider arrives. If it stops getting closer (blocked,
-        // partial path, no path) or the walk takes too long, move it to the
-        // target so the delivery always finishes and the order is never stuck.
         while (true)
         {
+            // Stop movement if the delivery was cancelled.
+            if (currentOrder == null)
+            {
+                yield break;
+            }
+
+            // Ensure the agent remains valid during movement.
+            if (riderNavMeshAgent == null ||
+                !riderNavMeshAgent.enabled ||
+                !riderNavMeshAgent.isOnNavMesh)
+            {
+                CancelDelivery("Rider lost its NavMesh during movement.");
+                yield break;
+            }
+
+
             if (!riderNavMeshAgent.pathPending)
             {
+                // Check whether Unity's calculated path actually reaches
+                // the requested destination.
+                float pathEndDistance = FlatDistance(
+                    riderNavMeshAgent.pathEndPosition,
+                    destination
+                );
+
+                float destinationTolerance =
+                    Mathf.Max(riderNavMeshAgent.stoppingDistance, 0.5f) + 0.05f;
+
+                if (riderNavMeshAgent.pathStatus != NavMeshPathStatus.PathComplete ||
+                    pathEndDistance > destinationTolerance)
+                {
+                    Debug.LogWarning(
+                        $"CTRL_Rider: {name} could not reach the exact destination. " +
+                        $"Path Status: {riderNavMeshAgent.pathStatus}, " +
+                        $"Path End Distance: {pathEndDistance:F2}m. Using fallback."
+                    );
+
+                    WarpTo(destination);
+                    break;
+                }
+
                 float remaining = riderNavMeshAgent.remainingDistance;
                 float arriveDistance = riderNavMeshAgent.stoppingDistance + 0.05f;
 
                 if (!riderNavMeshAgent.hasPath || float.IsInfinity(remaining))
                 {
                     remaining = FlatDistance(transform.position, destination);
-                    arriveDistance = Mathf.Max(riderNavMeshAgent.stoppingDistance, 0.5f) + 0.05f;
+                    arriveDistance =
+                        Mathf.Max(riderNavMeshAgent.stoppingDistance, 0.5f) + 0.05f;
                 }
 
+                // Destination reached.
                 if (remaining <= arriveDistance)
                 {
                     break;
                 }
 
+                // Track movement progress.
                 if (remaining < bestDistance - 0.1f)
                 {
                     bestDistance = remaining;
@@ -247,7 +313,9 @@ public class CTRL_Rider : MonoBehaviour
                 }
             }
 
-            if (elapsed - lastProgressTime > stuckTimeout || elapsed > maxMoveTime)
+            // Rider is stuck or has exceeded the maximum movement time.
+            if (elapsed - lastProgressTime > stuckTimeout ||
+                elapsed > maxMoveTime)
             {
                 Debug.LogWarning(
                     $"CTRL_Rider: {name} stopped getting closer while {CurrentState} " +
@@ -262,7 +330,10 @@ public class CTRL_Rider : MonoBehaviour
             yield return null;
         }
 
-        if (riderNavMeshAgent.enabled && riderNavMeshAgent.isOnNavMesh)
+        // Stop the agent only when it is enabled and on the NavMesh.
+        if (riderNavMeshAgent != null &&
+            riderNavMeshAgent.enabled &&
+            riderNavMeshAgent.isOnNavMesh)
         {
             riderNavMeshAgent.isStopped = true;
         }
@@ -280,6 +351,12 @@ public class CTRL_Rider : MonoBehaviour
                 $"CTRL_Rider: Could not find NavMesh near destination {destination}. Moving rider directly to target."
             );
 
+            if (riderNavMeshAgent != null &&
+                riderNavMeshAgent.enabled)
+            {
+                riderNavMeshAgent.enabled = false;
+            }
+
             transform.position = destination;
             return;
         }
@@ -296,7 +373,8 @@ public class CTRL_Rider : MonoBehaviour
                     $"CTRL_Rider: Warp failed for {name} at {hit.position}. Moving rider directly to target."
                 );
 
-                transform.position = destination;
+                riderNavMeshAgent.enabled = false;
+                transform.position = hit.position;
                 return;
             }
 
@@ -305,6 +383,12 @@ public class CTRL_Rider : MonoBehaviour
         }
         else
         {
+            if (riderNavMeshAgent != null &&
+                riderNavMeshAgent.enabled)
+            {
+                riderNavMeshAgent.enabled = false;
+            }
+
             transform.position = hit.position;
         }
     }
@@ -331,6 +415,11 @@ public class CTRL_Rider : MonoBehaviour
             CurrentState = RiderState.WalkToShelf;
             yield return MoveTo(shelf.position);
 
+            if (currentOrder == null)
+            {
+                yield break;
+            }
+
             CurrentState = RiderState.Collect;
             yield return new WaitForSeconds(collectPause);
         }
@@ -355,13 +444,24 @@ public class CTRL_Rider : MonoBehaviour
 
         yield return MoveTo(exitLocation.position);
 
+        if (currentOrder == null)
+        {
+            yield break;
+        }
+
         if (MGR_Delivery.Instance != null)
         {
             MGR_Delivery.Instance.NotifyRiderLeft(this);
         }
 
         CurrentState = RiderState.Delivering;
-        riderNavMeshAgent.isStopped = true;
+        if (riderNavMeshAgent != null &&
+            riderNavMeshAgent.enabled &&
+            riderNavMeshAgent.isOnNavMesh)
+        {
+            riderNavMeshAgent.isStopped = true;
+        }
+
         SetRiderVisible(false);
 
         yield return new WaitForSeconds(deliveryPause);
@@ -371,7 +471,17 @@ public class CTRL_Rider : MonoBehaviour
         CurrentState = RiderState.Return;
         yield return MoveTo(returnPosition);
 
-        riderNavMeshAgent.isStopped = true;
+        if (currentOrder == null)
+        {
+            yield break;
+        }
+
+        if (riderNavMeshAgent != null &&
+            riderNavMeshAgent.enabled &&
+            riderNavMeshAgent.isOnNavMesh)
+        {
+            riderNavMeshAgent.isStopped = true;
+        }
 
         if (MGR_Delivery.Instance != null)
         {
@@ -410,6 +520,11 @@ public class CTRL_Rider : MonoBehaviour
         CurrentState = RiderState.Return;
 
         yield return MoveTo(returnPosition);
+
+        if (currentOrder == null)
+        {
+            yield break;
+        }
 
         if (riderNavMeshAgent != null &&
             riderNavMeshAgent.enabled &&
