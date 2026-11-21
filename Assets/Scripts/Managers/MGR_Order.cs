@@ -33,6 +33,23 @@ public class MGR_Order : Manager<MGR_Order>
     [SerializeField, Range(0f, 1f)]
     private float stockedProductChance = 0.7f;
 
+    // First-time player (only while the first-time hints run):
+    // 1. A free truck brings one starter box (UI_FirstTimeHints). No order
+    //    arrives until the player puts that box on a shelf (or after
+    //    firstOrderMaxWait as a safety net).
+    // 2. The first order asks for 1 unit of the starter product, so the
+    //    player sees a rider take the box they just placed.
+    // 3. The second order asks for 1 unit with no stock, so the buy hint
+    //    names a real product.
+    [Header("First-time player")]
+    [SerializeField] private float firstOrderDelayNewPlayer = 2f;
+    [SerializeField] private float firstOrderMaxWait = 90f;
+
+    private int ordersCreatedThisSession;
+    private float firstOrderWaitTimer;
+
+    public DATA_ProductSO TutorialStarterProduct { get; private set; }
+
     protected override void OnInitialise()
     {
         Debug.Log("6. MGR_Order initialised.");
@@ -60,6 +77,23 @@ public class MGR_Order : Manager<MGR_Order>
         if (activeOrders.Count >= MaxActiveOrders)
         {
             return;
+        }
+
+        if (ordersCreatedThisSession == 0 && IsFirstTimePlayer())
+        {
+            // Hold the first order until the starter box is on a shelf.
+            if (MGR_Save.Instance.TutorialStep < 2 &&
+                firstOrderWaitTimer < firstOrderMaxWait)
+            {
+                firstOrderWaitTimer += Time.deltaTime;
+                orderTimer = firstOrderDelayNewPlayer;
+                return;
+            }
+
+            if (orderTimer > firstOrderDelayNewPlayer)
+            {
+                orderTimer = firstOrderDelayNewPlayer;
+            }
         }
 
         orderTimer -= Time.deltaTime;
@@ -177,11 +211,14 @@ public class MGR_Order : Manager<MGR_Order>
             IsActive = true
         };
 
-        GenerateItems(
-            order,
-            selectedCategories,
-            totalUnits
-        );
+        if (!TryBuildGuidedOrder(order))
+        {
+            GenerateItems(
+                order,
+                selectedCategories,
+                totalUnits
+            );
+        }
 
         if (order.Items == null ||
             order.Items.Count == 0)
@@ -207,6 +244,7 @@ public class MGR_Order : Manager<MGR_Order>
         CalculateRewards(order);
 
         activeOrders.Add(order);
+        ordersCreatedThisSession++;
 
         Debug.Log(
             $"Order {order.OrderID} created. " +
@@ -233,6 +271,119 @@ public class MGR_Order : Manager<MGR_Order>
         }
 
         OnOrderCreated?.Invoke(order);
+    }
+
+    // =========================================================
+    // FIRST-TIME PLAYER ORDERS
+    // =========================================================
+
+    private static bool IsFirstTimePlayer()
+    {
+        MGR_Save save = MGR_Save.Instance;
+
+        return save != null &&
+               save.TutorialInitialized &&
+               !save.HintsDone;
+    }
+
+    // Picks the product of the free starter box: one with no stock yet,
+    // so the shelf only holds it after the player places the box.
+    public DATA_ProductSO PickTutorialStarterProduct()
+    {
+        if (TutorialStarterProduct != null)
+        {
+            return TutorialStarterProduct;
+        }
+
+        List<DATA_ProductSO> candidates =
+            new List<DATA_ProductSO>();
+
+        foreach (DATA_ProductSO product in availableProducts)
+        {
+            if (product != null &&
+                MGR_Inventory.Instance != null &&
+                MGR_Inventory.Instance.GetStock(product) == 0)
+            {
+                candidates.Add(product);
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
+            candidates.AddRange(availableProducts);
+            candidates.RemoveAll(p => p == null);
+        }
+
+        if (candidates.Count == 0)
+        {
+            return null;
+        }
+
+        TutorialStarterProduct =
+            candidates[UnityEngine.Random.Range(0, candidates.Count)];
+
+        return TutorialStarterProduct;
+    }
+
+    // Order 1: one unit of the starter product if it is on a shelf,
+    // otherwise of any product on a shelf.
+    // Order 2: one unit of a product with no stock at all.
+    // Returns false when it does not apply, so the normal random order is used.
+    private bool TryBuildGuidedOrder(OrderData order)
+    {
+        if (order == null ||
+            ordersCreatedThisSession > 1 ||
+            !IsFirstTimePlayer() ||
+            MGR_Inventory.Instance == null)
+        {
+            return false;
+        }
+
+        bool wantStocked = ordersCreatedThisSession == 0;
+
+        if (wantStocked &&
+            TutorialStarterProduct != null &&
+            MGR_Inventory.Instance.GetTotalShelfStock(TutorialStarterProduct) > 0)
+        {
+            AddProductToOrder(order, TutorialStarterProduct, 1);
+            return true;
+        }
+
+        List<DATA_ProductSO> candidates =
+            new List<DATA_ProductSO>();
+
+        foreach (DATA_ProductSO product in availableProducts)
+        {
+            if (product == null)
+            {
+                continue;
+            }
+
+            bool onShelf =
+                MGR_Inventory.Instance.GetTotalShelfStock(product) > 0;
+
+            bool inStock =
+                MGR_Inventory.Instance.GetStock(product) > 0;
+
+            if (wantStocked ? onShelf : !inStock)
+            {
+                candidates.Add(product);
+            }
+        }
+
+        if (candidates.Count == 0)
+        {
+            return false;
+        }
+
+        DATA_ProductSO chosen =
+            candidates[
+                UnityEngine.Random.Range(0, candidates.Count)
+            ];
+
+        AddProductToOrder(order, chosen, 1);
+
+        return true;
     }
 
     // =========================================================

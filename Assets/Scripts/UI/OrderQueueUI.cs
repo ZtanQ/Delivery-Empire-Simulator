@@ -18,10 +18,67 @@ public class OrderQueueUI : MonoBehaviour
         MGR_Inventory.OnInventoryChanged += HandleInventoryChanged;
         MGR_Order.OnOrderRemoved += HandleOrderCompleted;
         MGR_Order.OnOrderReservationChanged += HandleOrderReservationChanged;
+
+        // The HUD is turned off while the terminal is open, so events fired
+        // in that time are missed. Rebuild the cards from the real orders.
+        SyncWithActiveOrders();
+    }
+
+    private void SyncWithActiveOrders()
+    {
+        if (MGR_Order.Instance == null)
+            return;
+
+        IReadOnlyList<OrderData> current = MGR_Order.Instance.ActiveOrders;
+
+        List<int> stale = new List<int>();
+
+        foreach (KeyValuePair<int, OrderData> pair in activeOrders)
+        {
+            OrderData order = pair.Value;
+            bool stillActive = false;
+
+            if (order != null && order.IsActive)
+            {
+                foreach (OrderData active in current)
+                {
+                    if (active == order)
+                    {
+                        stillActive = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!stillActive)
+                stale.Add(pair.Key);
+        }
+
+        foreach (int orderId in stale)
+        {
+            if (activeCards.TryGetValue(orderId, out OrderCardUI card) &&
+                card != null)
+            {
+                card.gameObject.SetActive(false);
+            }
+
+            activeCards.Remove(orderId);
+            activeOrders.Remove(orderId);
+        }
+
+        foreach (OrderData order in current)
+        {
+            if (order != null && order.IsActive)
+                HandleOrderCreated(order);
+        }
+
+        UpdateOutOfStockWarning();
     }
 
     private void OnDisable()
     {
+        HideClosingCards();
+
         MGR_Order.OnOrderCreated -= HandleOrderCreated;
         MGR_Inventory.OnInventoryChanged -= HandleInventoryChanged;
         MGR_Order.OnOrderRemoved -= HandleOrderCompleted;
@@ -78,10 +135,46 @@ public class OrderQueueUI : MonoBehaviour
 
         if (card != null)
         {
-            card.gameObject.SetActive(false);
+            if (isActiveAndEnabled && resultSeconds > 0f)
+            {
+                // Expired orders reach 0 on their timer; delivered ones do not.
+                card.ShowResult(order, order.TimerRemaining > 0f);
+                closingCards.Add(card);
+                StartCoroutine(HideCardAfterResult(card));
+            }
+            else
+            {
+                card.gameObject.SetActive(false);
+            }
         }
 
         UpdateOutOfStockWarning();
+    }
+
+    [SerializeField] private float resultSeconds = 1.5f;
+
+    private readonly List<OrderCardUI> closingCards = new List<OrderCardUI>();
+
+    private System.Collections.IEnumerator HideCardAfterResult(OrderCardUI card)
+    {
+        yield return new WaitForSecondsRealtime(resultSeconds);
+
+        closingCards.Remove(card);
+
+        if (card != null)
+            card.gameObject.SetActive(false);
+    }
+
+    // Cards still showing a result when the HUD turns off would stay on.
+    private void HideClosingCards()
+    {
+        foreach (OrderCardUI card in closingCards)
+        {
+            if (card != null)
+                card.gameObject.SetActive(false);
+        }
+
+        closingCards.Clear();
     }
 
     private void HandleInventoryChanged(DATA_ProductSO product, int quantity)
