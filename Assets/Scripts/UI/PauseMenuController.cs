@@ -13,12 +13,14 @@ public class PauseMenuController : MonoBehaviour
     {
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
+        MGR_Audio.SetPauseMusic(true);
     }
 
     public void ResumeGame()
     {
         pauseMenu.SetActive(false);
         Time.timeScale = 1f;
+        MGR_Audio.SetPauseMusic(false);
     }
 
     public void SaveGame()

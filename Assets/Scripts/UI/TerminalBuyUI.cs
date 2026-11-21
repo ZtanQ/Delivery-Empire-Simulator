@@ -25,10 +25,12 @@ public class TerminalBuyUI : MonoBehaviour
     public void Open()
     {
         terminalPanel.SetActive(true);
+        MGR_Audio.PlayUIOpen();
     }
 
     public void Close()
     {
+        MGR_Audio.PlayUIClose();
         terminalPanel.SetActive(false);
     }
 
@@ -92,10 +94,13 @@ public class TerminalBuyUI : MonoBehaviour
 
     private void ChangeQuantity(int index, int amount)
     {
-        quantities[index] += amount;
+        int previousQuantity = quantities[index];
+        quantities[index] = Mathf.Max(0, previousQuantity + amount);
 
-        if (quantities[index] < 0)
-            quantities[index] = 0;
+        if (quantities[index] != previousQuantity)
+        {
+            MGR_Audio.PlayUITap();
+        }
 
         quantityTexts[index].text = quantities[index].ToString();
         minusButtons[index].interactable = quantities[index] > 0;

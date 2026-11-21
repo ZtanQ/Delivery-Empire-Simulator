@@ -13,9 +13,16 @@ public class MGR_Audio : Manager<MGR_Audio>
     [SerializeField] private AudioClip newOrderClip;
     [SerializeField] private AudioClip orderFulfilledClip;
     [SerializeField] private AudioClip orderExpiredClip;
+    [SerializeField] private AudioClip uiOpenClip;
+    [SerializeField] private AudioClip uiCloseClip;
+    [SerializeField] private AudioClip uiTapClip;
 
     [Header("Ambient")]
     [SerializeField] private AudioClip ambientLoopClip;
+
+    [Header("Music")]
+    [SerializeField] private AudioClip menuMusicClip;
+    [SerializeField] private AudioClip mainMusicClip;
 
     [Header("SFX Volume (%)")]
     [SerializeField, Range(0f, 100f)] private float purchaseVolumePercent = 75f;
@@ -29,11 +36,21 @@ public class MGR_Audio : Manager<MGR_Audio>
     [Header("Ambient Volume (%)")]
     [SerializeField, Range(0f, 100f)] private float ambientVolumePercent = 75f;
 
+    [Header("UI Volume (%)")]
+    [SerializeField, Range(0f, 100f)] private float uiOpenVolumePercent = 75f;
+    [SerializeField, Range(0f, 100f)] private float uiCloseVolumePercent = 75f;
+    [SerializeField, Range(0f, 100f)] private float uiTapVolumePercent = 75f;
+
+    [Header("Music Volume (%)")]
+    [SerializeField, Range(0f, 100f)] private float menuMusicVolumePercent = 75f;
+    [SerializeField, Range(0f, 100f)] private float mainMusicVolumePercent = 75f;
+
     private readonly Dictionary<string, int> _lastShelfQuantities =
         new Dictionary<string, int>();
 
     private AudioSource _sfxSource;
     private AudioSource _ambientSource;
+    private AudioSource _musicSource;
     private AudioListener _fallbackAudioListener;
     private bool _shelfPlacementSfxEnabled;
 
@@ -53,13 +70,7 @@ public class MGR_Audio : Manager<MGR_Audio>
     {
         CreateAudioSources();
         SubscribeToEvents();
-
-        if (ambientLoopClip != null)
-        {
-            _ambientSource.clip = ambientLoopClip;
-            _ambientSource.loop = true;
-            _ambientSource.Play();
-        }
+        ConfigureSceneAudio(SceneManager.GetActiveScene());
 
         // Bootstrap loads saved shelf contents immediately after manager
         // initialisation. Record those updates without playing placement SFX.
@@ -81,6 +92,12 @@ public class MGR_Audio : Manager<MGR_Audio>
         _ambientSource.loop = true;
         _ambientSource.spatialBlend = 0f;
         _ambientSource.volume = ToLinearVolume(ambientVolumePercent);
+
+        _musicSource = gameObject.AddComponent<AudioSource>();
+        _musicSource.playOnAwake = false;
+        _musicSource.loop = true;
+        _musicSource.spatialBlend = 0f;
+        _musicSource.volume = 1f;
     }
 
     private void SubscribeToEvents()
@@ -97,6 +114,69 @@ public class MGR_Audio : Manager<MGR_Audio>
     private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         EnsureAudioListener();
+        ConfigureSceneAudio(scene);
+    }
+
+    private void ConfigureSceneAudio(Scene scene)
+    {
+        if (scene.name == "Boot")
+        {
+            StopLoop(_ambientSource);
+            PlayLoop(
+                _musicSource,
+                mainMusicClip,
+                mainMusicVolumePercent
+            );
+        }
+        else if (scene.name == "Main_level" || scene.name == "Sandbox_gp")
+        {
+            PlayLoop(
+                _ambientSource,
+                ambientLoopClip,
+                ambientVolumePercent
+            );
+            StopLoop(_musicSource);
+        }
+    }
+
+    private static void PlayLoop(
+        AudioSource source,
+        AudioClip clip,
+        float volumePercent)
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        source.volume = ToLinearVolume(volumePercent);
+        source.loop = true;
+
+        if (clip == null)
+        {
+            StopLoop(source);
+            return;
+        }
+
+        if (source.clip == clip && source.isPlaying)
+        {
+            return;
+        }
+
+        source.Stop();
+        source.clip = clip;
+        source.Play();
+    }
+
+    private static void StopLoop(AudioSource source)
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        source.Stop();
+        source.clip = null;
     }
 
     private void EnsureAudioListener()
@@ -205,6 +285,88 @@ public class MGR_Audio : Manager<MGR_Audio>
     private void HandleOrderExpired(OrderData order)
     {
         PlaySfx(orderExpiredClip, orderExpiredVolumePercent);
+    }
+
+    public static void PlayUIOpen()
+    {
+        if (Instance != null)
+        {
+            Instance.PlaySfx(
+                Instance.uiOpenClip,
+                Instance.uiOpenVolumePercent
+            );
+        }
+    }
+
+    public static void PlayUIClose()
+    {
+        if (Instance != null)
+        {
+            Instance.PlaySfx(
+                Instance.uiCloseClip,
+                Instance.uiCloseVolumePercent
+            );
+        }
+    }
+
+    public static void PlayUITap()
+    {
+        if (Instance != null)
+        {
+            Instance.PlaySfx(
+                Instance.uiTapClip,
+                Instance.uiTapVolumePercent
+            );
+        }
+    }
+
+    public static void SetPauseMusic(bool isPaused)
+    {
+        if (Instance == null)
+        {
+            return;
+        }
+
+        if (isPaused)
+        {
+            if (Instance._ambientSource != null)
+            {
+                Instance._ambientSource.Pause();
+            }
+
+            PlayLoop(
+                Instance._musicSource,
+                Instance.menuMusicClip,
+                Instance.menuMusicVolumePercent
+            );
+        }
+        else
+        {
+            Scene activeScene = SceneManager.GetActiveScene();
+            if (activeScene.name == "Main_level" || activeScene.name == "Sandbox_gp")
+            {
+                if (Instance.ambientLoopClip != null &&
+                    Instance._ambientSource != null &&
+                    Instance._ambientSource.clip == Instance.ambientLoopClip)
+                {
+                    Instance._ambientSource.UnPause();
+                }
+                else
+                {
+                    PlayLoop(
+                        Instance._ambientSource,
+                        Instance.ambientLoopClip,
+                        Instance.ambientVolumePercent
+                    );
+                }
+
+                StopLoop(Instance._musicSource);
+            }
+            else
+            {
+                Instance.ConfigureSceneAudio(activeScene);
+            }
+        }
     }
 
     private static float ToLinearVolume(float volumePercent)
