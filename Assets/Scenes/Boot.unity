@@ -420,7 +420,12 @@ MonoBehaviour:
   newOrderClip: {fileID: 8300000, guid: 41e37f6ce4b96f4409c8f7b3bafe66ac, type: 3}
   orderFulfilledClip: {fileID: 8300000, guid: 7a209a6a08cfad947a4bddca6149b150, type: 3}
   orderExpiredClip: {fileID: 8300000, guid: d77f61dd6613ff142802036e0c860513, type: 3}
+  uiOpenClip: {fileID: 8300000, guid: fa1d69ce2a3cba94a8cc82151dd24f36, type: 3}
+  uiCloseClip: {fileID: 8300000, guid: 24c57d86f1171714bb43c5b6e48c68d4, type: 3}
+  uiTapClip: {fileID: 8300000, guid: 5edc1f4a22ebfaa4ab9a708a83160dd1, type: 3}
   ambientLoopClip: {fileID: 8300000, guid: 76b5e467e923abe489c0bfcaaec5ffdc, type: 3}
+  menuMusicClip: {fileID: 8300000, guid: 3cfa5686b9efddc4dafbfb06aebd6547, type: 3}
+  mainMusicClip: {fileID: 8300000, guid: daee6aa710c639c4598c5fe21550d5be, type: 3}
   masterVolume: 0.75
 --- !u!4 &258485643
 Transform:

@@ -75,6 +75,8 @@ public class TerminalUpgradesUI : MonoBehaviour
 
     public void RequestStage1Upgrade()
     {
+        MGR_Audio.PlayUITap();
+
         MGR_Game game = MGR_Game.Instance;
 
         if (game == null ||

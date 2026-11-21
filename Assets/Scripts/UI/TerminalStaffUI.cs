@@ -49,6 +49,8 @@ public class TerminalStaffUI : MonoBehaviour
 
     public void HireRider()
     {
+        MGR_Audio.PlayUITap();
+
         if (MGR_Game.Instance == null || MGR_Delivery.Instance == null)
         {
             Debug.LogWarning("Unable to hire rider. Required manager is missing.");

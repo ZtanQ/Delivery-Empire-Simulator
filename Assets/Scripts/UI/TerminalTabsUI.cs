@@ -9,6 +9,7 @@ public class TerminalTabsUI : MonoBehaviour
 
     public void ShowBuy()
     {
+        MGR_Audio.PlayUITap();
         buyContent.SetActive(true);
         staffContent.SetActive(false);
 
@@ -18,6 +19,7 @@ public class TerminalTabsUI : MonoBehaviour
 
     public void ShowStaff()
     {
+        MGR_Audio.PlayUITap();
         buyContent.SetActive(false);
         staffContent.SetActive(true);
 
@@ -27,6 +29,7 @@ public class TerminalTabsUI : MonoBehaviour
 
     public void ShowUpgrades()
     {
+        MGR_Audio.PlayUITap();
         if (upgradesContent == null)
             return;
 
