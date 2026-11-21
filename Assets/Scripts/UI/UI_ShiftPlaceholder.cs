@@ -275,6 +275,7 @@ public class UI_ShiftPlaceholder : MonoBehaviour
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() =>
         {
+            MGR_Audio.PlayUITap();
             HideModal();
             action();
         });
