@@ -17,6 +17,10 @@ public class MGR_Audio : Manager<MGR_Audio>
     [SerializeField] private AudioClip uiCloseClip;
     [SerializeField] private AudioClip uiTapClip;
 
+    [Header("Progress")]
+    [Tooltip("SFX_LevelUp (Mugilan, sound batch 2). Empty: the order success sound plays instead.")]
+    [SerializeField] private AudioClip levelUpClip;
+
     [Header("Ambient")]
     [SerializeField] private AudioClip ambientLoopClip;
 
@@ -313,6 +317,18 @@ public class MGR_Audio : Manager<MGR_Audio>
                 Instance.uiCloseVolumePercent
             );
         }
+    }
+
+    public static void PlayLevelUp()
+    {
+        if (Instance == null)
+            return;
+
+        AudioClip clip = Instance.levelUpClip != null
+            ? Instance.levelUpClip
+            : Instance.orderFulfilledClip;
+
+        Instance.PlaySfx(clip, Instance.orderFulfilledVolumePercent);
     }
 
     public static void PlayUITap()
