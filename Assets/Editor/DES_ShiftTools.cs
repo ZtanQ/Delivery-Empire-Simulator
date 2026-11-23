@@ -6,7 +6,7 @@ using UnityEngine;
 //   Tools/DES/Shift/Create shift contract asset  Resources/ShiftContract.asset
 //     with the GDD R8 values, to tune the targets in the Inspector.
 //   Tools/DES/Shift/End shift now (win | fail), Add one delivered order,
-//     Leave 10 seconds: only while playing.
+//     Leave 10 seconds, Level up now: only while playing.
 //   Tools/DES/Shift/Reset contract progress: back to shift 1 (not in Play).
 public static class DES_ShiftTools
 {
@@ -34,6 +34,15 @@ public static class DES_ShiftTools
         AssetDatabase.SaveAssets();
         Selection.activeObject = contract;
         Debug.Log("DES_ShiftTools: created " + AssetPath + " with the GDD R8 values.");
+    }
+
+    // 1123-LEAD-2: shows the level-up banner (adds exactly the XP for the next level).
+    [MenuItem("Tools/DES/Shift/Level up now")]
+    private static void LevelUpNow()
+    {
+        MGR_Game game = MGR_Game.Instance;
+        if (game == null) return;
+        game.AddXP(Mathf.Max(1, game.GetRequiredXPForLevel(game.CurrentLevel + 1) - game.CurrentXP));
     }
 
     [MenuItem("Tools/DES/Shift/End shift now (win)")]

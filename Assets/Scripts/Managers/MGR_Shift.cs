@@ -110,6 +110,7 @@ public class MGR_Shift : MonoBehaviour
         SceneManager.MoveGameObjectToScene(go, scene);
         go.AddComponent<MGR_Shift>();
         go.AddComponent<UI_ShiftPlaceholder>();
+        go.AddComponent<UI_LevelUpBanner>();
     }
 
     private void Awake()
