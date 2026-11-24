@@ -109,7 +109,18 @@ public class MGR_Shift : MonoBehaviour
         GameObject go = new GameObject("MGR_Shift");
         SceneManager.MoveGameObjectToScene(go, scene);
         go.AddComponent<MGR_Shift>();
-        go.AddComponent<UI_ShiftPlaceholder>();
+
+        GameObject shiftScreensPrefab = Resources.Load<GameObject>("UI/ShiftScreens_Canvas");
+
+        if (shiftScreensPrefab != null)
+        {
+            UnityEngine.Object.Instantiate(shiftScreensPrefab);
+        }
+        else
+        {
+            Debug.LogError("[MGR_Shift] ShiftScreens_Canvas prefab not found in Resources/UI!");
+        }
+
         go.AddComponent<UI_LevelUpBanner>();
     }
 
