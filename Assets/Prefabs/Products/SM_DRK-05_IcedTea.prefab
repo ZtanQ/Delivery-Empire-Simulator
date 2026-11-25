@@ -51,10 +51,10 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: ac19fc04a9daf4b40a423c81d709ff69, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 4b0b8189f30eacf4b83e27296a00abdc, type: 2}
+      objectReference: {fileID: 2100000, guid: fee64f9b2b6be8943a129f1fb0e9fa91, type: 2}
     - target: {fileID: 919132149155446097, guid: ac19fc04a9daf4b40a423c81d709ff69, type: 3}
       propertyPath: m_Name
-      value: SM_DRK-05_Icedtea
+      value: SM_DRK-05_IcedTea
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
