@@ -65,7 +65,7 @@ public class UI_ShiftHUDController : MonoBehaviour
     private void OnEnable()
     {
         MGR_Shift.OnShiftBriefing += HandleShiftUpdate;
-        MGR_Shift.OnShiftStarted += HandleShiftUpdate;
+        MGR_Shift.OnShiftStarted += HandleShiftStarted;
         MGR_Shift.OnShiftProgress += HandleShiftUpdate;
         MGR_Shift.OnTargetReached += HandleTargetReached;
 
@@ -76,7 +76,7 @@ public class UI_ShiftHUDController : MonoBehaviour
     private void OnDisable()
     {
         MGR_Shift.OnShiftBriefing -= HandleShiftUpdate;
-        MGR_Shift.OnShiftStarted -= HandleShiftUpdate;
+        MGR_Shift.OnShiftStarted -= HandleShiftStarted;
         MGR_Shift.OnShiftProgress -= HandleShiftUpdate;
         MGR_Shift.OnTargetReached -= HandleTargetReached;
     }
@@ -89,6 +89,32 @@ public class UI_ShiftHUDController : MonoBehaviour
 
     private void HandleShiftUpdate(MGR_Shift shift)
     {
+        UpdateHUD(shift);
+    }
+
+    private void HandleShiftStarted(MGR_Shift shift)
+    {
+        isGoalReached = false;
+        isBouncing = false;
+        bounceTimer = 0f;
+        highlightTimer = 0f;
+        previousProgress = -1;
+
+        if (goalCounterText != null)
+        {
+            goalCounterText.color = originalCounterColor;
+            goalCounterText.transform.localScale = counterOriginalScale;
+        }
+
+        if (goalProgressFill != null)
+            goalProgressFill.color = originalFillColor;
+
+        if (goalIcon != null)
+        {
+            goalIcon.color = originalIconColor;
+            goalIcon.transform.localScale = iconOriginalScale;
+        }
+
         UpdateHUD(shift);
     }
 

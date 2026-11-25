@@ -35,6 +35,12 @@ public class UI_ShiftScreens : MonoBehaviour
     [SerializeField] private Sprite starFilled;
     [SerializeField] private Sprite starEmpty;
 
+    [Header("Notifications")]
+    [SerializeField] private float notificationDuration = 2.5f;
+
+    [SerializeField] private TMP_Text notificationText;
+    private float notificationTimer;
+
     private void Awake()
     {
         HideAllPanels();
@@ -46,6 +52,8 @@ public class UI_ShiftScreens : MonoBehaviour
         MGR_Shift.OnShiftEnded += HandleShiftEnded;
         MGR_Shift.OnContractWon += HandleContractWon;
         MGR_Shift.OnShiftStarted += HandleShiftStarted;
+        MGR_Shift.OnTargetReached += HandleTargetReached;
+        MGR_Shift.OnEmergencyBox += HandleEmergencyBox;
     }
 
     private void OnDisable()
@@ -54,16 +62,38 @@ public class UI_ShiftScreens : MonoBehaviour
         MGR_Shift.OnShiftEnded -= HandleShiftEnded;
         MGR_Shift.OnContractWon -= HandleContractWon;
         MGR_Shift.OnShiftStarted -= HandleShiftStarted;
+        MGR_Shift.OnTargetReached -= HandleTargetReached;
+        MGR_Shift.OnEmergencyBox -= HandleEmergencyBox;
     }
 
     private void HandleShiftBriefing(MGR_Shift shift)
     {
-        if (shift == null)
+        if (shift == null || shift.CurrentTarget == null)
             return;
 
+        int minutes = Mathf.CeilToInt(shift.Contract.shiftSeconds / 60f);
+        int amount = shift.CurrentTarget.amount;
+
+        string goalText;
+
+        switch (shift.CurrentTarget.goal)
+        {
+            case ShiftGoalType.DeliverOrders:
+                goalText = $"Deliver {amount} orders in {minutes} min.";
+                break;
+
+            case ShiftGoalType.EarnCash:
+                goalText = $"Earn ${amount} in {minutes} min.";
+                break;
+
+            default:
+                goalText = $"Complete the goal in {minutes} min.";
+                break;
+        }
+
         string message = shift.IsNewGameIntro
-            ? "Welcome to your warehouse!"
-            : $"Get ready for Shift {shift.ShiftIndex + 1}!";
+            ? $"Welcome to your warehouse!\n{goalText}"
+            : $"Get ready for Shift {shift.ShiftIndex + 1}!\n{goalText}";
 
         ShowBriefing(message);
     }
@@ -130,6 +160,63 @@ public class UI_ShiftScreens : MonoBehaviour
             if (star3 != null)
                 star3.sprite = result.Stars >= 3 ? starFilled : starEmpty;
         }
+    }
+
+    private void HandleTargetReached(MGR_Shift shift)
+{
+    ShowNotification("Goal reached!", notificationDuration);
+}
+
+private void HandleEmergencyBox()
+{
+    ShowNotification(
+        "Out of cash and stock: a free box is at the dock",
+        5f
+    );
+}
+
+    private void ShowNotification(string message, float duration)
+    {
+        if (notificationText == null)
+        {
+            GameObject notificationObject = new GameObject(
+                "Shift_Notification",
+                typeof(RectTransform),
+                typeof(TextMeshProUGUI)
+            );
+
+            notificationObject.transform.SetParent(transform, false);
+
+            RectTransform rect = notificationObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.8f);
+            rect.anchorMax = new Vector2(0.5f, 0.8f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(900f, 100f);
+
+            notificationText = notificationObject.GetComponent<TextMeshProUGUI>();
+            notificationText.alignment = TextAlignmentOptions.Center;
+            notificationText.fontSize = 30f;
+            notificationText.font = briefingMessage != null
+                ? briefingMessage.font
+                : TMP_Settings.defaultFontAsset;
+            notificationText.raycastTarget = false;
+        }
+
+        notificationText.text = message;
+        notificationText.gameObject.SetActive(true);
+        notificationTimer = duration;
+    }
+
+    private void Update()
+    {
+        if (notificationText == null || !notificationText.gameObject.activeSelf)
+            return;
+
+        notificationTimer -= Time.deltaTime;
+
+        if (notificationTimer <= 0f)
+            notificationText.gameObject.SetActive(false);
     }
 
     private void HandleShiftStarted(MGR_Shift shift)
