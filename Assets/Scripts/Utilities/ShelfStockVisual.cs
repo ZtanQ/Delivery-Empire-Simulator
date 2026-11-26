@@ -37,6 +37,8 @@ public class ShelfStockVisual : MonoBehaviour
 
     [Header("Category Label")]
     [SerializeField, Min(0.1f)] private float categoryLabelHeight = 0.65f;
+    [Tooltip("Label sits this far above the top of the shelf, so it reads over the products and from across the room.")]
+    [SerializeField, Min(0f)] private float categoryLabelAboveTop = 0.3f;
     [SerializeField, Min(0f)] private float categoryLabelFrontOffset = 0.6f;
     [SerializeField] private Vector2 categoryLabelSize = new Vector2(2.4f, 0.45f);
 
@@ -53,6 +55,9 @@ public class ShelfStockVisual : MonoBehaviour
         new List<DATA_ProductSO>();
 
     private TextMeshPro categoryLabel;
+    private Vector3 categoryLabelScale = Vector3.one;
+    private float categoryPulseTimer = -1f;
+    private const float CategoryPulseSeconds = 1.6f;
     private Renderer shelfRenderer;
     private bool poolReady;
 
@@ -68,11 +73,21 @@ public class ShelfStockVisual : MonoBehaviour
     private void OnEnable()
     {
         MGR_Inventory.OnShelfUpdated += HandleShelfUpdated;
+        CTRL_InteractionRaycast.OnWrongShelf += HandleWrongShelf;
     }
 
     private void OnDisable()
     {
         MGR_Inventory.OnShelfUpdated -= HandleShelfUpdated;
+        CTRL_InteractionRaycast.OnWrongShelf -= HandleWrongShelf;
+    }
+
+    // The player tried a box on the wrong shelf: if this is the right one,
+    // its title pulses so the player sees where to go.
+    private void HandleWrongShelf(ProductCategory boxCategory, ShelfSlot triedShelf)
+    {
+        if (shelf != null && categoryLabel != null && shelf.Category == boxCategory)
+            categoryPulseTimer = 0f;
     }
 
     private void Start()
@@ -85,6 +100,19 @@ public class ShelfStockVisual : MonoBehaviour
     {
         if (categoryLabel == null || Camera.main == null)
             return;
+
+        if (categoryPulseTimer >= 0f)
+        {
+            categoryPulseTimer += Time.unscaledDeltaTime;
+            float pulse = Mathf.Abs(Mathf.Sin(categoryPulseTimer * Mathf.PI * 2.5f));
+            categoryLabel.transform.localScale = categoryLabelScale * (1f + 0.45f * pulse);
+
+            if (categoryPulseTimer >= CategoryPulseSeconds)
+            {
+                categoryPulseTimer = -1f;
+                categoryLabel.transform.localScale = categoryLabelScale;
+            }
+        }
 
         Vector3 direction =
             categoryLabel.transform.position - Camera.main.transform.position;
@@ -488,9 +516,34 @@ public class ShelfStockVisual : MonoBehaviour
         if (front.sqrMagnitude < 0.001f)
             front = Vector3.back;
 
+        // Above the shelf: top of the shelf meshes plus a margin. Falls back
+        // to the old fixed height if the shelf has no renderer.
+        float height = categoryLabelHeight;
+        if (TryGetShelfTop(out float topY))
+            height = topY - transform.position.y + categoryLabelAboveTop;
+
         label.transform.position =
             transform.position +
-            Vector3.up * categoryLabelHeight +
+            Vector3.up * height +
             front * categoryLabelFrontOffset;
     }
-}
+
+    private bool TryGetShelfTop(out float topY)
+    {
+        topY = 0f;
+        bool found = false;
+
+        foreach (Renderer r in shelf.GetComponentsInChildren<Renderer>(true))
+        {
+            if (r is TMP_SubMesh || r.GetComponent<TMP_Text>() != null)
+                continue;
+
+            float y = r.bounds.max.y;
+            if (!found || y > topY)
+                topY = y;
+            found = true;
+        }
+
+        return found;
+    }
+}

@@ -91,9 +91,19 @@ public class UI_ShiftScreens : MonoBehaviour
                 break;
         }
 
+        // New game: keep the intro story from the contract (it was on the
+        // placeholder card) so a new player knows why the shifts matter.
         string message = shift.IsNewGameIntro
-            ? $"Welcome to your warehouse!\n{goalText}"
+            ? $"Welcome to your warehouse!\n{shift.Contract.introText}\n\nShift 1 of {shift.ShiftCount}: {goalText}"
             : $"Get ready for Shift {shift.ShiftIndex + 1}!\n{goalText}";
+
+        if (briefingMessage != null)
+        {
+            // The intro is longer than a normal briefing: let it shrink to fit the panel.
+            briefingMessage.enableAutoSizing = shift.IsNewGameIntro;
+            briefingMessage.fontSizeMin = 16f;
+            briefingMessage.fontSizeMax = 26f;
+        }
 
         ShowBriefing(message);
     }
@@ -314,4 +324,4 @@ private void HandleEmergencyBox()
     {
         HideAllPanels();
     }
-}
+}

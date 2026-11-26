@@ -4,6 +4,8 @@ using UnityEngine;
 public class CTRL_InteractionRaycast : MonoBehaviour
 {
     public static event Action OnBoxPickedUp;
+    // Box category, and the shelf the player tried. Big warning + right shelf pulse.
+    public static event Action<ProductCategory, ShelfSlot> OnWrongShelf;
 
     [Header("References")]
     [SerializeField] private Camera _playerCamera;
@@ -604,7 +606,8 @@ public class CTRL_InteractionRaycast : MonoBehaviour
                 break;
 
             case ShelfPlacementResult.WrongCategory:
-                ShowPlacementFeedback("Wrong category");
+                ShowPlacementFeedback($"Goes on {boxData.Product.Category}");
+                OnWrongShelf?.Invoke(boxData.Product.Category, _currentShelfTarget);
                 break;
 
             case ShelfPlacementResult.OverCapacity:
