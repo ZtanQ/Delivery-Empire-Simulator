@@ -369,6 +369,7 @@ public class CTRL_TruckDelivery : MonoBehaviour
             _truckStart.position,
             _truckStart.rotation
         );
+        AddTruckMotion();
         ReportDockState();
 
         Transform cargoPoint = _truck.transform.Find("CargoSpawnPoint");
@@ -704,6 +705,7 @@ public class CTRL_TruckDelivery : MonoBehaviour
             ? savedTruckRotation
             : _truckEnd.rotation;
         _truck = Instantiate(_truckPrefab, truckPosition, truckRotation);
+        AddTruckMotion();
 
         Transform cargoPoint = _truck.transform.Find("CargoSpawnPoint");
         if (cargoPoint == null)
@@ -764,6 +766,13 @@ public class CTRL_TruckDelivery : MonoBehaviour
         _truck = null;
         _deliveryRoutine = null;
         ReportDockState();
+    }
+
+    // R9: suspension settle, engine idle and driving bump (model parts only).
+    private void AddTruckMotion()
+    {
+        if (_truck != null && _truck.GetComponent<FX_TruckSuspension>() == null)
+            _truck.AddComponent<FX_TruckSuspension>();
     }
 
     private IEnumerator MoveTruckTo(Transform target)

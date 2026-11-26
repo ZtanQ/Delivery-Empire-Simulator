@@ -44,10 +44,18 @@ public class CTRL_Rider : MonoBehaviour
     [Header("Walking Bob")]
     [SerializeField] private float bobHeight = 0.05f;
     [SerializeField] private float bobFrequency = 8f;
+    [SerializeField] private float walkSwayAngle = 3f;
+
+    [Header("Idle Breathing")]
+    [SerializeField] private float idleBreathHeight = 0.012f;
+    [SerializeField] private float idleBreathFrequency = 0.35f;
 
     private Vector3 originalLocalPosition;
+    private Quaternion originalLocalRotation;
     private Transform riderBagTransform;
     private Vector3 bagOriginalLocalPosition;
+    private Quaternion bagOriginalLocalRotation;
+    private float idlePhase;
 
     private OrderData currentOrder;
     private List<string> currentShelfIDs;
@@ -74,9 +82,14 @@ public class CTRL_Rider : MonoBehaviour
 
         returnPosition = transform.position;
         originalLocalPosition = riderTransform.localPosition;
+        originalLocalRotation = riderTransform.localRotation;
         riderBagTransform = transform.Find("SM_Rider_Bag");
         if (riderBagTransform != null)
+        {
             bagOriginalLocalPosition = riderBagTransform.localPosition;
+            bagOriginalLocalRotation = riderBagTransform.localRotation;
+        }
+        idlePhase = Random.value * 10f;
 
         riderRenderers = GetComponentsInChildren<Renderer>(true);
     }
@@ -589,18 +602,39 @@ public class CTRL_Rider : MonoBehaviour
             CurrentState == RiderState.WalkToExit ||
             CurrentState == RiderState.Return;
 
-        float bob = walking
-            ? Mathf.Abs(Mathf.Sin(Time.time * bobFrequency)) * bobHeight
-            : 0f;
+        // Walking: step bob plus a small side sway. Idle: slow breathing,
+        // so a waiting rider never looks frozen. The model and the bag are
+        // direct children of the rider root, so they tilt around its feet.
+        float bob;
+        float sway = 0f;
+        if (walking)
+        {
+            float phase = Time.time * bobFrequency;
+            bob = Mathf.Abs(Mathf.Sin(phase)) * bobHeight;
+            sway = Mathf.Sin(phase) * walkSwayAngle;
+        }
+        else
+        {
+            float breath = Mathf.Sin((Time.time + idlePhase) * idleBreathFrequency * 2f * Mathf.PI);
+            bob = (breath * 0.5f + 0.5f) * idleBreathHeight;
+        }
+
+        Quaternion tilt = Quaternion.AngleAxis(sway, Vector3.forward);
 
         if (riderTransform != transform)
-            riderTransform.localPosition = originalLocalPosition + Vector3.up * bob;
+        {
+            riderTransform.localPosition = tilt * (originalLocalPosition + Vector3.up * bob);
+            riderTransform.localRotation = tilt * originalLocalRotation;
+        }
         if (riderBagTransform != null)
-            riderBagTransform.localPosition = bagOriginalLocalPosition + Vector3.up * bob;
+        {
+            riderBagTransform.localPosition = tilt * (bagOriginalLocalPosition + Vector3.up * bob);
+            riderBagTransform.localRotation = tilt * bagOriginalLocalRotation;
+        }
     }
 
     private void Update()
     {
         UpdateWalkingBob();
     }
-}
+}
