@@ -56,6 +56,10 @@ public class MGR_Audio : Manager<MGR_Audio>
     private AudioSource _ambientSource;
     private AudioSource _musicSource;
     private AudioListener _fallbackAudioListener;
+
+    // Loop volumes before the player's settings (GameSettings) are applied.
+    private float _musicBaseVolume = 1f;
+    private float _ambientBaseVolume = 1f;
     private bool _shelfPlacementSfxEnabled;
 
     protected override void Awake()
@@ -67,7 +71,24 @@ public class MGR_Audio : Manager<MGR_Audio>
         }
 
         SceneManager.sceneLoaded += HandleSceneLoaded;
+        GameSettings.OnChanged += ApplyVolumeSettings;
         EnsureAudioListener();
+    }
+
+    // Settings menu: music and effects volume apply at once to the loops.
+    private void ApplyVolumeSettings()
+    {
+        if (_musicSource != null)
+            _musicSource.volume = _musicBaseVolume * GameSettings.Music;
+        if (_ambientSource != null)
+            _ambientSource.volume = _ambientBaseVolume * GameSettings.Sfx;
+    }
+
+    private static float CategoryVolume(AudioSource source)
+    {
+        return Instance != null && source == Instance._musicSource
+            ? GameSettings.Music
+            : GameSettings.Sfx;
     }
 
     protected override void OnInitialise()
@@ -95,7 +116,8 @@ public class MGR_Audio : Manager<MGR_Audio>
         _ambientSource.playOnAwake = false;
         _ambientSource.loop = true;
         _ambientSource.spatialBlend = 0f;
-        _ambientSource.volume = ToLinearVolume(ambientVolumePercent);
+        _ambientBaseVolume = ToLinearVolume(ambientVolumePercent);
+        _ambientSource.volume = _ambientBaseVolume * GameSettings.Sfx;
 
         _musicSource = gameObject.AddComponent<AudioSource>();
         _musicSource.playOnAwake = false;
@@ -159,7 +181,14 @@ public class MGR_Audio : Manager<MGR_Audio>
             return;
         }
 
-        source.volume = ToLinearVolume(volumePercent);
+        float baseVolume = ToLinearVolume(volumePercent);
+        if (Instance != null)
+        {
+            if (source == Instance._musicSource) Instance._musicBaseVolume = baseVolume;
+            else if (source == Instance._ambientSource) Instance._ambientBaseVolume = baseVolume;
+        }
+
+        source.volume = baseVolume * CategoryVolume(source);
         source.loop = true;
 
         if (clip == null)
@@ -331,6 +360,18 @@ public class MGR_Audio : Manager<MGR_Audio>
         Instance.PlaySfx(clip, Instance.orderFulfilledVolumePercent);
     }
 
+    // Wrong shelf: reuses the order-fail sound until a dedicated error sound exists.
+    public static void PlayWrongShelf()
+    {
+        if (Instance != null)
+        {
+            Instance.PlaySfx(
+                Instance.orderExpiredClip,
+                Instance.orderExpiredVolumePercent
+            );
+        }
+    }
+
     public static void PlayUITap()
     {
         if (Instance != null)
@@ -404,13 +445,14 @@ public class MGR_Audio : Manager<MGR_Audio>
     {
         if (clip != null && _sfxSource != null)
         {
-            _sfxSource.PlayOneShot(clip, ToLinearVolume(volumePercent));
+            _sfxSource.PlayOneShot(clip, ToLinearVolume(volumePercent) * GameSettings.Sfx);
         }
     }
 
     protected override void OnDestroy()
     {
         SceneManager.sceneLoaded -= HandleSceneLoaded;
+        GameSettings.OnChanged -= ApplyVolumeSettings;
         UnsubscribeFromEvents();
         base.OnDestroy();
     }

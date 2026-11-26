@@ -4,6 +4,7 @@ public class CTRL_FrameRate : MonoBehaviour
 {
     private void Awake()
     {
-        Application.targetFrameRate = 60;
+        // 60 FPS, or 30 with Battery saver on (GameSettings, R2).
+        Application.targetFrameRate = GameSettings.TargetFrameRate;
     }
-}
+}
